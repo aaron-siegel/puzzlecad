@@ -8,7 +8,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "1.2";
+puzzlecad_version = "1.3";
 
 // Default values for scale, inset, bevel, etc.
 
@@ -95,7 +95,6 @@ module burr_piece_base(burr_spec) {
     zlen = len(burr_info[0][0]);
     burr = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1]) burr_info[x][y][z][0] ]]];
     aux = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1]) burr_info[x][y][z][1] ]]];
-    gaux = burr_info[0][0][0][2];
     
     // $burr_inset is allowed to be negative (or a vector with negative numbers), in
     // which case we enlarge each cube. But we *don't* shrink the cubes for positive
@@ -176,10 +175,12 @@ module burr_piece_base(burr_spec) {
                             y_adj = min(x_bevel, z_bevel);
                             z_adj = min(x_bevel, y_bevel);
                             bevel_scale = min(x_bevel, y_bevel, z_bevel);
-                            translate(cw(scale_vec / 2, [i,j,k]))
-                            translate(-[x_adj*i, y_adj*j, z_adj*k] / sqrt(2) + cw(bevel_scale / sqrt(2) / 2 - inset_vec, [i,j,k]))
-                            scale(bevel_scale / sqrt(2) / 2)
-                            cube_antiwedge([i,j,k]);
+                            if (bevel_scale > 0) {
+                                translate(cw(scale_vec / 2, [i,j,k]))
+                                translate(-[x_adj*i, y_adj*j, z_adj*k] / sqrt(2) + cw([bevel_scale, bevel_scale, bevel_scale] / sqrt(2) / 2 - inset_vec, [i,j,k]))
+                                scale(bevel_scale / sqrt(2) / 2)
+                                cube_antiwedge([i,j,k]);
+                            }
                         }
                     } else {
                         // Interior corner bevel on the xy plane.
@@ -324,67 +325,51 @@ module cube_antiwedge(vertex) {
 $tray_scale = 16;
 $tray_padding = 2.5;
 $tray_opening_height = 5.6;
+$tray_opening_border = 4;
+$piece_holder_buf = 0.35;
 
-module packing_tray(opening_width = undef, opening_depth = undef, opening_polygon = undef,
-    piece_holder_spec = [], piece_holder_polygon = undef, piece_holder_x_adj = 0, finger_wedge = undef, render_as_lid = false,
-    title = undef, subtitles = undef) {
+module packing_tray(opening_width = undef, opening_depth = undef, opening_polygon = undef, opening_polygons = undef,
+    piece_holder_spec = [], piece_holder_polygon = undef, piece_holder_x_adj = 0, finger_wedge = undef, finger_wedge_radius = 0.5,
+    render_as_lid = false, title = undef, subtitles = undef) {
     
-    poly = opening_polygon ? opening_polygon : [[0, 0], [0, opening_depth], [opening_width, opening_depth], [opening_width, 0]];
+    polys = opening_polygons ? opening_polygons :
+        opening_polygon ? [opening_polygon] :
+        [[[0, 0], [0, opening_depth], [opening_width, opening_depth], [opening_width, 0]]];
     
-    opening_border = $tray_scale / 4;
-    opening_min_x = min([ for (p = poly) p.x ]);
-    opening_max_x = max([ for (p = poly) p.x ]);
-    opening_min_y = min([ for (p = poly) p.y ]);
-    opening_max_y = max([ for (p = poly) p.y ]);
+    opening_min_x = min([ for (poly = polys, p = poly) p.x ]);
+    opening_max_x = max([ for (poly = polys, p = poly) p.x ]);
+    opening_min_y = min([ for (poly = polys, p = poly) p.y ]);
+    opening_max_y = max([ for (poly = polys, p = poly) p.y ]);
     opening_scaled_dim = [$tray_scale * (opening_max_x - opening_min_x), $tray_scale * (opening_max_y - opening_min_y), $tray_opening_height + $burr_inset];
+    
     burr_info = strings_to_burr_info(piece_holder_spec);
     xlen = len(burr_info);
     ylen = xlen == 0 ? 0 : len(burr_info[0]);
     zlen = xlen == 0 ? 0 : len(burr_info[0][0]);
     
+    has_piece_holder = xlen != 0 || piece_holder_polygon;
+    
+    piece_holder_raw_width = piece_holder_polygon ? max(poly_x(piece_holder_polygon)) : xlen;
+    piece_holder_width = finger_wedge
+        ? max(piece_holder_raw_width, finger_wedge.x + finger_wedge_radius) * $tray_scale
+        : piece_holder_raw_width * $tray_scale;
+    piece_holder_depth = (piece_holder_polygon ? extent(poly_y(piece_holder_polygon)) : ylen) * $tray_scale + 2 * $piece_holder_buf;
+    
     piece_holder_loc = [
-        opening_scaled_dim.x + opening_border * 2 + piece_holder_x_adj,
-        opening_border + (opening_scaled_dim.y - ylen * $tray_scale) / 2,
+        opening_scaled_dim.x + $tray_opening_border * 2 + piece_holder_x_adj - $piece_holder_buf,
+        $tray_opening_border + (opening_scaled_dim.y - piece_holder_depth) / 2,
         $tray_padding + 0.001
     ];
-    piece_holder_width = finger_wedge ? max(xlen, finger_wedge.x + 0.5) * $tray_scale : xlen * $tray_scale;
-   
-    tray_frame_dim = opening_scaled_dim + [piece_holder_width + piece_holder_x_adj + opening_border * 3, opening_border * 2, $tray_padding];
+    
+    // Add the opening dimensions to the dimensions of the border and internal padding.
+    tray_frame_dim = opening_scaled_dim +
+        [piece_holder_width + piece_holder_x_adj + $tray_opening_border * 2 + (has_piece_holder ? $tray_opening_border : 0),
+         $tray_opening_border * 2,
+         $tray_padding];
     
     if (render_as_lid) {
         
-        render(convexity = 2)
-        difference() {
-            
-            // Render the lid frame
-            lid_frame_dim = tray_frame_dim + [$tray_padding * 2 + 0.5, $tray_padding * 2 + 0.5, $tray_padding + $burr_inset];
-            cube(lid_frame_dim);
-            
-            // Remove the cavity
-            translate([$tray_padding, $tray_padding, $tray_padding])
-            cube(tray_frame_dim + [0.5, 0.5, $burr_inset]);
-            
-            // Remove the labels
-            if (title) {
-                translate([lid_frame_dim.x / 2, lid_frame_dim.y * 5/8, 0])
-                lid_text(title);
-            }
-            if (subtitles) {
-                for (i=[0:len(subtitles)-1]) {
-                    translate([lid_frame_dim.x / 2, lid_frame_dim.y * (7 - 2*i)/16, 0])
-                    lid_text(subtitles[i], relative_scale = 0.6);
-                }
-            }
-
-            // Remove the finger wedges
-            translate([lid_frame_dim.x / 2, 0, lid_frame_dim.z])
-            rotate([90, 0, 0])
-            cylinder(h = $tray_padding * 4, r = tray_frame_dim.z, center = true, $fn = 128);
-            translate([lid_frame_dim.x / 2, lid_frame_dim.y, lid_frame_dim.z])
-            rotate([90, 0, 0])
-            cylinder(h = $tray_padding * 4, r = tray_frame_dim.z, center = true, $fn = 128);
-            
-        }
+        packing_tray_lid(tray_frame_dim + [0.5, 0.5, $burr_inset], $tray_padding, title, subtitles, min(8.5, tray_frame_dim.z));
         
     } else {
         
@@ -392,25 +377,88 @@ module packing_tray(opening_width = undef, opening_depth = undef, opening_polygo
         difference() {
             
             // Render the tray frame
-            cube(tray_frame_dim);
+            beveled_cube(tray_frame_dim);
 
             // Remove the opening
-            translate([opening_border, opening_border, $tray_padding + 0.001])
+            translate([$tray_opening_border, $tray_opening_border, $tray_padding + 0.001])
             linear_extrude(opening_scaled_dim.z)
-            polygon($tray_scale * poly);
+            for (poly = polys) {
+                polygon($tray_scale * poly);
+            }
 
             // Remove the spare piece holder
-            if (xlen != 0) {
-                translate(piece_holder_loc + [-0.35, -0.35, 0])
-                burr_piece(burr_info, $burr_scale = [$tray_scale, $tray_scale, opening_scaled_dim.z], $burr_inset = -0.35, $burr_bevel = 0);
+            
+            if (piece_holder_polygon) {
+                translate(piece_holder_loc)
+                linear_extrude(opening_scaled_dim.z)
+                polygon(($tray_scale + 2 * $piece_holder_buf) * piece_holder_polygon);
+            }
+            else if (xlen != 0) {
+                translate(piece_holder_loc)
+                burr_piece(burr_info, $burr_scale = [$tray_scale, $tray_scale, opening_scaled_dim.z], $burr_inset = -$piece_holder_buf, $burr_bevel = 0);
             }
             
             // Remove the finger wedge
             if (finger_wedge) {
                 translate(piece_holder_loc + [finger_wedge.x * $tray_scale, finger_wedge.y * $tray_scale, 0])
-                cylinder(h = opening_scaled_dim.z, r = $tray_scale * 0.5, $fn = 128);
+                cylinder(h = opening_scaled_dim.z, r = $tray_scale * finger_wedge_radius, $fn = 128);
             }
 
+        }
+        
+    }
+    
+}
+
+module packing_tray_lid(lid_cavity_dim, lid_border_dim, title, subtitles, finger_wedge_radius) {
+
+    lid_cavity_dim_vec = vectorize(lid_cavity_dim);
+    lid_border_dim_vec = vectorize(lid_border_dim);
+    lid_frame_dim_vec = lid_cavity_dim_vec + cw(lid_border_dim_vec, [2, 2, 1]);
+    
+    render(convexity = 2)
+    difference() {
+        
+        // Render the lid frame
+
+        beveled_cube(lid_frame_dim_vec);
+        
+        // Remove the cavity
+
+        translate(lid_border_dim_vec)
+        cube(lid_cavity_dim_vec);
+        
+        // Remove the labels
+        
+        // The spacing of the title and subtitles will be scaled to the lid size.
+        // However, if the y dimension of the lid is less than 90, then we pretend it's 90
+        // for spacing purposes; otherwise the titles will appear too squished together.
+        y_center = lid_frame_dim_vec.y / 2;
+        y_for_spacing = max(lid_frame_dim_vec.y, 90);
+
+        if (title) {
+            translate([lid_frame_dim_vec.x / 2, y_center + y_for_spacing * 1/8, 0])
+            lid_text(title);
+        }
+        if (subtitles) {
+            for (i=[0:len(subtitles)-1]) {
+                translate([lid_frame_dim_vec.x / 2, y_center + y_for_spacing * (-1 - 2*i)/16, 0])
+                lid_text(subtitles[i], relative_scale = 0.6);
+            }
+        }
+        
+        if (finger_wedge_radius) {
+
+            // Remove the finger wedges
+            
+            translate([lid_frame_dim_vec.x / 2, lid_border_dim_vec.y + 0.001, lid_frame_dim_vec.z])
+            rotate([90, 0, 0])
+            cylinder(h = lid_border_dim_vec.y + 0.002, r = finger_wedge_radius, $fn = 128);
+            
+            translate([lid_frame_dim_vec.x / 2, lid_frame_dim_vec.y + 0.001, lid_frame_dim_vec.z])
+            rotate([90, 0, 0])
+            cylinder(h = lid_border_dim_vec.y + 0.002, r = finger_wedge_radius, $fn = 128);
+            
         }
         
     }
@@ -426,6 +474,81 @@ module lid_text(str, relative_scale = 1.0) {
     text(str, halign = "center", valign = "center");
 
 }
+
+/******* Beveled prisms *******/
+
+module beveled_cube(dim, center = false) {
+
+    translate(center ? -dim/2 : [0, 0, 0])
+    beveled_prism([[0, 0], [dim.x, 0], [dim.x, dim.y], [0, dim.y]], dim.z);
+    
+}
+
+module beveled_prism(poly, height) {
+    
+    wedge_leg = $burr_bevel / sqrt(2);
+    
+    render(convexity = 2)
+    difference() {
+        
+        linear_extrude(height)
+        polygon(poly);
+        
+        for (i = [0:len(poly)-1]) {
+            
+            vertex = poly[i];
+            prev = poly[(i - 1 + len(poly)) % len(poly)];
+            next = poly[(i + 1) % len(poly)];
+            
+            // Vertical edge
+
+            p1 = vertex + normed_vec(prev - vertex) * wedge_leg;
+            p2 = vertex + normed_vec(next - vertex) * wedge_leg;
+            secant = normed_vec(normed_vec(prev - vertex) + normed_vec(next - vertex));
+            
+            linear_extrude(height)
+            polygon([vertex - secant * 0.001, p1, p2]);
+            
+            // Base edge
+            
+            translate([vertex.x, vertex.y, 0])
+            rotate([90, 0, angle(next - vertex)])
+            rotate([0, 90, 0])
+            linear_extrude(norm(next - vertex))
+            polygon([[0, 0], [wedge_leg, 0], [0, wedge_leg]]);
+            
+            // Top edge
+            
+            translate([vertex.x, vertex.y, height])
+            rotate([0, 0, angle(next - vertex)])
+            rotate([0, 90, 0])
+            linear_extrude(norm(next - vertex))
+            polygon([[0, 0], [wedge_leg, 0], [0, wedge_leg]]);
+            
+        }
+        
+    }
+
+}
+
+module regular_polygon(n, parity = 0) {
+    polygon([for (i=[0:n-1]) [cos(180*(2*i+1-parity)/n) / sqrt(2), sin(180*(2*i+1-parity)/n) / sqrt(2)]]);
+}
+
+function poly_displacement(n, cell) = [
+    sum([ for (i=[0:n-2]) cell[i] * cos(360*i/n) / sqrt(2)]),
+    sum([ for (i=[0:n-2]) cell[i] * sin(360*i/n) / sqrt(2)]),
+    0
+    ];
+
+function sum(list, i = 0) = i >= len(list) ? 0 : list[i] + sum(list, i+1);
+    
+function normed_vec(vec) = vec / norm(vec);
+function poly_x(poly) = [ for (p = poly) p.x ];
+function poly_y(poly) = [ for (p = poly) p.y ];
+function extent(vec) = max(vec) - min(vec);
+function dist(a, b) = sqrt(sum([ for (i = [0:len(a)-1]) (a[i] - b[i]) * (a[i] - b[i])]));
+function angle(vec) = vec.y >= 0 ? acos(vec.x / norm(vec)) : 360 - acos(vec.x / norm(vec));
 
 /******* Helper functions *******/
 
