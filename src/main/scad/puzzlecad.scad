@@ -710,6 +710,7 @@ all_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /***** Vector manipulation *****/
 
 function zyx_to_xyz(burr) =
+    burr == [] ? [] :
     [ for (x = [0:len(burr[0][0])-1])
         [ for (y = [0:len(burr[0])-1])
             [ for (z = [0:len(burr)-1])
