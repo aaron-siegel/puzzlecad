@@ -20,6 +20,13 @@ $plate_depth = 180;
 $plate_sep = 6;
 $joint_inset = 0;
 
+// These parameters are optional and can be used to increase
+// the amount of beveling on outer edges of burr pieces.
+
+$burr_outer_x_bevel = undef;
+$burr_outer_y_bevel = undef;
+$burr_outer_z_bevel = undef;
+
 /* Main module for rendering a burr piece.
  * "burr_spec" can be any of the following:
  *    - a stick number: 975
