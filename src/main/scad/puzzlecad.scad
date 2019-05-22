@@ -91,6 +91,9 @@ module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0
 // TODO Connectors don't work properly if $burr_scale is a vector with different values along each dimension.
 // TODO Negative insets don't work with beveling.
 
+iota = 0.00001;
+iota_vec = [iota, iota, iota];
+
 module burr_piece_base(burr_spec) {
     
     scale_vec = vectorize($burr_scale);
@@ -147,7 +150,7 @@ module burr_piece_base(burr_spec) {
                 for (i=[-1,1], j=[-1,1]) {
                     if (burr[x][y][z] == 1 && burr[x+i][y][z] != 1 && burr[x][y+j][z] != 1) {
                         z_bevel = $burr_outer_z_bevel && (x+i == -1 || x+i == xlen) && (y+j == -1 || y+j == ylen) ? $burr_outer_z_bevel : bevel_vec.z;
-                        translate(cw(scale_vec / 2 - inset_vec, [i,j,0]))
+                        translate(cw(scale_vec / 2 - inset_vec, [i,j,0]) + iota_vec)
                         rotate([0, 0, 45])
                         cube([z_bevel, z_bevel, scale_vec.z + 2 * inset_vec.z], center = true);
                     }
@@ -156,7 +159,7 @@ module burr_piece_base(burr_spec) {
                 for (i=[-1,1], k=[-1,1]) {
                     if (burr[x][y][z] == 1 && burr[x+i][y][z] != 1 && burr[x][y][z+k] != 1) {
                         y_bevel = $burr_outer_y_bevel && (x+i == -1 || x+i == xlen) && (z+k == -1 || z+k == zlen) ? $burr_outer_y_bevel : bevel_vec.y;
-                        translate(cw(scale_vec / 2 - inset_vec, [i,0,k]))
+                        translate(cw(scale_vec / 2 - inset_vec, [i,0,k]) + iota_vec)
                         rotate([0, 45, 0])
                         cube([y_bevel, scale_vec.y + 2 * inset_vec.y, y_bevel], center = true);
                     }
@@ -165,7 +168,7 @@ module burr_piece_base(burr_spec) {
                 for (j=[-1,1], k=[-1,1]) {
                     if (burr[x][y][z] == 1 && burr[x][y+j][z] != 1 && burr[x][y][z+k] != 1) {
                         x_bevel = $burr_outer_x_bevel && (y+j == -1 || y+j == ylen) && (z+k == -1 || z+k == zlen) ? $burr_outer_x_bevel : bevel_vec.x;
-                        translate(cw(scale_vec / 2 - inset_vec, [0,j,k]))
+                        translate(cw(scale_vec / 2 - inset_vec, [0,j,k]) + iota_vec)
                         rotate([45, 0, 0])
                         cube([scale_vec.x + 2 * inset_vec.x, x_bevel, x_bevel], center = true);
                     }
@@ -183,10 +186,10 @@ module burr_piece_base(burr_spec) {
                             z_adj = min(x_bevel, y_bevel);
                             bevel_scale = min(x_bevel, y_bevel, z_bevel);
                             if (bevel_scale > 0) {
-                                translate(cw(scale_vec / 2, [i,j,k]))
+                                translate(cw(scale_vec / 2, [i,j,k]) + iota_vec)
                                 translate(-[x_adj*i, y_adj*j, z_adj*k] / sqrt(2) + cw([bevel_scale, bevel_scale, bevel_scale] / sqrt(2) / 2 - inset_vec, [i,j,k]))
                                 scale(bevel_scale / sqrt(2) / 2)
-                                cube_antiwedge([i,j,k]);
+                                exterior_corner_bevel([i,j,k]);
                             }
                         }
                     } else {
@@ -195,25 +198,24 @@ module burr_piece_base(burr_spec) {
                             burr[x+i][y][z+k] != 1 && burr[x][y+j][z+k] != 1) {
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,j,-k]))
-                            scale(1.00001 * bevel_vec / sqrt(2) / 2)
-                            cube_wedge([-i,-j,k]);
+                            scale(1.001 * bevel_vec / sqrt(2) / 2)
+                            interior_corner_bevel([-i,-j,k]);
                         }
                         // Interior corner bevel on the xz plane.
                         if (burr[x+i][y][z] == 1 && burr[x][y][z+k] == 1 &&
                             burr[x+i][y+j][z] != 1 && burr[x][y+j][z+k] != 1) {
-                                //!translate($burr_scale * [x,y,z])
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,-j,k]))
-                            scale(1.00001 * bevel_vec / sqrt(2) / 2)
-                            cube_wedge([-i,j,-k]);
+                            scale(1.001 * bevel_vec / sqrt(2) / 2)
+                            interior_corner_bevel([-i,j,-k]);
                         }
                         // Interior corner bevel on the yz plane.
                         if (burr[x][y+j][z] == 1 && burr[x][y][z+k] == 1 &&
                             burr[x+i][y+j][z] != 1 && burr[x+i][y][z+k] != 1) {
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [-i,j,k]))
-                            scale(1.00001 * bevel_vec / sqrt(2) / 2)
-                            cube_wedge([i,-j,-k]);
+                            scale(1.001 * bevel_vec / sqrt(2) / 2)
+                            interior_corner_bevel([i,-j,-k]);
                         }
                     }
                 }
@@ -308,21 +310,28 @@ module connector_label(parity, orient, label, label_orient) {
  * "vertex" is a vector of +-1's, such as [-1, 1, -1], specifying one of the
  * eight cube vertices for the wedge.
  */
-module cube_wedge(vertex) {
+module interior_corner_bevel(vertex) {
+    adj_vertex = vertex * (1 + iota * 10) + iota_vec;
     polyhedron(
-        [vertex,[vertex.x,vertex.y,-vertex.z],[vertex.x,-vertex.y,vertex.z],[-vertex.x,vertex.y,vertex.z]],
+        [
+            adj_vertex,
+            [adj_vertex.x,adj_vertex.y,-adj_vertex.z],
+            [adj_vertex.x,-adj_vertex.y,adj_vertex.z],
+            [-adj_vertex.x,adj_vertex.y,adj_vertex.z]
+        ],
         [[0,1,2],[0,2,3],[0,3,1],[1,3,2]]
     );
 }
 
 /* Module for rendering the negative of a cube wedge.
  */
-module cube_antiwedge(vertex) {
+module exterior_corner_bevel(vertex) {
     
     render(convexity = 2)
     difference() {
-        cube([2, 2, 2], center = true);
-        cube_wedge(-vertex);
+        translate(iota_vec)
+        cube([2, 2, 2] * (1 + iota * 4), center = true);
+        interior_corner_bevel(-vertex);
     }
     
 }
@@ -664,7 +673,7 @@ function parse_kv(str) =
     
 function lookup_kv(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
-    kv[i][0] == key ? (kv[i][1] ? kv[i][1] : true) :
+    kv[i][0] == key ? (kv[i][1] != undef ? kv[i][1] : true) :
     lookup_kv(kv, key, default, i+1);
              
 function atof(str) =
