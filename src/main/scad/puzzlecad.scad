@@ -188,7 +188,7 @@ module burr_piece_base(burr_spec) {
                                 translate(cw(scale_vec / 2, [i,j,k]) + iota_vec)
                                 translate(-[x_adj*i, y_adj*j, z_adj*k] / sqrt(2) + cw([bevel_scale, bevel_scale, bevel_scale] / sqrt(2) / 2 - inset_vec, [i,j,k]))
                                 scale(bevel_scale / sqrt(2) / 2)
-                                exterior_corner_bevel([i,j,k]);
+                                exterior_corner_bevel_cutout([i,j,k]);
                             }
                         }
                     } else {
@@ -198,7 +198,7 @@ module burr_piece_base(burr_spec) {
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,j,-k]))
                             scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel([-i,-j,k]);
+                            interior_corner_bevel_cutout([-i,-j,k]);
                         }
                         // Interior corner bevel on the xz plane.
                         if (burr[x+i][y][z] == 1 && burr[x][y][z+k] == 1 &&
@@ -206,7 +206,7 @@ module burr_piece_base(burr_spec) {
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,-j,k]))
                             scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel([-i,j,-k]);
+                            interior_corner_bevel_cutout([-i,j,-k]);
                         }
                         // Interior corner bevel on the yz plane.
                         if (burr[x][y+j][z] == 1 && burr[x][y][z+k] == 1 &&
@@ -214,7 +214,7 @@ module burr_piece_base(burr_spec) {
                             translate(cw(scale_vec / 2, [i,j,k]))
                             translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [-i,j,k]))
                             scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel([i,-j,-k]);
+                            interior_corner_bevel_cutout([i,-j,-k]);
                         }
                     }
                 }
@@ -318,7 +318,7 @@ module edge_bevel_cutout(length, x_scale, y_scale, bevel, i, j) {
  * "vertex" is a vector of +-1's, such as [-1, 1, -1], specifying one of the
  * eight cube vertices for the wedge.
  */
-module interior_corner_bevel(vertex) {
+module interior_corner_bevel_cutout(vertex) {
     adj_vertex = vertex * (1 + iota * 20) + iota_vec;
     polyhedron(
         [
@@ -333,13 +333,13 @@ module interior_corner_bevel(vertex) {
 
 /* Module for rendering the negative of a cube wedge.
  */
-module exterior_corner_bevel(vertex) {
+module exterior_corner_bevel_cutout(vertex) {
     
     render(convexity = 2)
     difference() {
         translate(iota_vec)
         cube([2, 2, 2] * (1 + iota * 10), center = true);
-        interior_corner_bevel(-vertex);
+        interior_corner_bevel_cutout(-vertex);
     }
     
 }
