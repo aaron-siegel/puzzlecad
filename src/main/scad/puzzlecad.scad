@@ -364,7 +364,7 @@ module packing_tray(opening_width = undef, opening_depth = undef, opening_polygo
     opening_max_x = max([ for (poly = polys, p = poly) p.x ]);
     opening_min_y = min([ for (poly = polys, p = poly) p.y ]);
     opening_max_y = max([ for (poly = polys, p = poly) p.y ]);
-    opening_scaled_dim = [$tray_scale * (opening_max_x - opening_min_x), $tray_scale * (opening_max_y - opening_min_y), $tray_opening_height + $burr_inset];
+    opening_scaled_dim = [$tray_scale * (opening_max_x - opening_min_x), $tray_scale * (opening_max_y - opening_min_y), $tray_opening_height + 2 * $burr_inset];
     
     burr_info = strings_to_burr_info(piece_holder_spec);
     xlen = len(burr_info);
