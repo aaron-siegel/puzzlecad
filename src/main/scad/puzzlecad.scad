@@ -8,7 +8,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "1.3";
+puzzlecad_version = "2.0";
 
 // Default values for scale, inset, bevel, etc.
 
@@ -19,6 +19,9 @@ $plate_width = 180;
 $plate_depth = 180;
 $plate_sep = 6;
 $joint_inset = 0;
+$joint_cutout = 0.5;
+$poly_err_tolerance = 1e-10;
+$female_joint_overhang_allowance = 0.15;
 
 // These parameters are optional and can be used to increase
 // the amount of beveling on outer edges of burr pieces.
@@ -26,6 +29,8 @@ $joint_inset = 0;
 $burr_outer_x_bevel = undef;
 $burr_outer_y_bevel = undef;
 $burr_outer_z_bevel = undef;
+
+$puzzlecad_debug = false;
 
 /* Main module for rendering a burr piece.
  * "burr_spec" can be any of the following:
@@ -38,13 +43,19 @@ $burr_outer_z_bevel = undef;
  *    and is used only for output/debugging (it has no effect on rendering).
  */
 
-module burr_piece(burr_spec, label = undef, piece_number = 1) {
-    
-    joint_str = $joint_inset == 0 ? "" : str(", joint inset ", $joint_inset);
+module burr_piece(burr_spec, label = undef, piece_number = undef) {
+
     scale_vec = vectorize($burr_scale);
     inset_vec = vectorize($burr_inset);
-    echo(str("Generating piece #", piece_number, " at scale ", $burr_scale, " with inset ", $burr_inset, ", bevel ", $burr_bevel, joint_str));
-    render(convexity = 2)
+    
+    echo(str(
+        "Generating piece", piece_number ? str(" #", piece_number) : "",
+        " at scale ", $burr_scale,
+        " with inset ", $burr_inset,
+        ", bevel ", $burr_bevel,
+        $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
+    ));
+    
     translate(scale_vec / 2 - inset_vec)
     difference() {
         burr_piece_base(burr_spec);
@@ -87,197 +98,406 @@ module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
 
-// TODO $burr_bevel doesn't work properly if it's a vector with different values along each dimension.
 // TODO Connectors don't work properly if $burr_scale is a vector with different values along each dimension.
-// TODO Negative insets don't work with beveling.
 
 iota = 0.00001;
 iota_vec = [iota, iota, iota];
 
-module burr_piece_base(burr_spec) {
+module burr_piece_base(burr_spec, test_poly = undef) {
+  
+    // Argument validation
     
+    assert(is_num($burr_inset), "$burr_inset must be a scalar.");
+    assert(is_num($burr_bevel), "$burr_bevel must be a scalar.");
+    assert($burr_bevel >= 0, "$burr_bevel cannot be negative.");
+    assert(is_num($joint_inset), "$joint_inset must be a scalar.");
+    assert($joint_inset >= 0, "$joint_inset cannot be negative.");
+    
+    if ($burr_inset > 0 && $burr_inset < 0.01) {
+        echo("WARNING: $burr_inset less than 0.01 will be treated as 0 (minimal positive inset is 0.01).");
+    }
+    
+    if ($burr_inset < 0.01 && $burr_bevel > 0) {
+        echo("WARNING: $burr_inset is 0 or negative, but $burr_bevel is nonzero. $burr_bevel parameter will be ignored.");
+    }
+    
+    burr_info = to_burr_info(burr_spec);
+
     scale_vec = vectorize($burr_scale);
     inset_vec = vectorize($burr_inset);
     bevel_vec = vectorize($burr_bevel);
-    burr_info = to_burr_info(burr_spec);
     xlen = len(burr_info);
-    ylen = len(burr_info[0]);
-    zlen = len(burr_info[0][0]);
-    burr = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1]) burr_info[x][y][z][0] ]]];
-    aux = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1]) burr_info[x][y][z][1] ]]];
-    
-    // $burr_inset is allowed to be negative (or a vector with negative numbers), in
-    // which case we enlarge each cube. But we *don't* shrink the cubes for positive
-    // insets; so we take the componentwise min of inset_vec and [0, 0, 0].
-    neg_inset_vec = [ for (i=[0:2]) min(0, inset_vec[i]) ];
-        
-    interior_scale_vec = scale_vec - 2 * inset_vec;
+    ylen = max([ for (plane=burr_info) len(plane) ]);
+    zlen = max([ for (plane=burr_info, column=plane) len(column)]);
+    burr = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
+    aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
 
-    render(convexity = 2)
+    // Create a list of all the distinct voxel types (i.e., distinct characters that
+    // represent different components of the piece)
+
+    all_voxels = [ for (layer = burr, row = layer, voxel = row) voxel ];
+    distinct_voxels = distinct(all_voxels);
+    
     difference() {
-        
+
         union() {
-            // Create the basic polycube.
-            for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
-                if (burr[x][y][z] == 1) {
-                    // There's a cube here.
-                    translate(cw(scale_vec, [x,y,z]))
-                    cube(scale_vec - 2 * neg_inset_vec, center = true);
+            
+            // Render components separately for each distinct voxel type
+
+            for (component_id = distinct_voxels) {
+                if (component_id >= 1) {
+                    if ($burr_inset < 0.01) {
+                        // Inset is very small or negative. Rendering strategy is different
+                        // in this case.
+                        effective_inset = min($burr_inset, -0.01);
+                        burr_piece_component_neg_inset(
+                            burr_info, component_id, test_poly,
+                            $burr_bevel = 0, $burr_inset = effective_inset
+                        );
+                    } else {
+                        burr_piece_component(burr_info, component_id, test_poly);
+                    }
                 }
             }
+            
         }
         
-        // Remove insets, by removing an enlarged cube from each empty location.
-        for (x=[-1:xlen], y=[-1:ylen], z=[-1:zlen]) {
-            if (burr[x][y][z] != 1) {
-                translate(cw(scale_vec, [x,y,z]))
-                cube(scale_vec + 2 * inset_vec, center = true);
-            }
-        }
+        // Remove female connectors and cutouts for male connectors.
         
-        // Remove female connector artifacts.
         for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+            
             connect = lookup_kv(aux[x][y][z], "connect");
-            if (connect[0] == "f") {
+            if (connect[0] == "m") {
+                translate(cw(scale_vec, [x,y,z]))
+                male_connector_cutout(substr(connect, 1, 2));
+            } else if (connect[0] == "f") {
                 clabel = lookup_kv(aux[x][y][z], "clabel");
                 translate(cw(scale_vec, [x,y,z]))
-                connector("f", substr(connect, 1, 2), clabel[0], substr(clabel, 1, 2));
+                female_connector(substr(connect, 1, 2), clabel[0], substr(clabel, 1, 2));
             }
+            
         }
         
-        // Create beveling.
+        // Remove any labels that are specified.
         
         for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
-            translate(cw(scale_vec, [x,y,z])) {
-                // Remove edge bevels in the z direction.
-                for (i=[-1,1], j=[-1,1]) {
-                    if (burr[x][y][z] == 1 && burr[x+i][y][z] != 1 && burr[x][y+j][z] != 1) {
-                        z_bevel = $burr_outer_z_bevel && (x+i == -1 || x+i == xlen) && (y+j == -1 || y+j == ylen) ? $burr_outer_z_bevel : bevel_vec.z;
-                        edge_bevel_cutout(scale_vec.z + 2 * inset_vec.z, interior_scale_vec.x, interior_scale_vec.y, z_bevel, i, j);
-                    }
-                }
-                // Remove edge bevels in the y direction.
-                for (i=[-1,1], k=[-1,1]) {
-                    if (burr[x][y][z] == 1 && burr[x+i][y][z] != 1 && burr[x][y][z+k] != 1) {
-                        y_bevel = $burr_outer_y_bevel && (x+i == -1 || x+i == xlen) && (z+k == -1 || z+k == zlen) ? $burr_outer_y_bevel : bevel_vec.y;
-                        rotate([90, 0, 0])
-                        edge_bevel_cutout(scale_vec.y + 2 * inset_vec.y, interior_scale_vec.x, interior_scale_vec.z, y_bevel, i, k);
-                    }
-                }
-                // Remove edge bevels in the x direction.
-                for (j=[-1,1], k=[-1,1]) {
-                    if (burr[x][y][z] == 1 && burr[x][y+j][z] != 1 && burr[x][y][z+k] != 1) {
-                        x_bevel = $burr_outer_x_bevel && (y+j == -1 || y+j == ylen) && (z+k == -1 || z+k == zlen) ? $burr_outer_x_bevel : bevel_vec.x;
-                        rotate([0, -90, 0])
-                        edge_bevel_cutout(scale_vec.x + 2 * inset_vec.x, interior_scale_vec.z, interior_scale_vec.y, x_bevel, k, j);
-                    }
-                }
-                // Remove corner bevels.
-                for (i=[-1,1], j=[-1,1], k=[-1,1]) {
-                    if (burr[x][y][z] == 1) {
-                        // Exterior corner bevel.
-                        if (burr[x+i][y][z] != 1 && burr[x][y+j][z] != 1 && burr[x][y][z+k] != 1) {
-                            z_bevel = $burr_outer_z_bevel && (x+i == -1 || x+i == xlen) && (y+j == -1 || y+j == ylen) ? $burr_outer_z_bevel : bevel_vec.z;
-                            y_bevel = $burr_outer_y_bevel && (x+i == -1 || x+i == xlen) && (z+k == -1 || z+k == zlen) ? $burr_outer_y_bevel : bevel_vec.y;
-                            x_bevel = $burr_outer_x_bevel && (y+j == -1 || y+j == ylen) && (z+k == -1 || z+k == zlen) ? $burr_outer_x_bevel : bevel_vec.x;
-                            x_adj = min(y_bevel, z_bevel);
-                            y_adj = min(x_bevel, z_bevel);
-                            z_adj = min(x_bevel, y_bevel);
-                            bevel_scale = min(x_bevel, y_bevel, z_bevel);
-                            if (bevel_scale > 0) {
-                                translate(cw(scale_vec / 2, [i,j,k]) + iota_vec)
-                                translate(-[x_adj*i, y_adj*j, z_adj*k] / sqrt(2) + cw([bevel_scale, bevel_scale, bevel_scale] / sqrt(2) / 2 - inset_vec, [i,j,k]))
-                                scale(bevel_scale / sqrt(2) / 2)
-                                exterior_corner_bevel_cutout([i,j,k]);
-                            }
-                        }
-                    } else {
-                        // Interior corner bevel on the xy plane.
-                        if (burr[x+i][y][z] == 1 && burr[x][y+j][z] == 1 &&
-                            burr[x+i][y][z+k] != 1 && burr[x][y+j][z+k] != 1) {
-                            translate(cw(scale_vec / 2, [i,j,k]))
-                            translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,j,-k]))
-                            scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel_cutout([-i,-j,k]);
-                        }
-                        // Interior corner bevel on the xz plane.
-                        if (burr[x+i][y][z] == 1 && burr[x][y][z+k] == 1 &&
-                            burr[x+i][y+j][z] != 1 && burr[x][y+j][z+k] != 1) {
-                            translate(cw(scale_vec / 2, [i,j,k]))
-                            translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [i,-j,k]))
-                            scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel_cutout([-i,j,-k]);
-                        }
-                        // Interior corner bevel on the yz plane.
-                        if (burr[x][y+j][z] == 1 && burr[x][y][z+k] == 1 &&
-                            burr[x+i][y+j][z] != 1 && burr[x+i][y][z+k] != 1) {
-                            translate(cw(scale_vec / 2, [i,j,k]))
-                            translate(cw(inset_vec + bevel_vec / sqrt(2) / 2, [-i,j,k]))
-                            scale(bevel_vec / sqrt(2) / 2)
-                            interior_corner_bevel_cutout([i,-j,-k]);
-                        }
-                    }
-                }
+            
+            options = aux[x][y][z];
+            label_orient = lookup_kv(options, "label_orient");
+            label_text = lookup_kv(options, "label_text");
+            
+            if (label_orient && !label_text || !label_orient && label_text) {
+                assert(false, "label_orient and label_text must be specified together.");
             }
+            
+            if (label_orient && label_text) {
+                
+                face_dir_str = substr(label_orient, 0, 2);
+                rot1 = cube_face_rotation(face_dir_str);
+                rot2 = cube_edge_pre_rotation(label_orient);
+                face_dir = lookup_kv(direction_map, face_dir_str);
+                assert(rot1 && rot2 && face_dir, str("Invalid label_orient: ", label_orient));
+
+                hoffset_str = lookup_kv(options, "label_hoffset");
+                voffset_str = lookup_kv(options, "label_voffset");
+                hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
+                    let(hoffset = atof(hoffset_str))
+                    assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
+                    hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
+                voffset = is_undef(voffset_str) ? [0, 0, 0] :
+                    let(voffset = atof(voffset_str))
+                    assert(voffset, str("Invalid label_voffset: ", voffset_str))
+                   -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
+                
+                // Translate by the explicit offsets
+                translate(voffset)
+                translate(hoffset)
+                // Translate into natural position
+                translate(cw(scale_vec, [x, y, z] + 0.5 * face_dir) - cw(face_dir, inset_vec))
+                // Rotate into proper orientation
+                rotate(rot1)
+                rotate(rot2)
+                // Extra 90-degree z-rotation is required to ensure that label_orient specifies the
+                // flow direction of text (as expected)
+                rotate([0, 0, 90])
+                translate([0, 0, -1])
+                linear_extrude(2)
+                text(label_text, halign="center", valign="center", size=min(scale_vec) / 1.8583, $fn=64);
+                
+            }
+            
         }
         
     }
+        
+    // Add space-fillers ("bridges" between components). This ensures that the entire
+    // piece remains connected in the final rendering.
+    // TODO: Add edge and corner space-fillers
     
-    // Add male connector artifacts.
+    for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+        cell = [x,y,z];
+        if (lookup3(burr, cell) > 0) {
+            for (face=[3:5]) {      // Just the positive-directional faces (so we check each face pair just once)
+                
+                facing_cell = cell + directions[face];
+                // If the facing cell *is* defined but is from a different component, then
+                // we need to render a space-filler.
+                if (lookup3(burr, facing_cell) > 0 && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
+                    
+                    face_center = cell + 0.5 * directions[face];
+                    // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
+                    // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
+                    // on each face.
+                    dim = cw(2 * (inset_vec + iota_vec), directions[face])
+                        + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face]);
+                    translate(cw(scale_vec, face_center))
+                    cube(dim, center=true);
+                    
+                }
+                
+            }
+        }
+    }
+            
+    // Render the male connectors.
+    
     for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
         connect = lookup_kv(aux[x][y][z], "connect");
         if (connect[0] == "m") {
             clabel = lookup_kv(aux[x][y][z], "clabel");
             translate(cw(scale_vec, [x,y,z]))
-            connector("m", substr(connect, 1, 2), clabel[0], substr(clabel, 1, 2));
+            male_connector(substr(connect, 1, 2), clabel[0], substr(clabel, 1, 2));
         }
     }
     
 }
 
-/* Module for rendering a (male or female) connector.
- * TODO: Adjust labels for joint insets?
- */
-module connector(type, orient, label, label_orient) {
+// This module renders a single (individually beveled) component of a burr piece.
+
+module burr_piece_component(burr_info, component_id, test_poly = undef) {
     
-    rot = orient_rot(orient);
-    size = type == "f"
-        ? $burr_scale * 2/3 + $joint_inset * 2
-        : $burr_scale * 2/3 - $joint_inset * 2;
-    displacement = type == "f"
-        ? ($burr_scale - size) / 2 - $burr_inset + 0.00001
-        : ($burr_scale + size) / 2 - $burr_inset - 0.00001;
+    scale_vec = vectorize($burr_scale);
+    inset_vec = vectorize($burr_inset);
+    bevel_vec = vectorize($burr_bevel);
+    xlen = len(burr_info);
+    ylen = max([ for (plane=burr_info) len(plane) ]);
+    zlen = max([ for (plane=burr_info, column=plane) len(column)]);
+    burr = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
+    aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
+        
+    // We generate the polyhedron corresponding to this component and pass it to the beveling
+    // subroutine. One or more polyhedra will be generated separately for each cell, and then
+    // all the constituent faces will be normalized into a single polyhedron before applying
+    // beveling.
     
-    render(convexity = 2)
-    rotate(rot)
-    translate([0, 0, displacement])
-    union() {
-        difference() {
-            cube(size, center=true);
-            if (type == "m") {
-                // Remove 1.5mm beveling from the cap
-                for (i=[-1,1]) {
-                    translate([size * i / 2, 0, size / 2])
-                    rotate([0, 45, 0])
-                    cube([1.5, size + 0.00001, 1.5], center = true);
-                    translate([0, size * i / 2, size / 2])
-                    rotate([45, 0, 0])
-                    cube([size + 0.00001, 1.5, 1.5], center = true);
-                }
-                // Shave 0.35mm off the top to ensure clean fit
-                translate([0, 0, size/2 - 0.175])
-                cube([size, size, 0.35], center=true);
-                // Etch the label
-                if (label) {
-                    connector_label(-1, orient, label, label_orient);
-                }
-            }
+    // First generate faces for all the "unpaired" cell-faces (those without a touching face
+    // on the adjacent cell)
+    
+    faces = flatten( [
+    
+        for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1])
+        let (cell = [x, y, z])
+        if (lookup3(burr, cell) == component_id)
+        for (face=[0:5])
+        let (facing_cell = cell + directions[face])
+        
+        let (face_center = lookup3(burr, facing_cell) == component_id ? [] : [[
+            for (edge=[0:3])
+            let (corner = directions[face] + cube_edge_directions[face][edge] + cube_edge_perp_directions[face][edge])
+            cw(scale_vec, cell + 0.5 * corner) - cw(inset_vec, corner)
+        ]])
+            
+        let (face_edge_strips = [
+            for (edge=[0:3])
+            let (edge_direction = cube_edge_directions[face][edge])
+            let (perp_edge_direction = cube_edge_perp_directions[face][edge])
+            if (lookup3(burr, cell + edge_direction) == component_id)
+            if (lookup3(burr, facing_cell) != component_id ||
+                lookup3(burr, facing_cell + edge_direction) != component_id)
+            let (edge_center = cw(scale_vec, cell + 0.5 * (directions[face] + edge_direction)) - cw(inset_vec, directions[face]))
+            let (offset = cw(scale_vec, 0.5 * perp_edge_direction) - cw(inset_vec, perp_edge_direction))
+            [ edge_center + offset,
+              edge_center + offset - cw(inset_vec, edge_direction),
+              edge_center - offset - cw(inset_vec, edge_direction),
+              edge_center - offset ]
+        ])
+            
+        let (face_corners = [
+            for (edge=[0:3])
+            let (corner_direction_1 = cube_edge_directions[face][edge])
+            let (corner_direction_2 = cube_edge_perp_directions[face][edge])
+            if (lookup3(burr, cell + corner_direction_1) == component_id &&
+                lookup3(burr, cell + corner_direction_2) == component_id &&
+                lookup3(burr, cell + corner_direction_1 + corner_direction_2) == component_id)
+            if (lookup3(burr, facing_cell) != component_id ||
+                lookup3(burr, facing_cell + corner_direction_1) != component_id ||
+                lookup3(burr, facing_cell + corner_direction_2) != component_id ||
+                lookup3(burr, facing_cell + corner_direction_1 + corner_direction_2) != component_id)
+            let (corner_point = cw(scale_vec, cell + 0.5 * (directions[face] + corner_direction_1 + corner_direction_2))
+                              - cw(inset_vec, directions[face]))
+            [ corner_point,
+              corner_point - cw(inset_vec, corner_direction_1),
+              corner_point - cw(inset_vec, corner_direction_1 + corner_direction_2),
+              corner_point - cw(inset_vec, corner_direction_2) ]
+        ])
+        
+        merge_coplanar_faces(concat(face_center, face_edge_strips, face_corners))
+        
+    ] );
+  
+    poly = make_beveled_poly(faces);
+
+    if ($puzzlecad_debug) {
+        echo("--- Generated Polyhedron ---");
+        for (k=[0:len(poly[0])-1]) {
+            echo(str("V ", k, ": ", poly[0][k]));
         }
-        // Stick the label out
-        if (type == "f" && label) {
-            connector_label(1, orient, label, label_orient);
+        for (k=[0:len(poly[1])-1]) {
+            echo(str("F ", k, ": ", poly[1][k], " -> ", [ for (p=poly[1][k]) poly[0][p] ]));
         }
     }
+    
+    if (test_poly) {
+                
+        // Don't render; just test the polyhedron. This is used for unit testing.
+        
+        for (i=[0:max(len(poly[0]), len(test_poly[0]))-1]) {
+            if (!(norm(poly[0][i] - test_poly[0][i]) < $poly_err_tolerance)) {
+                echo(str("EXPECTED: ", test_poly));
+                echo(str("ACTUAL: ", poly));
+                assert(false, str("Points differ at index ", i, ": ", test_poly[0][i], " != ", poly[0][i]));
+            }
+        }
+        for (i=[0:max(len(poly[1]), len(test_poly[1]))-1]) {
+            if (!(poly[1][i] == test_poly[1][i])) {
+                echo(str("EXPECTED: ", test_poly));
+                echo(str("ACTUAL: ", poly));
+                assert(poly[1][i] == test_poly[1][i], str("Faces differ at index ", i));
+            }
+        }
+
+    } else {
+        
+        // Render the component.
+        
+        polyhedron(poly[0], poly[1]);
+
+    }
+        
+}
+
+module burr_piece_component_neg_inset(burr_info, component_id, test_poly = undef) {
+    
+    assert($burr_inset < 0);
+    assert($burr_bevel == 0);
+    
+    scale_vec = vectorize($burr_scale);
+    inset_vec = vectorize($burr_inset);
+    bevel_vec = vectorize($burr_bevel);
+    xlen = len(burr_info);
+    ylen = max([ for (plane=burr_info) len(plane) ]);
+    zlen = max([ for (plane=burr_info, column=plane) len(column)]);
+    burr = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
+    aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
+
+    for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+        
+        if (burr[x][y][z] == component_id) {
+            translate(cw(scale_vec, [x, y, z]))
+            cube(scale_vec - 2 * inset_vec, center=true);
+        }
+        
+    }
+    
+}
+        
+/** Module for rendering a female snap joint.
+  */
+
+module female_connector(orient, label, label_orient) {
+    
+    rot = cube_face_rotation(orient);
+    size = $burr_scale * 2/3 - $burr_inset * 2 + $joint_inset * 2;
+    overhang_allowance = [
+        orient[0] == "x" ? $female_joint_overhang_allowance : 0,
+        orient[0] == "y" ? $female_joint_overhang_allowance : 0,
+        0
+    ];
+    size3 = vectorize(size) + overhang_allowance;
+    
+    translate([0, 0, orient[0] != "z" ? $female_joint_overhang_allowance / 2 : 0])
+    rotate(rot)
+    translate([0, 0, ($burr_scale - size) / 2 + iota])
+    union() {
+        cube(size3, center = true);
+        connector_label(1, orient, label, label_orient);
+    }
+    
+}
+
+/** Module for rendering the cutout for a male snap joint (the volume to subtract from the
+  * cell into which it is embedded).
+  */
+
+module male_connector_cutout(orient) {
+    
+    rot = cube_face_rotation(orient);
+    size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2 + $joint_cutout * 2;
+    
+    rotate(rot)
+    translate([0, 0, $burr_scale / 3 + iota])
+    cube([size, size, $burr_scale / 3], center = true);
+    
+}
+
+/** Module for rendering a male snap joint.
+  */
+
+module male_connector(orient, label, label_orient) {
+    
+    rot = cube_face_rotation(orient);
+    
+    size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2;
+    
+    rotate(rot)
+    // Subtract off an extra 0.35 mm to provide added clearance at the top.
+    translate([0, 0, ($burr_scale + size) / 2 - 0.35])
+    union() {
+        difference() {
+            translate([0, 0, -$burr_scale / 6])
+            tapered_cube([size, size, size + $burr_scale / 3], center = true, $burr_bevel = 1);
+            if (label) {
+                connector_label(-1, orient, label, label_orient);
+            }
+        }
+        translate([0, (size + $joint_cutout) / 2, -$burr_scale / 2])
+        rotate([90, 0, 0])
+        cylinder(h = $joint_cutout + iota, r = 1, $fn = 32, center = true);
+        translate([0, -(size + $joint_cutout) / 2, -$burr_scale / 2])
+        rotate([90, 0, 0])
+        cylinder(h = $joint_cutout + iota, r = 1, $fn = 32, center = true);
+        translate([(size + $joint_cutout) / 2, 0, -$burr_scale / 2])
+        rotate([0, 90, 0])
+        cylinder(h = $joint_cutout + iota, r = 1, $fn = 32, center = true);
+        translate([-(size + $joint_cutout) / 2, 0, -$burr_scale / 2])
+        rotate([0, 90, 0])
+        cylinder(h = $joint_cutout + iota, r = 1, $fn = 32, center = true);
+    }
+    
+}
+
+module tapered_cube(size, center = false) {
+    
+    translate(center ? -size / 2 : [0, 0, 0])
+    polyhedron(
+        [[0, 0, 0], [size.x, 0, 0], [size.x, size.y, 0], [0, size.y, 0],
+         [0, 0, size.z - 1], [size.x, 0, size.z - 1], [size.x, size.y, size.z - 1], [0, size.y, size.z - 1],
+         [0.5, 0.5, size.z], [size.x - 0.5, 0.5, size.z], [size.x - 0.5, size.y - 0.5, size.z], [0.5, size.y - 0.5, size.z]],
+        [[0, 1, 2, 3],
+         [1, 0, 4, 5], [2, 1, 5, 6], [3, 2, 6, 7], [0, 3, 7, 4],
+         [5, 4, 8, 9], [6, 5, 9, 10], [7, 6, 10, 11], [4, 7, 11, 8],
+         [9, 8, 11, 10]]
+    );
     
 }
 
@@ -287,14 +507,17 @@ module connector(type, orient, label, label_orient) {
 module connector_label(parity, orient, label, label_orient) {
 
     label_depth = 0.5;
-    label_rot = label_rot(str(orient, label_orient));
-    label_translate = $burr_scale / 3 + label_depth / 2 * parity;
+    label_rot = cube_edge_pre_rotation(str(orient, label_orient));
+    label_translate = $burr_scale / 3 - $burr_inset + (label_depth / 2 + $joint_inset - iota) * parity;
 
+    assert(!is_undef(label_rot), str("Invalid label orientation: ", orient, label_orient));
+    
     // Apply an appropriate rotation to position properly. After this rotation it will be in
     // z+y- or z+x- or z+y+ or z+x+ position.
     rotate(label_rot)
-    // Move the label into the z+y- position with a vertical translation according to parity
+    // Move the label into the z+y+ position with a vertical translation according to parity
     // (The vertical translation is purely for aesthetic reasons)
+    rotate([0, 0, 180])
     translate([0, -label_translate, 0.5 * parity])
     // Stand the label upright and facing in the y- direction
     rotate([-90 * parity, 90 + 90 * parity, 0])
@@ -302,45 +525,6 @@ module connector_label(parity, orient, label, label_orient) {
     translate([0, 0, -label_depth/2])
     linear_extrude(height=label_depth)
     text(label, halign="center", valign="center", size=$burr_scale/3.7, $fn=64);
-    
-}
-  
-module edge_bevel_cutout(length, x_scale, y_scale, bevel, i, j) {
-    linear_extrude(length + 0.0001, center = true)
-    polygon([
-        [i * (x_scale / 2 + 0.0001), j * (y_scale / 2 + 0.0001)],
-        [i * (x_scale / 2 - bevel / sqrt(2)), j * (y_scale / 2 + 0.0001)],
-        [i * (x_scale / 2 + 0.0001), j * (y_scale / 2 - bevel / sqrt(2))]
-    ]);
-}
-
-/* Module for rendering a cube wedge for purposes of beveling corners.
- * "vertex" is a vector of +-1's, such as [-1, 1, -1], specifying one of the
- * eight cube vertices for the wedge.
- */
-module interior_corner_bevel_cutout(vertex) {
-    adj_vertex = vertex * (1 + iota * 20) + iota_vec;
-    polyhedron(
-        [
-            adj_vertex,
-            [adj_vertex.x,adj_vertex.y,-adj_vertex.z],
-            [adj_vertex.x,-adj_vertex.y,adj_vertex.z],
-            [-adj_vertex.x,adj_vertex.y,adj_vertex.z]
-        ],
-        [[0,1,2],[0,2,3],[0,3,1],[1,3,2]]
-    );
-}
-
-/* Module for rendering the negative of a cube wedge.
- */
-module exterior_corner_bevel_cutout(vertex) {
-    
-    render(convexity = 2)
-    difference() {
-        translate(iota_vec)
-        cube([2, 2, 2] * (1 + iota * 10), center = true);
-        interior_corner_bevel_cutout(-vertex);
-    }
     
 }
 
@@ -364,7 +548,7 @@ module packing_tray(opening_width = undef, opening_depth = undef, opening_polygo
     opening_max_x = max([ for (poly = polys, p = poly) p.x ]);
     opening_min_y = min([ for (poly = polys, p = poly) p.y ]);
     opening_max_y = max([ for (poly = polys, p = poly) p.y ]);
-    opening_scaled_dim = [$tray_scale * (opening_max_x - opening_min_x), $tray_scale * (opening_max_y - opening_min_y), $tray_opening_height + 2 * $burr_inset];
+    opening_scaled_dim = [$tray_scale * (opening_max_x - opening_min_x), $tray_scale * (opening_max_y - opening_min_y), $tray_opening_height + $burr_inset];
     
     burr_info = strings_to_burr_info(piece_holder_spec);
     xlen = len(burr_info);
@@ -377,7 +561,7 @@ module packing_tray(opening_width = undef, opening_depth = undef, opening_polygo
     piece_holder_width = finger_wedge
         ? max(piece_holder_raw_width, finger_wedge.x + finger_wedge_radius) * $tray_scale
         : piece_holder_raw_width * $tray_scale;
-    piece_holder_depth = (piece_holder_polygon ? extent(poly_y(piece_holder_polygon)) : ylen) * $tray_scale + 2 * $piece_holder_buf;
+    piece_holder_depth = (piece_holder_polygon ? range(poly_y(piece_holder_polygon)) : ylen) * $tray_scale + 2 * $piece_holder_buf;
     
     piece_holder_loc = [
         opening_scaled_dim.x + $tray_opening_border * 2 + piece_holder_x_adj - $piece_holder_buf,
@@ -499,90 +683,70 @@ module lid_text(str, relative_scale = 1.0) {
 
 }
 
-/******* Beveled prisms *******/
+/******* Modules for beveled shapes *******/
 
 module beveled_cube(dim, center = false) {
 
-    translate(center ? -dim/2 : [0, 0, 0])
-    beveled_prism([[0, 0], [dim.x, 0], [dim.x, dim.y], [0, dim.y]], dim.z);
+    dim_vec = vectorize(dim);
+    
+    translate(center ? -dim_vec / 2 : [0, 0, 0])
+    beveled_prism([[0, 0], [0, dim_vec.y], [dim_vec.x, dim_vec.y], [dim_vec.x, 0]], dim_vec.z);
     
 }
 
-module beveled_prism(poly, height) {
+module beveled_prism(polygon, height) {
     
-    wedge_leg = $burr_bevel / sqrt(2);
+    top = [ for (p = polygon) [ p.x, p.y, height ] ];
+        
+    bottom = [ for (i = [len(polygon)-1:-1:0]) let (p = polygon[i]) [ p.x, p.y, 0] ];
+        
+    sides = [
+        for (i = [0:len(polygon)-1])
+        let (p = polygon[i], q = polygon[(i + len(polygon) - 1) % len(polygon)]) [
+            [ p.x, p.y, 0 ], [ p.x, p.y, height ], [ q.x, q.y, height ], [q.x, q.y, 0 ]
+    ] ];
+
+    poly = make_beveled_poly(concat(sides, [top, bottom]));
+        
+    polyhedron(poly[0], poly[1]);
     
-    render(convexity = 2)
-    difference() {
-        
-        linear_extrude(height)
-        polygon(poly);
-        
-        for (i = [0:len(poly)-1]) {
-            
-            vertex = poly[i];
-            prev = poly[(i - 1 + len(poly)) % len(poly)];
-            next = poly[(i + 1) % len(poly)];
-            
-            // Vertical edge
-
-            p1 = vertex + normed_vec(prev - vertex) * wedge_leg;
-            p2 = vertex + normed_vec(next - vertex) * wedge_leg;
-            secant = normed_vec(normed_vec(prev - vertex) + normed_vec(next - vertex));
-            
-            linear_extrude(height)
-            polygon([vertex - secant * 0.001, p1, p2]);
-            
-            // Base edge
-            
-            translate([vertex.x, vertex.y, 0])
-            rotate([90, 0, angle(next - vertex)])
-            rotate([0, 90, 0])
-            linear_extrude(norm(next - vertex))
-            polygon([[0, 0], [wedge_leg, 0], [0, wedge_leg]]);
-            
-            // Top edge
-            
-            translate([vertex.x, vertex.y, height])
-            rotate([0, 0, angle(next - vertex)])
-            rotate([0, 90, 0])
-            linear_extrude(norm(next - vertex))
-            polygon([[0, 0], [wedge_leg, 0], [0, wedge_leg]]);
-            
-        }
-        
-    }
-
 }
 
-module regular_polygon(n, parity = 0) {
-    polygon([for (i=[0:n-1]) [cos(180*(2*i+1-parity)/n) / sqrt(2), sin(180*(2*i+1-parity)/n) / sqrt(2)]]);
-}
-
-function poly_displacement(n, cell) = [
-    sum([ for (i=[0:n-2]) cell[i] * cos(360*i/n) / sqrt(2)]),
-    sum([ for (i=[0:n-2]) cell[i] * sin(360*i/n) / sqrt(2)]),
-    0
-    ];
-
-function sum(list, i = 0) = i >= len(list) ? 0 : list[i] + sum(list, i+1);
+module beveled_polyhedron(faces) {
     
-function normed_vec(vec) = vec / norm(vec);
-function poly_x(poly) = [ for (p = poly) p.x ];
-function poly_y(poly) = [ for (p = poly) p.y ];
-function extent(vec) = max(vec) - min(vec);
-function dist(a, b) = sqrt(sum([ for (i = [0:len(a)-1]) (a[i] - b[i]) * (a[i] - b[i])]));
-function angle(vec) = vec.y >= 0 ? acos(vec.x / norm(vec)) : 360 - acos(vec.x / norm(vec));
+    poly = make_beveled_poly(faces);
+    polyhedron(poly[0], poly[1]);
+    
+}
 
 /******* Helper functions *******/
 
 /***** Puzzle specification *****/
 
+// These functions are used to turn various kinds of input (Kaenel numbers and strings) into
+// burr_info structs. A "burr_info struct" is the internal representation of a puzzle piece.
+// It is a four-dimensional array such that:
+// 
+// burr_info[x][y][z][0]   gives the subcomponent at location [x,y,z] (0 if none)
+// burr_info[x][y][z][1]   is a kv map of annotations (e.g., [["connect", "mz+"], ["clabel, "Ay-"]])
+
 // Converts a flexible burr spec (argument to burr_piece) into a structured vector of information.
+
 function to_burr_info(burr_spec) =
-    burr_spec[0] == undef ? burr_stick(burr_spec, 6)
-        : burr_spec[0][0][0][0] + 0 == undef ? strings_to_burr_info(burr_spec)
-        : burr_spec;
+
+    // If burr_spec is a number, then interpret it as a Kaenel number for a six-piece burr stick.
+      is_num(burr_spec) ? burr_stick(burr_spec, 6)
+
+    // If it's a single string, parse it.
+    : is_string(burr_spec) ? strings_to_burr_info([burr_spec])
+
+    // If it's a list of strings, parse them.
+    : is_list(burr_spec) && is_string(burr_spec[0]) ? strings_to_burr_info(burr_spec)
+
+    // Otherwise, assume it's already a burr_info struct.
+    : burr_spec;
+
+// Creates a burr_info struct given a Kaenel number.
     
 function burr_stick(kaenel_number, length=6) = wrap(zyx_to_xyz(
     [ for (row = num_to_burr_info(kaenel_number-1))
@@ -592,12 +756,15 @@ function burr_stick(kaenel_number, length=6) = wrap(zyx_to_xyz(
     ]));
         
 // Converts a numeric burr id to a burr info vector; here "id" is one less than the burr id.
+
 function num_to_burr_info(id) = [
       [[1, 1, 1-bit_of(id, 8), 1-bit_of(id, 9), 1, 1], [1, 1, 1-bit_of(id, 10), 1-bit_of(id, 11), 1, 1]],
       [[1, 1-bit_of(id,0), 1-bit_of(id, 1), 1-bit_of(id, 2), 1-bit_of(id, 3), 1],
         [1, 1-bit_of(id, 4), 1-bit_of(id, 5), 1-bit_of(id, 6), 1-bit_of(id, 7), 1]]
     ];
-        
+
+// Creates a burr_info struct given a Kaenel number for a board burr piece.
+
 function board_burr(kaenel_number, length=6) = wrap(zyx_to_xyz(
     [ for (row = board_num_to_burr_info(kaenel_number-1))
         [ for (wedge = row)
@@ -611,9 +778,11 @@ function board_num_to_burr_info(id) = [
         [1, 1-bit_of(id, 4), 1-bit_of(id, 5), 1-bit_of(id, 6), 1-bit_of(id, 7), 1],
         [1, 1, 1-bit_of(id, 10), 1-bit_of(id, 11), 1, 1]]
     ];
- 
+
+// Now the logic for parsing string arrays into burr_info structs:
+
 function strings_to_burr_info(strings) =
-    strings[0][0] == "{" ? strings_to_burr_info_2(substr(strings[0], 1, len(strings[0])-2), [ for (i=[1:len(strings)-1]) strings[i] ])
+    strings[0][0] == "{" ? strings_to_burr_info_2(substr(strings[0], 1, len(strings[0])-2), remove_from_list(strings, 0))
         : strings_to_burr_info_2(undef, strings);
 
 function strings_to_burr_info_2(globals, strings) = zyx_to_xyz(
@@ -622,35 +791,462 @@ function strings_to_burr_info_2(globals, strings) = zyx_to_xyz(
             string_to_burr_info(globals, row)
         ]
     ]);
+        
+// Parse a single string into a 1x1xN substruct.
  
-function string_to_burr_info(globals, str, i=0, result=[]) =
-    i == len(str) ? result :
-        str[i] == "x" ? string_to_burr_info_opt_suffix(globals, str, i, result, 1)
-        : str[i] == "." ? string_to_burr_info_opt_suffix(globals, str, i, result, 0)
-        : str[i] == "#" ? string_to_burr_info_star(globals, str, i+1, result, 1)
-        : undef;
-        
-function string_to_burr_info_opt_suffix(globals, str, i, result, value) =
-    substr(str, i+1, 1) == "*" ? string_to_burr_info_star(globals, str, i+2, result, value)
-        : substr(str, i+1, 1) == "{" ? string_to_burr_info_suffix(globals, str, i+2, result, value)
-        : string_to_burr_info_next(globals, str, i+1, result, [value, []]);
-        
-function string_to_burr_info_star(globals, str, i, result, value) =
-    string_to_burr_info_next(globals, str, i, result, [value, parse_kv(globals)]);
-       
-function string_to_burr_info_suffix(globals, str, i, result, value) =
-    string_to_burr_info_next(globals, str, strfind(str, "}", i) + 1, result, [value, parse_kv(substr_until(str, "}", i))]);
-
-function string_to_burr_info_next(globals, str, i, result, struct) =
-    string_to_burr_info(globals, str, i, concat(result, [struct]));
+function string_to_burr_info(globals, string, i=0, result=[]) =
+    i == len(string) ? result
+        : let (component_id = index_of(component_ids, string[i]))
+          component_id >= 0 ? string_to_burr_info_opt_suffix(globals, string, i, result, component_id)
+        : string[i] == "#" ? string_to_burr_info_sharp(globals, string, i, result, 24)
+        : assert(false, "Invalid burr specification.");
+         
+component_ids = ".abcdefghijklmnopqrstuvwxyz";
    
+// Parse a single character, with optional annotations.
+        
+function string_to_burr_info_opt_suffix(globals, string, i, result, value) =
+    substr(string, i+1, 1) == "{" ? string_to_burr_info_suffix(globals, string, i + 2, result, value)
+        : string_to_burr_info_next(globals, string, i + 1, result, value);
+        
+function string_to_burr_info_sharp(globals, string, i, result, value) =
+    assert(!is_undef(globals), "Invalid burr specification (\"#\" character used with no globals specified).")
+    string_to_burr_info_next(globals, string, i + 1, result, value, parse_annotations(globals));
+       
+function string_to_burr_info_suffix(globals, string, i, result, value) =
+    let (suffix_end = find_character(string, "}", i))
+      suffix_end >= len(string) ? assert(false, "Invalid burr specification.")   // No closing brace
+    : string_to_burr_info_next(globals, string, suffix_end + 1, result, value, parse_annotations(substr(string, i, suffix_end - i)));
+
+function string_to_burr_info_next(globals, string, i, result, value, kvmap = undef) =
+    string_to_burr_info(globals, string, i, concat(result, kvmap ? [[value, kvmap]] : [[value]]));
+
+// Finds a character in a string, accounting for balanced braces.
+    
+function find_character(string, ch, i, braces_depth = 0) =
+      i >= len(string) ? i
+    : string[i] == ch && braces_depth == 0 ? i
+    : string[i] == "}" && braces_depth > 0 ? find_character(string, ch, i + 1, braces_depth - 1)
+    : string[i] == "}" ? assert(false, "Invalid burr specification.")
+    : string[i] == "{" ? find_character(string, ch, i + 1, braces_depth + 1)
+    : find_character(string, ch, i + 1, braces_depth);
+
+function parse_annotations(string, result = [], i = 0) =
+    i >= len(string) ? result
+    : let (next_separator = find_character(string, ",", i),
+           next_annotation = parse_annotation(substr(string, i, next_separator - i)))
+      parse_annotations(string, concat(result, [next_annotation]), next_separator + 1);
+      
+function parse_annotation(string) =
+    let (equals_index = find_character(string, "=", 0))
+      equals_index == len(string) ? [string, true]     // No value specified; equivalent to key=true
+    : let (key = substr(string, 0, equals_index))
+        string[equals_index + 1] == "{" ? [key, substr(string, equals_index + 2, len(string) - equals_index - 3)]   // Value enclosed in braces
+      : [key, substr(string, equals_index + 1, len(string) - equals_index - 1)]     // Value not enclosed in braces
+    ;
+
 function wrap(burr_map) =
     [ for (layer = burr_map) [ for (row = layer) [ for (voxel = row) voxel[0] == undef ? [voxel] : voxel] ] ];
   
-function bit_of(n, exponent) = floor(n/pow(2,exponent)) % 2;
-          
+function bit_of(n, exponent) = floor(n / pow(2, exponent)) % 2;
+
 function copies(n, burr) = n == 0 ? [] : concat(copies(n-1, burr), [burr]);
     
+/***** Polyhedron Simplification *****/
+
+function make_poly(faces) =
+    let (merged_faces = merge_coplanar_faces(remove_degeneracies(faces)))
+    let (normalized_faces = [ for (f = merged_faces) remove_face_degeneracies(remove_collinear_points(f)) ])
+    make_poly_2(normalized_faces);
+    
+function make_poly_2(faces) =
+    let (points = flatten(faces))
+    let (point_index = make_point_index(quicksort_points(points)))
+    let (mapped_faces = [ for (f=faces) [ for (p=f) index_of_point(point_index, p) ] ])
+    let (reordered_faces = reorder_faces(mapped_faces))
+    remove_unused_vertices(point_index, reordered_faces);
+    
+function remove_degeneracies(faces) =
+    let (simplified_faces = [ for (f = faces) remove_face_degeneracies(f) ])
+    [ for (f = simplified_faces) if (len(f) > 0) f ];
+    
+function remove_face_degeneracies(face) =
+    let (reduced_face = remove_face_degeneracies_once(face))
+      len(face) == len(reduced_face) ? reduced_face     // No reductions happened
+    : remove_face_degeneracies(reduced_face);           // Something changed, so iterate
+
+function remove_face_degeneracies_once(face) = len(face) == 0 ? [] : [
+    for (k=[0:len(face)-1])
+    if (norm(face[k] - face[(k+1) % len(face)]) >= $poly_err_tolerance &&
+        norm(face[k] - face[(k+2) % len(face)]) >= $poly_err_tolerance &&
+        norm(face[(k+len(face)-1) % len(face)] - face[(k+1) % len(face)]) >= $poly_err_tolerance)
+    face[k]
+];
+
+function remove_collinear_points(face) = len(face) == 0 ? [] : [
+    for (k=[0:len(face)-1])
+    let (a = face[(k-1+len(face)) % len(face)], b = face[k], c = face[(k+1) % len(face)])
+    let (foo = assert(!is_undef(a) && !is_undef(b) && !is_undef(c), face))
+    if (norm(cross(b - a, c - b)) >= $poly_err_tolerance)
+    face[k]
+];
+    
+function merge_coplanar_faces(faces) =
+    let(merged_faces = remove_degeneracies(merge_coplanar_faces_once(faces)))
+      len(faces) == len(merged_faces) ? merged_faces    // No mergers happened
+    : merge_coplanar_faces(merged_faces);               // Something changed, so iterate
+    
+function merge_coplanar_faces_once(faces, i = 0) =
+      i >= len(faces) ? faces
+    : ( let(face_normal = unit_vector(polygon_normal(faces[i])))
+        let(coplanar_face_info = first_coplanar_face(faces, i, face_normal, i+1))
+        is_undef(coplanar_face_info) ? merge_coplanar_faces_once(faces, i+1)
+          : let(coplanar_index = coplanar_face_info[0])
+            assert(coplanar_index > i)
+            let(amalgamated_face = coplanar_face_info[1])
+            merge_coplanar_faces_once(replace_in_list(remove_from_list(faces, coplanar_index), i, amalgamated_face), i)
+       );
+
+function first_coplanar_face(faces, face_index, face_normal, j) =
+      j >= len(faces) ? undef
+    : ( let (face1 = faces[face_index],
+             face2 = faces[j],
+             face2_normal = unit_vector(polygon_normal(faces[j])),
+             face1_d = face_normal * face1[0],
+             face2_d = face2_normal * face2[0])
+        norm(face_normal - face2_normal) >= $poly_err_tolerance ||
+        abs(face1_d - face2_d) >= $poly_err_tolerance
+          ? first_coplanar_face(faces, face_index, face_normal, j+1)
+          : let (indices = edge_pair_indices(face1, face2))
+            is_undef(indices)
+            ? first_coplanar_face(faces, face_index, face_normal, j+1)
+            : [j, amalgamate_faces(face1, face2, indices)]
+      );
+
+function amalgamate_faces(face1, face2, indices) =
+    concat([ for (k=[1:len(face1)-1]) face1[(indices[0]+k) % len(face1)] ],
+           [ for (k=[0:len(face2)-2]) face2[(indices[1]+k) % len(face2)] ]);
+
+function edge_pair_indices(face1, face2, i = 0) =
+      i >= len(face1) ? undef
+    : let (result = edge_pair_indices_2(face1, face2, i))
+      is_undef(result) ? edge_pair_indices(face1, face2, i+1) : result;
+
+function edge_pair_indices_2(face1, face2, i, j = 0) =
+      j >= len(face2) ? undef
+    : norm(face1[i] - face2[j]) < $poly_err_tolerance &&
+      norm(face1[(i+1) % len(face1)] - face2[(j-1+len(face2)) % len(face2)]) < $poly_err_tolerance
+    ? [i, j]
+    : edge_pair_indices_2(face1, face2, i, j+1);
+    
+function make_point_index(points) = [
+    for (n = [0:len(points)-1])
+    if (n == 0 || abs(compare_points(points[n], points[n-1])) > $poly_err_tolerance)
+    points[n]
+];
+    
+function index_of_point(index, p) = index_of_point_rec(index, p, 0, len(index));
+
+function index_of_point_rec(index, p, lower, upper) =
+    assert(lower < upper)
+    let (mid = floor((upper + lower) / 2))
+    let (cmp = compare_points(p, index[mid]))
+      cmp < -$poly_err_tolerance ? index_of_point_rec(index, p, lower, mid)
+    : cmp > $poly_err_tolerance ? index_of_point_rec(index, p, mid+1, upper)
+    : mid;
+    
+function reorder_faces(faces) =
+    quicksort_scalar_lists([ for (face = faces) reorder_face(face) ]);
+        
+function reorder_face(face) =
+    let (first_index = minarg(face))
+    [ for (i=[0:len(face)-1]) face[(first_index + i) % len(face)] ];
+
+function remove_unused_vertices(vertices, faces) = let(
+    used_vertices = [ for (v = [0:len(vertices)-1]) len(faces_containing_vertex(faces, v)) > 0 ],
+    new_vertices = flatten([ for (v = [0:len(vertices)-1])
+                len(faces_containing_vertex(faces, v)) > 0 ? [vertices[v]] : []
+            ]),
+    mapped_vertices = [ for (vertex = vertices) index_of(new_vertices, vertex) ],
+    new_faces = [ for (face = faces) [ for (v = face) mapped_vertices[v] ] ]
+    )
+    [new_vertices, new_faces];
+   
+function minarg(list, i=0, current_min=undef, current_minarg=undef) =
+      i >= len(list) ? current_minarg
+    : is_undef(current_min) || list[i] < current_min ? minarg(list, i+1, list[i], i)
+    : minarg(list, i+1, current_min, current_minarg);
+
+function quicksort_points(points) = len(points) == 0 ? [] : let(
+    pivot   = points[floor(len(points)/2)],
+    lesser  = [ for (y = points) if (compare_points(y, pivot) <= -$poly_err_tolerance) y ],
+    equal   = [ for (y = points) if (abs(compare_points(y, pivot)) < $poly_err_tolerance) y ],
+    greater = [ for (y = points) if (compare_points(y, pivot) >= $poly_err_tolerance) y ]
+) concat(
+    quicksort_points(lesser), equal, quicksort_points(greater)
+);
+    
+function compare_points(a, b) =
+    assert(is_list(a) && is_list(b))
+    abs(a.x - b.x) < $poly_err_tolerance ? abs(a.y - b.y) < $poly_err_tolerance ? a.z - b.z : a.y - b.y : a.x - b.x;
+    
+function quicksort_scalar_lists(lists) = len(lists) == 0 ? [] : let(
+    pivot   = lists[floor(len(lists)/2)],
+    lesser  = [ for (y = lists) if (compare_scalar_lists(y, pivot) < 0) y ],
+    equal   = [ for (y = lists) if (compare_scalar_lists(y, pivot) == 0) y ],
+    greater = [ for (y = lists) if (compare_scalar_lists(y, pivot) > 0) y ]
+) concat(
+    quicksort_scalar_lists(lesser), equal, quicksort_scalar_lists(greater)
+);
+    
+function compare_scalar_lists(a, b, i=0) =
+      i >= len(a) && i >= len(b) ? 0
+    : i >= len(b) ? 1
+    : i >= len(a) ? -1
+    : a[i] == b[i] ? compare_scalar_lists(a, b, i+1)
+    : a[i] - b[i];
+
+/******* Polyhedron Beveling *******/
+
+function make_beveled_poly(faces) =
+    let (poly = make_poly(faces))
+    $burr_bevel < 0.01 ? poly : make_beveled_poly_normalized(poly[0], poly[1]);
+
+function make_beveled_poly_normalized(vertices, faces) = let(
+    
+    face_normals = [ for (face=faces) polygon_normal([ for (v=face) vertices[v] ]) ],
+        
+    // faces_containing[v] is a list of all the face ids containing vertex id v.
+    faces_containing =
+        [ for (v=[0:len(vertices)-1]) faces_containing_vertex(faces, v) ],
+
+    // vf_connectors is a list of elements of the form [ [v, f], prev, next ]
+    // where [v, f] is a vertex_id,face_id pair, and prev and next are vertices
+    // preceding and succeeding v, in cyclic order on the oriented face f.
+    vf_connectors =
+        [ for (v=[0:len(vertices)-1], f=faces_containing[v])
+          let (n = index_of(faces[f], v))
+            [ [v, f], [faces[f][(n-1+len(faces[f])) % len(faces[f])],
+                                 faces[f][(n+1) % len(faces[f])] ] ]
+        ],
+    
+    // edge_face_pairings is a mapping from oriented edges to the face_id on
+    // which those edges appear. Specifically, it's a list of elements of the
+    // form [[v1, v2], f], where v1 and v2 are vertex ids specifying an
+    // oriented edge, and f is the (unique) face on which that edge appears.      
+    edge_face_pairings =
+        [ for (f=[0:len(faces)-1], n=[0:len(faces[f])-1])
+            [[faces[f][n], faces[f][(n+1) % len(faces[f])]], f]
+        ],
+        
+    // edge_schemes is the "symmetrization" of edge_face_pairings: it's a list
+    // of elements of the form [[v1, v2], f1, f2], where v1 and v2 are vertex
+    // ids with v1 < v2, f1 is the "positively oriented" face touching that
+    // edge (the face containing the oriented edge [v1, v2]), and f2 is the
+    // "negatively oriented" face touching that edge.
+    edge_schemes =
+        [ for (edge_face_pairing = edge_face_pairings)
+            if (edge_face_pairing[0][0] < edge_face_pairing[0][1])
+            let (other_face = lookup_kv(edge_face_pairings, [edge_face_pairing[0][1], edge_face_pairing[0][0]]))
+            assert(!is_undef(other_face), str("Invalid polyhedron? Unpaired edge: ", edge_face_pairing))
+            [ edge_face_pairing[0], edge_face_pairing[1], other_face ]
+        ],
+        
+    // edge_convexities tells whether the faces joining each edge meet at a
+    // convex or concave outer angle (values > 0 are convex).
+    edge_convexities =
+        [ for (edge_scheme = edge_schemes)
+            let (edge_vector = vertices[edge_scheme[0][0]] - vertices[edge_scheme[0][1]],
+                 edge_normal_1 = cross(edge_vector, face_normals[edge_scheme[1]]),
+                 edge_normal_2 = cross(edge_vector, face_normals[edge_scheme[2]]))
+            [edge_scheme[0], [cross(edge_normal_1, edge_normal_2) * edge_vector, angle(edge_normal_1, edge_normal_2)]]
+        ],
+        
+    xmin = min([ for (v = vertices) v.x ]),
+    xmax = max([ for (v = vertices) v.x ]),
+    ymin = min([ for (v = vertices) v.y ]),
+    ymax = max([ for (v = vertices) v.y ]),
+    zmin = min([ for (v = vertices) v.z ]),
+    zmax = max([ for (v = vertices) v.z ]),   
+
+    edge_bevelings =
+        [ for (edge_scheme = edge_schemes)
+            let (p = vertices[edge_scheme[0][0]], q = vertices[edge_scheme[0][1]])
+            let (bevel =
+                  $burr_outer_x_bevel && (values_are_close(xmin, p.x, q.x) || values_are_close(xmax, p.x, q.x)) ? $burr_outer_x_bevel
+                : $burr_outer_y_bevel && (values_are_close(ymin, p.y, q.y) || values_are_close(ymax, p.y, q.y)) ? $burr_outer_y_bevel
+                : $burr_outer_z_bevel && (values_are_close(zmin, p.z, q.z) || values_are_close(zmax, p.z, q.z)) ? $burr_outer_z_bevel
+                : $burr_bevel)
+            [edge_scheme[0], bevel]
+        ],
+
+    convexity_signs =
+        [ for (connector = vf_connectors)
+          let (v = connector[0][0], f = connector[0][1], prev = connector[1][0], next = connector[1][1])
+          let (vector1 = vertices[prev] - vertices[v], vector2 = vertices[next] - vertices[v])
+          [ [v, f], cross(vector1, vector2) * face_normals[f] ]
+        ],
+        
+    ordered_faces_containing =
+        [ for (v=[0:len(vertices)-1]) ordered_faces_containing_vertex(faces, edge_face_pairings, v) ],
+
+    // new_vertex_ids is a list of unique identifiers for vertices in the beveled polyhedron.
+    // They take the form [v, f, loc], where f is a face id, v a vertex id appearing on that
+    // face, and loc a sub-locator. The sub-locator will be 0 for convex [v, f]-pairs, and
+    // -1 or 1 for concave.
+    new_vertex_ids =
+        [ for (v=[0:len(vertices)-1], f=faces_containing[v], loc=[-1, 1]) [v, f, loc] ],
+            
+    new_vertex_id_lookup =
+        [ for (id=[0:len(new_vertex_ids)-1]) [new_vertex_ids[id], id] ],
+            
+    new_vertex_locations =
+        [ for (c = vf_connectors, loc = [-1, 1])
+          let (old_vertex = c[0][0], old_face = c[0][1], prev_vertex = c[1][0], next_vertex = c[1][1])
+          let (inedge_rev = vertices[prev_vertex] - vertices[old_vertex],
+               outedge_rev = vertices[old_vertex] - vertices[next_vertex])
+          let (vertex_angle = angle(inedge_rev, outedge_rev))
+          let (setback_multiplier = 1 / sqrt(2) / sin(vertex_angle))
+          let (convexity_sign = cross(inedge_rev, outedge_rev) * face_normals[old_face])
+          let (inedge_convexity = lookup_kv_unordered(edge_convexities, [prev_vertex, old_vertex]),
+               outedge_convexity = lookup_kv_unordered(edge_convexities, [old_vertex, next_vertex]))
+          let (inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, old_vertex]),
+               outedge_bevel = lookup_kv_unordered(edge_bevelings, [old_vertex, next_vertex]))
+        
+          if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001 && convexity_sign < -0.001)
+              // Two concave edges; vertex is concave.
+              vertices[old_vertex] + unit_vector(loc == 1 ? -outedge_rev : inedge_rev) * (loc == 1 ? inedge_bevel : outedge_bevel) * setback_multiplier
+              
+          else if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
+              // Two concave edges; vertex is convex: no beveling; vertex retains its original location.
+              vertices[old_vertex]
+          
+          else if (inedge_convexity[0] < -0.001)
+              // Only the inedge is concave.
+              vertices[old_vertex] + unit_vector(inedge_rev) * outedge_bevel * setback_multiplier
+          
+          else if (outedge_convexity[0] < -0.001)
+              // Only the outedge is concave.
+              vertices[old_vertex] - unit_vector(outedge_rev) * inedge_bevel * setback_multiplier
+          
+          else if (convexity_sign < -0.001)
+              // Two convex edges; vertex is concave.
+              vertices[old_vertex] + unit_vector(loc == 1 ? -inedge_rev : outedge_rev) * (loc == 1 ? outedge_bevel : inedge_bevel) * setback_multiplier
+          
+          else
+              // Two convex edges; vertex is convex.
+              let (inedge_setback = $burr_bevel, outedge_setback = $burr_bevel)
+              vertices[old_vertex] + (unit_vector(inedge_rev) * outedge_bevel - unit_vector(outedge_rev) * inedge_bevel) * setback_multiplier
+        ],
+          
+    new_ordinary_faces =
+        [ for (f=[0:len(faces)-1]) [ for (v=faces[f], loc=[-1, 1]) [v, f, loc] ] ],
+        
+    new_edge_bevel_faces =
+        [ for (scheme=edge_schemes) if (lookup_kv_unordered(edge_convexities, scheme[0])[0] >= -0.001) let (
+            v1 = scheme[0][0], v2 = scheme[0][1], f1 = scheme[1], f2 = scheme[2]
+          ) ( [[v1, f1, 1], [v1, f2, -1], [v2, f2, 1], [v2, f1, -1]] ) ],
+        
+    start_indices_for_corner_bevel_faces =
+        [ for (v=[0:len(vertices)-1])
+            find_index_for_corner_bevel_face(v, ordered_faces_containing[v], faces, edge_convexities)
+        ],
+        
+    new_corner_bevel_faces =
+        [ for (v=[0:len(vertices)-1])
+            let(ofc = ordered_faces_containing[v])
+            [ for (k=[0:len(ofc)-1], loc=[1, -1]) [v, ofc[(k + len(ofc) - 1 + start_indices_for_corner_bevel_faces[v]) % len(ofc)], loc] ]
+        ],
+            
+    new_faces = concat(new_ordinary_faces, new_edge_bevel_faces, new_corner_bevel_faces),
+            
+    literal_new_faces = [ for (f = new_faces) [ for (v = f) new_vertex_locations[lookup_kv(new_vertex_id_lookup, v)] ] ],
+        
+    linearized_new_faces =
+        [ for (new_face = new_faces)
+            [ for (v = new_face) lookup_kv(new_vertex_id_lookup, v) ],
+        ]
+            
+    )
+    make_poly(literal_new_faces);
+
+function faces_containing_vertex(faces, vertex, k = 0) =
+    k >= len(faces) ? []
+    : list_contains(faces[k], vertex) ? concat([k], faces_containing_vertex(faces, vertex, k+1))
+    : faces_containing_vertex(faces, vertex, k+1);
+
+function ordered_faces_containing_vertex(faces, edge_face_pairings, vertex, k = 0) =
+    k >= len(faces) ? []
+    : list_contains(faces[k], vertex) ? ordered_faces_containing_vertex_2(faces, edge_face_pairings, vertex, [k])
+    : ordered_faces_containing_vertex(faces, edge_face_pairings, vertex, k+1);
+
+function ordered_faces_containing_vertex_2(faces, edge_face_pairings, vertex, list) =
+    let(prev_face = list[len(list)-1])
+    let(index_in_prev = index_of(faces[prev_face], vertex))
+    let(prev_vertex_in_prev_face = faces[prev_face][(index_in_prev + len(faces[prev_face]) - 1) % len(faces[prev_face])])
+    let(mirror_edge = [vertex, prev_vertex_in_prev_face])
+    let(this_face = lookup_kv(edge_face_pairings, mirror_edge))
+    this_face == list[0] ? list
+        : ordered_faces_containing_vertex_2(faces, edge_face_pairings, vertex, concat(list, [this_face]));
+
+function find_index_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k = 0) =
+    k >= len(ordered_faces_containing) ? 0
+    : let(f = ordered_faces_containing[k])
+      let(index_in_face = index_of(faces[f], v))
+      let(edge = [v, faces[f][(index_in_face + 1) % len(faces[f])]])
+      let(convexity = lookup_kv_unordered(edge_convexities, edge))
+      convexity[0] < 0 ? k
+    : find_index_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k + 1);
+        
+/***** Cube Geometry *****/
+
+cube_face_names = ["z-", "y-", "x-", "x+", "y+", "z+"];
+
+cube_face_directions = [[0, 0, -1], [0, -1, 0], [-1, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]];
+
+cube_face_rotations = [[180, 0, 0], [90, 0, 0], [0, -90, 0], [0, 90, 0], [-90, 0, 0], [0, 0, 0]];
+
+cube_edge_names = [ ["y-", "x+", "y+", "x-"], ["z+", "x+", "z-", "x-"], ["y+", "z+", "y-", "z-"],
+                    ["y+", "z-", "y-", "z+"], ["z-", "x+", "z+", "x-"], ["y+", "x+", "y-", "x-"] ];
+
+cube_edge_directions = [ for (n=[0:5]) [ for (k=[0:3])
+    let (face_index = index_of(cube_face_names, cube_edge_names[n][k]))
+    cube_face_directions[face_index]
+] ];
+
+cube_edge_perp_directions = [ for (n=[0:5]) [ for (k=[0:3])
+    let (face_index = index_of(cube_face_names, cube_edge_names[n][(k + 1) % 4]))
+    cube_face_directions[face_index]
+] ];
+
+cube_edge_pre_rotations = [[0, 0, 0], [0, 0, -90], [0, 0, 180], [0, 0, 90]];
+
+direction_map = [["z-", [0, 0, -1]], ["y-", [0, -1, 0]], ["x-", [-1, 0, 0]], ["x+", [1, 0, 0]], ["y+", [0, 1, 0]], ["z+", [0, 0, 1]]];
+
+directions = [ for (entry=direction_map) entry[1] ];
+    
+cube_face_edges = [ ["x-", "y-", "x+", "y+"], ["z-", "x-", "z+", "x+"], ["y-", "z-", "y+", "z+"],
+                    ["z+", "y+", "z-", "y-"], ["x+", "z+", "x-", "z-"], ["y+", "x+", "y-", "x-" ] ];
+
+edge_directions_map = [ for (n=[0:5], k=[0:3])
+    [ str(direction_map[n][0], cube_face_edges[n][k]),
+      [ lookup_kv(direction_map, cube_face_edges[n][k]), lookup_kv(direction_map, cube_face_edges[n][(k + 1) % 4]) ]
+    ]
+];
+
+function cube_face_rotation(face_name) =
+    len(face_name) != 2 ? undef :
+    let (face_index = index_of(cube_face_names, face_name))
+    cube_face_rotations[face_index];
+
+function cube_edge_pre_rotation(edge_name) =
+    len(edge_name) != 4 ? undef :
+    let (face_name = substr(edge_name, 0, 2),
+         edge_subname = substr(edge_name, 2, 2),
+         face_index = index_of(cube_face_names, face_name),
+         edge_index = index_of(cube_edge_names[face_index], edge_subname))
+    cube_edge_pre_rotations[edge_index];
+
 /***** String manipulation *****/
     
 // Splits a string into a vector of tokens.
@@ -675,16 +1271,21 @@ function substr_until(str, char, pos=0, substr="") =
     str[pos] == undef ? undef :
     str[pos] == char ? substr :
     substr_until(str, char, pos+1, str(substr, str[pos]));
-
-function parse_kv(str) =
-    [ for (kv = strtok(str, ",")) strtok(kv, "=") ];
     
 function lookup_kv(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
     kv[i][0] == key ? (kv[i][1] != undef ? kv[i][1] : true) :
     lookup_kv(kv, key, default, i+1);
+
+function lookup_kv_unordered(kv, key, default=undef, i=0) =
+    kv[i] == undef ? default :
+    kv[i][0] == key || kv[i][0] == [key[1],key[0]] ? kv[i][1] :
+    lookup_kv_unordered(kv, key, default, i+1);
+    
+function lookup3(array, vector) = array[vector.x][vector.y][vector.z];
              
 function atof(str) =
+    !is_string(str) ? undef :
     str[0] == "-" ? -atof2(str, 0, 1) :
     str[0] == "+" ? atof2(str, 0, 1) :
     atof2(str, 0, 0);
@@ -703,9 +1304,7 @@ function digit(char) =
     char == "5" ? 5 : char == "6" ? 6 : char == "7" ? 7 : char == "8" ? 8 : char == "9" ? 9 :
     undef;
 
-function letter(n) = all_letters[n];
-
-all_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /***** Vector manipulation *****/
 
@@ -725,36 +1324,58 @@ function vectorize(a) = a[0] == undef ? [a, a, a] : a;
             
 function cw(a, b) = 
     a[0] == undef || b[0] == undef ? a * b : [ for (i=[0:min(len(a), len(b))-1]) a[i]*b[i] ];
+        
+function unit_vector(vector) = vector / norm(vector);
 
-/***** Orientation *****/
+function angle(a, b) = assert(!is_undef(a) && !is_undef(b), [a, b]) atan2(norm(cross(a, b)), a*b);
+    
+function values_are_close(ref, a, b) = abs(ref - a) < $poly_err_tolerance && abs(ref - b) < $poly_err_tolerance;
 
-function orient_rot(str) =
-    str == "x+" ? [90, 0, 90] :
-    str == "x-" ? [90, 0, -90] :
-    str == "y+" ? [90, 0, 180] :
-    str == "y-" ? [90, 0, 0] :
-    str == "z+" ? [0, 0, 0] :
-    str == "z-" ? [180, 0, 0] :
-    undef;
-            
-function label_rot(str) =
-    str == "z+y-" || str == "z-y+" || str == "y+z-" || str == "y-z-" || str == "x+z-" || str == "x-z-" ? [0, 0, 0] :
-    str == "z+x+" || str == "z-x+" || str == "y+x-" || str == "y-x+" || str == "x+y+" || str == "x-y-" ? [0, 0, 90] :
-    str == "z+y+" || str == "z-y-" || str == "y+z+" || str == "y-z+" || str == "x+z+" || str == "x-z+" ? [0, 0, 180] :
-    str == "z+x-" || str == "z-x-" || str == "y+x+" || str == "y-x-" || str == "x+y-" || str == "x-y+" ? [0, 0, 270] :
-    undef;
-     
+function polygon_normal(poly) =
+    sum([ for (n=[0:len(poly)-1]) cross(poly[n], poly[(n+1) % len(poly)]) ]);
+
+function poly_x(poly) = [ for (p = poly) p.x ];
+
+function poly_y(poly) = [ for (p = poly) p.y ];
+
+function range(vec) = max(vec) - min(vec);
+
+/***** List manipulation *****/
+    
+function indices(list) = [0:len(list)-1];
+
+function list_contains(list, element, k = 0) =
+    k >= len(list) ? false : list[k] == element ? true : list_contains(list, element, k+1);
+
+function index_of(list, element, k = 0) =
+    k >= len(list) ? -1 : list[k] == element ? k : index_of(list, element, k + 1);
+
+function remove_from_list(list, index) = [ for (k=indices(list)) if (k != index) list[k] ];
+           
+function replace_in_list(list, index, replacement) = [ for (k=indices(list)) k == index ? replacement : list[k] ];
+
+function sublist(list, i, j) = i >= j ? [] : [ for (k=[i:j-1]) list[k] ];
+
+function flatten(list) = [ for (l=list, x=l) x ];
+    
+function distinct(list, result = [], k = 0) =
+      k >= len(list) ? result
+    : list_contains(result, list[k]) ? distinct(list, result, k + 1)
+    : distinct(list, concat(result, [list[k]]), k + 1);
+    
+function sum(list, k = 0) = k >= len(list) ? undef : k + 1 == len(list) ? list[k] : list[k] + sum(list, k+1);
+
 // Version check. This is a proper implementation of semantic versioning.
 
 require_puzzlecad_version = undef;
 if (require_puzzlecad_version &&
     vector_compare(to_version_spec(puzzlecad_version), to_version_spec(require_puzzlecad_version)) < 0) {
-    echo(str(
-        "WARNING: This design requires puzzlecad version ",
+    assert(false, str(
+        "ERROR: This model requires puzzlecad version ",
         require_puzzlecad_version,
         ", and you are using version ",
         puzzlecad_version,
-        ". Results might not be what you expect."
+        ". Please upgrade before rendering."
     ));
 }
 
