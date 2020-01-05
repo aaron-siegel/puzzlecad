@@ -136,7 +136,7 @@ burr_piece_test_cases = [
 
 ];
 
-echo("---- Polyhedra generation tests");
+echo("---- Burr generation tests");
 
 for (test = burr_piece_test_cases) {
     echo(test[0]);
@@ -152,7 +152,7 @@ for (test = burr_piece_test_cases) {
 $burr_scale = 12;
 
 // Render a complex piece with a male joint, female joint, and label
-burr_piece([".x{connect=mz+,clabel=Ly-,label_orient=y-x+,label_text=ABC,label_hoffset=0.5}x{connect=fx+,clabel=Lz-}.|.xx.", "....|..x."], $burr_bevel = 1/sqrt(2), $burr_inset = 0.07);
+burr_piece(["x{connect=mz+x-,clabel=L,label_orient=y-x+,label_text=ABC,label_hoffset=0.5}x{connect=mz+,clabel=Ly-}x{connect=fy-,clabel=Lz-}.|.xx{connect=fx+z+,clabel=L}.", "....|..x."], $burr_bevel = 1/sqrt(2), $burr_inset = 0.07);
 
 translate([0, 40, 0]) beveled_cube([15, 10, 5], center = true);
 
