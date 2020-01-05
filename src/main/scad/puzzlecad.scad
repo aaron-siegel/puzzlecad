@@ -3,7 +3,7 @@
 // Puzzlecad code repository: https://github.com/aaron-siegel/puzzlecad
 // For an overview of interlocking puzzles: http://robspuzzlepage.com/interlocking.htm
 
-// Puzzlecad is (c) 2019 Aaron Siegel and is licensed for use under the
+// Puzzlecad is (c) 2019-2020 Aaron Siegel and is licensed for use under the
 // Creative Commons - Attribution license. A copy of this license is available here:
 // https://creativecommons.org/licenses/by/3.0/
 
