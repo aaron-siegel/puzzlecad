@@ -193,13 +193,14 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 assert(is_valid_connect, str("Invalid connector: ", connect));
                 
                 is_valid_clabel =
+                    is_undef(clabel) ||
                     len(clabel) == 1 ||
                     len(clabel) == 3 && is_valid_orientation(str(substr(connect, 1, 2), substr(clabel, 1, 2)));
                 assert(is_valid_clabel, str("Invalid clabel: ", clabel));
                 
-                assert(len(clabel) == 3 || len(connect) == 5, str("No orientation specified for clabel: ", clabel));
+                assert(is_undef(clabel) || len(clabel) == 3 || len(connect) == 5, str("No orientation specified for clabel: ", clabel));
                 
-                if (len(clabel) == 3 && len(connect) == 5) {
+                if (!is_undef(clabel) && len(clabel) == 3 && len(connect) == 5) {
                     echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
                 }
                 
@@ -207,7 +208,6 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     translate(cw(scale_vec, [x,y,z]))
                     male_connector_cutout(substr(connect, 1, 4));
                 } else {
-                    clabel = lookup_kv(aux[x][y][z], "clabel");
                     translate(cw(scale_vec, [x,y,z]))
                     female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
                 }
@@ -622,7 +622,9 @@ module female_connector(orient, label, explicit_label_orient) {
         } else {
             cube(size3, center = true);
         }
-        connector_label(1, orient, label, explicit_label_orient);
+        if (!is_undef(label)) {
+            connector_label(1, orient, label, explicit_label_orient);
+        }
     }
     
 }
@@ -672,7 +674,7 @@ module male_connector(orient, label, explicit_label_orient) {
                 translate([0, 0, -$burr_scale / 6 - 0.5])
                 tapered_cube([size, size, size + $burr_scale / 3 + 1], center = true);
             }
-            if (label) {
+            if (!is_undef(label)) {
                 connector_label(-1, orient, label, explicit_label_orient);
             }
         }
@@ -1544,6 +1546,7 @@ function strtok(str, sep, i=0, token="", result=[]) =
 
 // Returns a substring of a given string.
 function substr(str, pos=0, len=-1, substr="") =
+    is_undef(str) ? undef :
     pos >= len(str) ? substr :
 	len == 0 ? substr :
 	len == -1 ? substr(str, pos, len(str)-pos, substr) :
