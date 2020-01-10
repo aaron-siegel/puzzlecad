@@ -47,7 +47,7 @@ $puzzlecad_debug = false;
  *    and is used only for output/debugging (it has no effect on rendering).
  */
 
-module burr_piece(burr_spec, label = undef, piece_number = undef) {
+module burr_piece(burr_spec, center = false, label = undef, piece_number = undef) {
 
     scale_vec = vectorize($burr_scale);
     inset_vec = vectorize($burr_inset);
@@ -61,20 +61,20 @@ module burr_piece(burr_spec, label = undef, piece_number = undef) {
     ));
     
     translate(cw(scale_vec, $post_translate))
-    translate(scale_vec / 2 - inset_vec)
+    translate(center ? [0, 0, 0] : scale_vec / 2 - inset_vec)
     rotate($post_rotate)
     difference() {
         burr_piece_base(burr_spec);
         if (label) {
             translate([-scale_vec.x/2+1+inset_vec.x, scale_vec.y/2, scale_vec.z/2])
-            rotate([90,0,-90])
+            rotate([90, 0, -90])
             linear_extrude(height=1)
             text(label, halign="center", valign="center", size=6, $fn=64);
         }
     }
     
 }
-        
+
 /* Module for rendering multiple burr pieces on a single plate. The module will prearrange the
  * pieces so that they can be generated into a single STL/OBJ file.
  * "burr_specs" is a vector of burr pieces (specified the same way as when calling burr_piece).
@@ -590,7 +590,7 @@ module tetrahedron_cutout() {
     vertices = [[0, 0, 0], [0, 0, 0.5], [-0.5, 0.5, 0.5], [0.5, 0.5, 0.5]];
     faces = [[0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2]];
     
-    inset_translate = sqrt(2) * $burr_inset;
+    inset_translate = $burr_inset;
     translate([0, 0, -inset_translate])
     scale(1 + 2 * inset_translate / $burr_scale)
     scale($burr_scale)
@@ -1310,7 +1310,7 @@ function make_beveled_poly_normalized(vertices, faces) = let(
             let (edge_vector = vertices[edge_scheme[0][0]] - vertices[edge_scheme[0][1]],
                  edge_normal_1 = cross(edge_vector, face_normals[edge_scheme[1]]),
                  edge_normal_2 = cross(edge_vector, face_normals[edge_scheme[2]]))
-            [edge_scheme[0], [cross(edge_normal_1, edge_normal_2) * edge_vector, angle(edge_normal_1, edge_normal_2)]]
+            [edge_scheme[0], [cross(edge_normal_1, edge_normal_2) * edge_vector, 180 - angle(edge_normal_1, edge_normal_2)]]
         ],
         
     xmin = min([ for (v = vertices) v.x ]),
@@ -1361,8 +1361,8 @@ function make_beveled_poly_normalized(vertices, faces) = let(
           let (convexity_sign = cross(inedge_rev, outedge_rev) * face_normals[old_face])
           let (inedge_convexity = lookup_kv_unordered(edge_convexities, [prev_vertex, old_vertex]),
                outedge_convexity = lookup_kv_unordered(edge_convexities, [old_vertex, next_vertex]))
-          let (inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, old_vertex]),
-               outedge_bevel = lookup_kv_unordered(edge_bevelings, [old_vertex, next_vertex]))
+          let (inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, old_vertex])  /* * sqrt(1/2) / sin(inedge_convexity[1] / 2) */,
+               outedge_bevel = lookup_kv_unordered(edge_bevelings, [old_vertex, next_vertex]) /* * sqrt(1/2) / sin(outedge_convexity[1] / 2) */)
         
           if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
               // Two concave edges: no beveling; vertex retains its original location.
