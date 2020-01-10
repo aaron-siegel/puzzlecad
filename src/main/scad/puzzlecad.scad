@@ -1082,7 +1082,7 @@ function copies(n, burr) = n == 0 ? [] : concat(copies(n-1, burr), [burr]);
 function make_poly(faces) =
     let (merged_faces = merge_coplanar_faces(remove_degeneracies(faces)))
     let (normalized_faces = [ for (f = merged_faces) remove_face_degeneracies(remove_collinear_points(merged_faces, f)) ])
-    make_poly_2(normalized_faces);
+    make_poly_2(remove_degeneracies(normalized_faces));
     
 function make_poly_2(faces) =
     let (points = flatten(faces))
@@ -1165,14 +1165,22 @@ function amalgamate_faces(face1, face2, indices) =
 function edge_pair_indices(face1, face2, i = 0) =
       i >= len(face1) ? undef
     : let (result = edge_pair_indices_2(face1, face2, i))
-      is_undef(result) ? edge_pair_indices(face1, face2, i+1) : result;
+      is_undef(result) ? edge_pair_indices(face1, face2, i + 1) : result;
 
 function edge_pair_indices_2(face1, face2, i, j = 0) =
       j >= len(face2) ? undef
-    : norm(face1[i] - face2[j]) < $poly_err_tolerance &&
-      norm(face1[(i+1) % len(face1)] - face2[(j-1+len(face2)) % len(face2)]) < $poly_err_tolerance
+    : let(p = face1[i], q = face1[(i+1) % len(face1)])
+      norm(p - face2[j]) < $poly_err_tolerance &&
+      norm(q - face2[(j-1+len(face2)) % len(face2)]) < $poly_err_tolerance &&
+      (norm(polygon_normal(face1)) >= $poly_err_tolerance || all_points_between(face1, p, q)) &&
+      (norm(polygon_normal(face2)) >= $poly_err_tolerance || all_points_between(face2, p, q))
     ? [i, j]
     : edge_pair_indices_2(face1, face2, i, j+1);
+           
+function all_points_between(points, p, q, i = 0) =
+      i >= len(points) ? true
+    : (points[i] - p) * (points[i] - q) >= $poly_err_tolerance ? false
+    : all_points_between(points, p, q, i + 1);
     
 function make_point_index(points) = [
     for (n = [0:len(points)-1])
@@ -1338,13 +1346,13 @@ function make_beveled_poly_normalized(vertices, faces) = let(
     // face, and loc a sub-locator. The sub-locator will be 0 for convex [v, f]-pairs, and
     // -1 or 1 for concave.
     new_vertex_ids =
-        [ for (v=[0:len(vertices)-1], f=faces_containing[v], loc=[-1, 1]) [v, f, loc] ],
+        [ for (v=[0:len(vertices)-1], f=faces_containing[v]) [v, f] ],
             
     new_vertex_id_lookup =
         [ for (id=[0:len(new_vertex_ids)-1]) [new_vertex_ids[id], id] ],
             
     new_vertex_locations =
-        [ for (c = vf_connectors, loc = [-1, 1])
+        [ for (c = vf_connectors)
           let (old_vertex = c[0][0], old_face = c[0][1], prev_vertex = c[1][0], next_vertex = c[1][1])
           let (inedge_rev = vertices[prev_vertex] - vertices[old_vertex],
                outedge_rev = vertices[old_vertex] - vertices[next_vertex])
@@ -1356,12 +1364,8 @@ function make_beveled_poly_normalized(vertices, faces) = let(
           let (inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, old_vertex]),
                outedge_bevel = lookup_kv_unordered(edge_bevelings, [old_vertex, next_vertex]))
         
-          if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001 && convexity_sign < -0.001)
-              // Two concave edges; vertex is concave.
-              vertices[old_vertex] + unit_vector(loc == 1 ? -outedge_rev : inedge_rev) * (loc == 1 ? inedge_bevel : outedge_bevel) * setback_multiplier
-              
-          else if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
-              // Two concave edges; vertex is convex: no beveling; vertex retains its original location.
+          if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
+              // Two concave edges: no beveling; vertex retains its original location.
               vertices[old_vertex]
           
           else if (inedge_convexity[0] < -0.001)
@@ -1374,7 +1378,7 @@ function make_beveled_poly_normalized(vertices, faces) = let(
           
           else if (convexity_sign < -0.001)
               // Two convex edges; vertex is concave.
-              vertices[old_vertex] + unit_vector(loc == 1 ? -inedge_rev : outedge_rev) * (loc == 1 ? outedge_bevel : inedge_bevel) * setback_multiplier
+              vertices[old_vertex] + (unit_vector(-inedge_rev) * outedge_bevel - unit_vector(-outedge_rev) * inedge_bevel) * setback_multiplier
           
           else if (convexity_sign < 0.001)
               // Two convex, parallel edges.
@@ -1386,24 +1390,30 @@ function make_beveled_poly_normalized(vertices, faces) = let(
         ],
           
     new_ordinary_faces =
-        [ for (f=[0:len(faces)-1]) [ for (v=faces[f], loc=[-1, 1]) [v, f, loc] ] ],
+        [ for (f=[0:len(faces)-1]) [ for (v=faces[f]) [v, f] ] ],
         
     new_edge_bevel_faces =
-        [ for (scheme=edge_schemes) if (lookup_kv_unordered(edge_convexities, scheme[0])[0] >= -0.001) let (
+        [ for (scheme=edge_schemes) let (
             v1 = scheme[0][0], v2 = scheme[0][1], f1 = scheme[1], f2 = scheme[2]
-          ) ( [[v1, f1, 1], [v1, f2, -1], [v2, f2, 1], [v2, f1, -1]] ) ],
+          ) ( [[v1, f1], [v1, f2], [v2, f2], [v2, f1]] ) ],
         
     start_indices_for_corner_bevel_faces =
         [ for (v=[0:len(vertices)-1])
-            find_index_for_corner_bevel_face(v, ordered_faces_containing[v], faces, edge_convexities)
+            find_indices_for_corner_bevel_face(v, ordered_faces_containing[v], faces, edge_convexities)
         ],
         
     new_corner_bevel_faces =
         [ for (v=[0:len(vertices)-1])
-            let(ofc = ordered_faces_containing[v])
-            [ for (k=[0:len(ofc)-1], loc=[1, -1]) [v, ofc[(k + len(ofc) - 1 + start_indices_for_corner_bevel_faces[v]) % len(ofc)], loc] ]
+          let (ofc = ordered_faces_containing[v])
+          let (start_indices = start_indices_for_corner_bevel_faces[v])
+          for (k = [0:len(start_indices)-1])
+          let (start = start_indices[k])
+          let (count = len(start_indices) == 1 ? len(ofc) : (start_indices[(k+1) % len(start_indices)] - start + len(ofc)) % len(ofc))
+          if (count >= 3)
+          for (w=[1:count-2])
+          [ [v, ofc[start]], [v, ofc[(start + w) % len(ofc)]], [v, ofc[(start + w + 1) % len(ofc)]] ]
         ],
-            
+   
     new_faces = concat(new_ordinary_faces, new_edge_bevel_faces, new_corner_bevel_faces),
             
     literal_new_faces = [ for (f = new_faces) [ for (v = f) new_vertex_locations[lookup_kv(new_vertex_id_lookup, v)] ] ],
@@ -1445,6 +1455,19 @@ function find_index_for_corner_bevel_face(v, ordered_faces_containing, faces, ed
       convexity[0] < 0 ? k
     : find_index_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k + 1);
         
+function find_indices_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k = 0, result = []) =
+    k >= len(ordered_faces_containing)
+    ? (len(result) == 0 ? [find_index_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities)] : result)
+    : let(f = ordered_faces_containing[k])
+      let(index_in_face = index_of(faces[f], v))
+      let(inedge = [faces[f][(index_in_face - 1 + len(faces[f])) % len(faces[f])], v])
+      let(outedge = [v, faces[f][(index_in_face + 1) % len(faces[f])]])
+      let(in_convexity = lookup_kv_unordered(edge_convexities, inedge))
+      let(out_convexity = lookup_kv_unordered(edge_convexities, outedge))
+      find_indices_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k + 1,
+        in_convexity[0] < -0.001 && out_convexity[0] < -0.001 ? concat(result, [(k+1) % len(ordered_faces_containing)]) : result)
+    ;
+
 /***** Cube Geometry *****/
 
 cube_face_names = ["z-", "y-", "x-", "x+", "y+", "z+"];
