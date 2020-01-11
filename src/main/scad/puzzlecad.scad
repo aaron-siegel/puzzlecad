@@ -24,6 +24,7 @@ $joint_cutout = 0.5;
 $post_rotate = [0, 0, 0];
 $post_translate = [0, 0, 0];
 $poly_err_tolerance = 1e-10;
+$unit_test_tolerance = 1e-10;
 
 // These parameters are optional and can be used to increase
 // the amount of beveling on outer edges of burr pieces.
@@ -398,9 +399,8 @@ module burr_piece_component(burr_info, component_id, test_poly = undef) {
     if (test_poly) {
                 
         // Don't render; just test the polyhedron. This is used for unit testing.
-        
         for (i=[0:max(len(poly[0]), len(test_poly[0]))-1]) {
-            if (!(norm(poly[0][i] - test_poly[0][i]) < $poly_err_tolerance)) {
+            if (!(norm(poly[0][i] - test_poly[0][i]) < $unit_test_tolerance)) {
                 echo(str("EXPECTED: ", test_poly));
                 echo(str("ACTUAL: ", poly));
                 assert(false, str("Points differ at index ", i, ": ", test_poly[0][i], " != ", poly[0][i]));
@@ -509,7 +509,7 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
         // Don't render; just test the polyhedron. This is used for unit testing.
         
         for (i=[0:max(len(poly[0]), len(test_poly[0]))-1]) {
-            if (!(norm(poly[0][i] - test_poly[0][i]) < $poly_err_tolerance)) {
+            if (!(norm(poly[0][i] - test_poly[0][i]) < $unit_test_tolerance)) {
                 echo(str("EXPECTED: ", test_poly));
                 echo(str("ACTUAL: ", poly));
                 assert(false, str("Points differ at index ", i, ": ", test_poly[0][i], " != ", poly[0][i]));
