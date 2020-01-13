@@ -1351,42 +1351,40 @@ function make_beveled_poly_normalized(vertices, faces) = let(
     new_vertex_id_lookup =
         [ for (id=[0:len(new_vertex_ids)-1]) [new_vertex_ids[id], id] ],
             
-    new_vertex_locations =
-        [ for (c = vf_connectors)
-          let (old_vertex = c[0][0], old_face = c[0][1], prev_vertex = c[1][0], next_vertex = c[1][1])
-          let (inedge_rev = vertices[prev_vertex] - vertices[old_vertex],
-               outedge_rev = vertices[old_vertex] - vertices[next_vertex])
-          let (vertex_angle = angle(inedge_rev, outedge_rev))
-          let (setback_multiplier = 1 / sqrt(2) / sin(vertex_angle))
-          let (convexity_sign = cross(inedge_rev, outedge_rev) * face_normals[old_face])
-          let (inedge_convexity = lookup_kv_unordered(edge_convexities, [prev_vertex, old_vertex]),
-               outedge_convexity = lookup_kv_unordered(edge_convexities, [old_vertex, next_vertex]))
-          let (inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, old_vertex])  /* * sqrt(1/2) / sin(inedge_convexity[1] / 2) */,
-               outedge_bevel = lookup_kv_unordered(edge_bevelings, [old_vertex, next_vertex]) /* * sqrt(1/2) / sin(outedge_convexity[1] / 2) */)
+    new_vertex_locations = [
         
+          for (c = vf_connectors)
+          
+          let (vertex = c[0][0], face = c[0][1], prev_vertex = c[1][0], next_vertex = c[1][1])
+          
+          let (inedge = vertices[vertex] - vertices[prev_vertex],
+               outedge = vertices[next_vertex] - vertices[vertex],
+               inedge_setback_dir = unit_vector(cross(-inedge, face_normals[face])),
+               outedge_setback_dir = unit_vector(cross(-outedge, face_normals[face])),
+               vertex_angle = angle(inedge, outedge),
+               inedge_convexity = lookup_kv_unordered(edge_convexities, [prev_vertex, vertex]),
+               outedge_convexity = lookup_kv_unordered(edge_convexities, [vertex, next_vertex]),
+               inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, vertex])  /* * sqrt(1/2) / sin(inedge_convexity[1] / 2) */,
+               outedge_bevel = lookup_kv_unordered(edge_bevelings, [vertex, next_vertex]) /* * sqrt(1/2) / sin(outedge_convexity[1] / 2) */
+          )
+
           if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
               // Two concave edges: no beveling; vertex retains its original location.
-              vertices[old_vertex]
+              vertices[vertex]
           
           else if (inedge_convexity[0] < -0.001)
               // Only the inedge is concave.
-              vertices[old_vertex] + unit_vector(inedge_rev) * outedge_bevel * setback_multiplier
+              vertices[vertex] - unit_vector(inedge) * outedge_bevel / sqrt(2) / sin(vertex_angle)
           
           else if (outedge_convexity[0] < -0.001)
               // Only the outedge is concave.
-              vertices[old_vertex] - unit_vector(outedge_rev) * inedge_bevel * setback_multiplier
+              vertices[vertex] + unit_vector(outedge) * inedge_bevel / sqrt(2) / sin(vertex_angle)
           
-          else if (convexity_sign < -0.001)
-              // Two convex edges; vertex is concave.
-              vertices[old_vertex] + (unit_vector(-inedge_rev) * outedge_bevel - unit_vector(-outedge_rev) * inedge_bevel) * setback_multiplier
-          
-          else if (convexity_sign < 0.001)
-              // Two convex, parallel edges.
-              assert(abs(inedge_bevel - outedge_bevel) < 0.001)
-              vertices[old_vertex] + unit_vector(cross(inedge_rev, face_normals[old_face])) * outedge_bevel / sqrt(2)
           else
-              // Two convex edges; vertex is convex.
-              vertices[old_vertex] + (unit_vector(inedge_rev) * outedge_bevel - unit_vector(outedge_rev) * inedge_bevel) * setback_multiplier
+              vertices[vertex] +
+                  (inedge_setback_dir * inedge_bevel + outedge_setback_dir * outedge_bevel) / sqrt(2) /
+                  (1 + inedge_setback_dir * outedge_setback_dir)
+
         ],
           
     new_ordinary_faces =
