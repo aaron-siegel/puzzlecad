@@ -21,6 +21,7 @@ $plate_depth = 180;
 $plate_sep = 6;
 $joint_inset = 0;
 $joint_cutout = 0.5;
+$unit_beveled = false;
 $post_rotate = [0, 0, 0];
 $post_translate = [0, 0, 0];
 $poly_err_tolerance = 1e-10;
@@ -215,6 +216,28 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 
             }
             
+            diag_connect = lookup_kv(aux[x][y][z], "diag_connect");
+            diag_ctype = lookup_kv(aux[x][y][z], "diag_ctype", default = "glue");
+
+            if (diag_connect) {
+                
+                is_valid_diag_connect =
+                    (diag_connect[0] == "m" || diag_connect[0] == "f") &&
+                    is_valid_orientation(substr(diag_connect, 1, 4));
+                assert(is_valid_diag_connect, str("Invalid diag_connect: ", diag_connect));
+                
+                is_valid_diag_ctype =
+                    diag_ctype == "snap" || diag_ctype == "glue";
+                
+                assert(is_valid_diag_ctype, str("Invalid diag_ctype: ", diag_ctype, " (must be \"snap\" or \"glue\")"));
+                
+                if (diag_connect[0] == "f") {
+                    translate(cw(scale_vec, [x, y, z]))
+                    female_diag_connector(substr(diag_connect, 1, 4), diag_ctype);
+                }
+                
+            }
+
         }
         
         // Remove any labels that are specified.
@@ -301,12 +324,21 @@ module burr_piece_base(burr_spec, test_poly = undef) {
     // Render the male connectors. connect and clabel will have already been validated (above).
     
     for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+        
         connect = lookup_kv(aux[x][y][z], "connect");
         if (connect[0] == "m") {
             clabel = lookup_kv(aux[x][y][z], "clabel");
-            translate(cw(scale_vec, [x,y,z]))
+            translate(cw(scale_vec, [x, y, z]))
             male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
         }
+        
+        diag_connect = lookup_kv(aux[x][y][z], "diag_connect");
+        if (diag_connect[0] == "m") {
+            diag_ctype = lookup_kv(aux[x][y][z], "diag_ctype", default = "glue");
+            translate(cw(scale_vec, [x, y, z]))
+            male_diag_connector(substr(diag_connect, 1, 4), diag_ctype);
+        }
+        
     }
     
 }
@@ -534,20 +566,28 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
             if ($burr_inset > 0) {
                 for (x=[-1:xlen], y=[-1:ylen], z=[-1:zlen]) {
                     cell = [x, y, z];
-                    ortho = lookup3(ortho_geom, cell);
-                    for (face=[0:5], edge=[0:3], vertex=[0:1]) {
-                        fev = [face, edge, vertex];
-                        if (lookup3(ortho, fev) != component_id) {
-                            facing_cell = cell + directions[face];
-                            if (lookup3(burr, cell) == component_id ||
-                                lookup3(burr, cell + directions[face]) == component_id ||
-                                lookup3(burr, cell + cube_edge_directions[face][edge]) == component_id) {
+                    if (lookup3(burr, cell) != component_id) {
+                        translate(cw(cell, scale_vec)) {
+                            cube(scale_vec + [2 * $burr_inset, 0, 0], center = true);
+                            cube(scale_vec + [0, 2 * $burr_inset, 0], center = true);
+                            cube(scale_vec + [0, 0, 2 * $burr_inset], center = true);
+                        }
+                    } else {
+                        ortho = lookup3(ortho_geom, cell);
+                        for (face=[0:5], edge=[0:3], vertex=[0:1]) {
+                            fev = [face, edge, vertex];
+                            if (lookup3(ortho, fev) != component_id) {
+                                facing_cell = cell + directions[face];
+                                if (lookup3(burr, cell) == component_id ||
+                                    lookup3(burr, cell + directions[face]) == component_id ||
+                                    lookup3(burr, cell + cube_edge_directions[face][edge]) == component_id) {
+                                        
+                                    translate(cw(cell, scale_vec))
+                                    rotate(cube_face_rotations[face])
+                                    rotate(cube_edge_pre_rotations[edge])
+                                    tetrahedron_cutout();
                                     
-                                translate(cw(cell, scale_vec))
-                                rotate(cube_face_rotations[face])
-                                rotate(cube_edge_pre_rotations[edge])
-                                tetrahedron_cutout();
-                                
+                                }
                             }
                         }
                     }
@@ -692,6 +732,104 @@ module male_connector(orient, label, explicit_label_orient) {
         cylinder(h = $joint_cutout + 1 +iota, r = 1, $fn = 32, center = true);
     }
     
+}
+
+module female_diag_connector(orient, type) {
+    
+    rot = cube_face_rotation(orient);
+    pre_rot = cube_edge_pre_rotation(orient);
+    
+    theta = atan(sqrt(2));
+    eta = atan(sqrt(2)/2);
+    
+    $fn = 32;
+    
+    scale($burr_scale)
+    rotate(rot)
+    rotate(pre_rot)
+    rotate([45, 0, 0])
+    translate([0, 0, $burr_inset / sqrt(2) / $burr_scale - iota]) {
+        
+        if (type == "glue") {
+            
+            diag_connector_pegs(1.3 / $burr_scale, 1.2 / $burr_scale);
+            
+        } else if (type == "snap") {
+        
+            linear_extrude(7.3 / $burr_scale)
+            polygon([
+                [0, 0.3],
+                [-1/2 + 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)],
+                [1/2 - 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)]
+            ]);
+            
+        } else {
+            
+            assert(false);
+            
+        }
+        
+    }
+    
+}
+
+module male_diag_connector(orient, type) {
+    
+    rot = cube_face_rotation(orient);
+    pre_rot = cube_edge_pre_rotation(orient);
+    
+    theta = atan(sqrt(2));
+    eta = atan(sqrt(2)/2);
+
+    $fn = 32;
+    
+    scale($burr_scale)
+    rotate(rot)
+    rotate(pre_rot)
+    rotate([45, 0, 0]) {
+        
+        if (type == "glue") {
+            
+            translate([0, 0, (-1 + $burr_inset / sqrt(2)) / $burr_scale + iota])
+            diag_connector_pegs(1 / $burr_scale, 1 / $burr_scale);
+            
+        } else if (type == "snap") {
+            
+            translate([0, 0, (-7 + $burr_inset / sqrt(2)) / $burr_scale + iota])
+            linear_extrude(7 / $burr_scale)
+            polygon([
+                [0, 0.3],
+                [-1/2 + 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)],
+                [1/2 - 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)]
+            ]);
+            
+        } else {
+            
+            assert(false);
+            
+        }
+        
+    }
+    
+}
+
+module diag_connector_pegs(depth, radius) {
+
+    theta = atan(sqrt(2));
+    eta = atan(sqrt(2)/2);
+
+    translate([0, 0.25, 0])
+    linear_extrude(depth)
+    circle(radius);
+    
+    translate([-1/2 + 0.3 * cos(theta/2), sqrt(2)/2 - 0.3 * sin(theta/2)])
+    linear_extrude(depth)
+    circle(radius);
+    
+    translate([1/2 - 0.3 * cos(theta/2), sqrt(2)/2 - 0.3 * sin(theta/2)])
+    linear_extrude(depth)
+    circle(radius);
+        
 }
 
 module tapered_cube(size, center = false) {
@@ -958,6 +1096,20 @@ module beveled_polyhedron(faces) {
 // Converts a flexible burr spec (argument to burr_piece) into a structured vector of information.
 
 function to_burr_info(burr_spec) =
+    let (burr_info = to_burr_info_base(burr_spec))
+    [ for (x = [0:len(burr_info)-1])
+        [ for (y = [0:len(burr_info[x])-1])
+            [ for (z = [0:len(burr_info[x][y])-1])
+                let (component = burr_info[x][y][z][0], aux = burr_info[x][y][z][1])
+                if ($unit_beveled && component != 0)
+                    [component + x / 100 + y / 10000 + z / 1000000, aux]
+                else
+                    [component, aux]
+            ]
+        ]
+    ];
+
+function to_burr_info_base(burr_spec) =
 
     // If burr_spec is a number, then interpret it as a Kaenel number for a six-piece burr stick.
       is_num(burr_spec) ? burr_stick(burr_spec, 6)
