@@ -36,7 +36,7 @@ include <puzzlecad.scad>
 // single voxel (cube) in the upper layer:
 *burr_piece([".xx|xx.", "...|.x."]);
 
-// Sometimes it's convenient to generate all the pieces of a puzzle at once. The convenience
+// Sometimes it's convenient to generate all the pieces of a puzzle at once. The handy
 // module burr_plate makes this easy to do. Bill Cutler's Burr #305:
 *burr_plate([52, 615, 792, 960, 975, 992]);
 
@@ -181,7 +181,109 @@ include <puzzlecad.scad>
 
 
 // ======================================
-// TRAY PUZZLES
+// DIAGONAL GEOMETRY
+
+*burr_piece("x{components=z-}", $burr_inset = 0);
+
+*burr_piece("x{components={z-,x-}}", $burr_inset = 0);
+
+*burr_piece("x{components=z-y+}", $burr_inset = 0);
+
+*union() {
+    translate([1, 0, 0]) burr_piece("x{components=z-y-}", $burr_inset = 0);
+    translate([0, 1, 0]) burr_piece("x{components=z-x-}", $burr_inset = 0);
+    translate([1, 2, 0]) burr_piece("x{components=z-y+}", $burr_inset = 0);
+    translate([2, 1, 0]) burr_piece("x{components=z-x+}", $burr_inset = 0);
+}
+
+*burr_piece([
+    "x{components={z+x+,x+z+}}x{components={z+,x-z+,x+z+}}x{components={z+x-,x-z+}}",
+    "x{components=z-x+}x{components=z-}x{components=z-x-}"
+], $burr_inset = 0);
+
+*burr_piece([
+    "x{components={z+x+,x+z+}}x{components={z+,x-z+,x+z+}}x{components={z+x-,x-z+}}",
+    "x{components=z-x+}x{components=z-}x{components=z-x-}"
+], $burr_inset = 0, $post_rotate = [45, 0, 0], $post_translate = [0, 0, -1/2]);
+
+// $post_rotate, $post_translate, joints
 
 // ======================================
-// DIAGONAL GEOMETRY
+// 2D AND TRAY PUZZLES
+
+// All of the above models are composed of adjoined cubes ("polycubes") that assemble or interlock
+// to form a three-dimensional rectilinear shape. Another common puzzle type is the "tray-packing"
+// puzzle, in which a set of two-dimensional pieces must be fitted into a flat opening. Puzzlecad
+// provides built-in support for models of this type.
+
+// It's particularly easy to model polyominoes in puzzlecad; just specify $burr_scale as a *vector*
+// rather than a single number. Here's the L-Pentomino as an example. Setting $burr_scale to
+// [16, 16, 5.6] will yield polyominoes out of 16 mm squares, with a 5.6 mm thickness:
+*burr_piece("xxxx|x...", $burr_scale = [16, 16, 5.6]);
+
+// Insets and beveling will be applied just as in the three-dimensional case, with all the usual
+// options available ($burr_inset, $burr_bevel, etc).
+
+// For two-dimensional puzzle pieces other than polyominoes, you can use the more general module
+// beveled_prism, which takes a polygon as input and generates the corresponding prism, with
+// appropriate beveling of the edges. (Make sure the vertices of the polygon wind clockwise, or
+// you'll get an error.)
+*beveled_prism([[0, 0], [0, 32], [16, 0]], height = 5.6);
+
+// beveled_prism will honor the $burr_bevel parameter, but you'll need to do the scaling and apply
+// insets (as appropriate) manually.
+
+// To model trays, puzzlecad provides the convenient module packing_tray, which is highly
+// customizable with lots of options. Let's start with an example; this is the actual tray for
+// Stewart Coffin's classic design Four Fit:
+*packing_tray(
+    opening_width = 13 / sqrt(5),
+    opening_depth = 11 / sqrt(5),
+    piece_holder_spec = [".x|.x|xx|.x"],
+    finger_wedge = [2, 2],
+    render_as_lid = false,
+    title = "Four Fit",
+    subtitles = ["Stewart Coffin", "STC #217"],
+    $tray_scale = 16
+);
+
+// puzzlecad will determine the optimal overall dimensions for the tray based on the supplied
+// parameters. If render_as_lid is set to true, then a tray *lid* will be generated rather than the
+// tray itself (try it!)
+    
+// Here's a summary of all the parameters for packing_tray:
+
+// opening_width         the dimensions of the rectangular cavity in the tray, in units of
+// opening_depth         $tray_scale
+
+// piece_holder_spec     (optional) an ordinary burr piece specification; if specified, generates
+//                       a separate opening that can be used to hold one of the pieces, for
+//                       convenient storage when the puzzle is not in use
+
+// finger_wedge          (optional) generates a disc-shaped cavity centered at the specified
+//                       coordinates of piece_holder_spec, for ease of removal of the stored piece
+
+// render_as_lid         (optional) if set to true, then a tray *lid* will be generated rather than a
+//                       *tray*.
+
+// title                 (optional) if specified, then the title and/or subtitle will be imprinted on
+// subtitles             the surface of the tray lid.
+
+// opening_polygon       use in place of opening_width and opening_depth; generates an arbitrary
+//                       polygon for the opening, rather than a rectangle
+
+// opening_polygons      use in place of opening_width and opening_depth; generates several (possibly
+//                       disconnected) openings. this should be given as a vector of polygons
+
+// piece_holder_polygon  use in place of piece_holder_spec; generates an arbitrary polygon for the
+//                       piece holder, rather than a polyomino
+
+// $tray_scale           
+
+// $tray_padding
+
+// $tray_opening_height
+
+// $tray_opening_border
+
+// $piece_holder_buf
