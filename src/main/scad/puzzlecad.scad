@@ -1060,6 +1060,11 @@ module beveled_prism(polygon, height, center = false) {
     
     top = [ for (p = polygon) [ p.x, p.y, height ] ];
         
+    assert(
+        unit_vector(polygon_normal(top)) == [0, 0, -1],
+        "beveled_prism: faces of the specified polygon must wind clockwise."
+    );
+
     bottom = [ for (i = [len(polygon)-1:-1:0]) let (p = polygon[i]) [ p.x, p.y, 0] ];
         
     sides = [
