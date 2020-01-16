@@ -178,7 +178,31 @@ include <puzzlecad.scad>
 // ======================================
 // LABELS
 
+// Sometimes it's desirable to print the name of the model on one of the pieces. You can do this
+// easily in puzzlecad with the label_text and label_orient annotations. Try the following example:
+*burr_piece(
+    ["xx{label_text=Half Hour,label_orient=z+x+}x|.x.", "...|.x."],
+    $burr_scale = 17, $burr_bevel = 1);
 
+// This tells puzzlecad to print the text "Half Hour" centered on the specified voxel, in the z+x+
+// orientation. In this case, the "z+x+" orientation means "print the text on the z+ face of the
+// voxel, running left-to-right in the x+ direction".
+
+// Whether to use labels, and whether to print them on the inside or outside face of the puzzle,
+// is an entirely aesthetic decision. Puzzlecad provides several further annotations for fine-tuning
+// the appearance of the labels:
+
+// label_scale      font size of the label, *relative* to $burr_scale. The default is 0.4, so that
+//                  if (say) $burr_scale = 17, then the label will be printed in 6.8-point font
+//                  (6.8 = 17 x 0.4).
+
+// label_hoffset    optional horizontal offset to apply to the label, in units of $burr_scale. This
+//                  can be useful for fine-tuning the placement of the label. If label_hoffset is
+//                  nonzero, then the label won't be centered on the cell, but will be shifted by
+//                  the specified amount. For example, setting label_hoffset = 0.5 will center the
+//                  text on the line exactly halfway between the cell and its neighbor to the right.
+
+// label_voffset    optional vertical offset to apply to the label (works the same way as above).
 
 // ======================================
 // DIAGONAL GEOMETRY
@@ -287,3 +311,7 @@ include <puzzlecad.scad>
 // $tray_opening_border
 
 // $piece_holder_buf
+
+// ======================================
+// ADVANCED TECHNIQUES: CUSTOM BEVELING
+

@@ -245,15 +245,21 @@ module burr_piece_base(burr_spec, test_poly = undef) {
 
                 hoffset_str = lookup_kv(options, "label_hoffset");
                 voffset_str = lookup_kv(options, "label_voffset");
+                label_scale_str = lookup_kv(options, "label_scale");
+                
                 hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
                     let(hoffset = atof(hoffset_str))
                     assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
                     hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
+                
                 voffset = is_undef(voffset_str) ? [0, 0, 0] :
                     let(voffset = atof(voffset_str))
                     assert(voffset, str("Invalid label_voffset: ", voffset_str))
                    -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
                 
+                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
+                assert(label_scale, str("Invalid label_scale: ", label_scale_str));
+
                 // Translate by the explicit offsets
                 translate(voffset)
                 translate(hoffset)
@@ -267,8 +273,8 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 rotate([0, 0, 90])
                 translate([0, 0, -1])
                 linear_extrude(2)
-                text(label_text, halign="center", valign="center", size=min(scale_vec) / 1.8583, $fn=64);
-                
+                text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64);
+
             }
             
         }
@@ -1178,7 +1184,7 @@ component_ids = ".abcdefghijklmnopqrstuvwxyz";
    
 // Parse a single character, with optional annotations.
 
-valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_hoffset", "label_voffset" ];
+valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_hoffset", "label_voffset", "label_scale" ];
 
 function string_to_burr_info_opt_suffix(globals, string, i, result, value) =
     substr(string, i+1, 1) == "{" ? string_to_burr_info_suffix(globals, string, i + 2, result, value)
