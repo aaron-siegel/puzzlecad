@@ -11,7 +11,7 @@
 
 puzzlecad_version = "2.0";
 
-// Default values for scale, inset, bevel, etc.
+// Default values for scale, inset, bevel, etc.:
 
 $burr_scale = 11.15;
 $burr_inset = 0.07;
@@ -21,21 +21,23 @@ $plate_depth = 180;
 $plate_sep = 6;
 $joint_inset = 0;
 $joint_cutout = 0.5;
+$diag_joint_inset = 0.015;
 $unit_beveled = false;
 $post_rotate = [0, 0, 0];
 $post_translate = [0, 0, 0];
-$poly_err_tolerance = 1e-10;
-$unit_test_tolerance = 1e-10;
 
-// These parameters are optional and can be used to increase
-// the amount of beveling on outer edges of burr pieces.
+// Optional parameters that can be used to increase
+// the amount of beveling on outer edges of burr pieces:
 
 $burr_outer_x_bevel = undef;
 $burr_outer_y_bevel = undef;
 $burr_outer_z_bevel = undef;
 
-// Setting $puzzlecad_debug = true will spit out debug information during processing.
+// Internal parameters used for the modeling and testing algorithms.
+// Don't change them unless you know what you're doing!
 
+$poly_err_tolerance = 1e-10;
+$unit_test_tolerance = 1e-10;
 $puzzlecad_debug = false;
 
 /* Main module for rendering a burr piece.
@@ -189,8 +191,8 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             if (connect) {
 
                 is_valid_connect =
-                    (connect[0] == "m" || connect[0] == "f") &&
-                    (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
+                    (connect[0] == "m" || connect[0] == "f" || connect[0] == "d") &&
+                    (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) && connect[0] != "d" ||
                      len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)));
                 assert(is_valid_connect, str("Invalid connector: ", connect));
                 
@@ -206,34 +208,15 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
                 }
                 
-                if (connect[0] == "m") {
-                    translate(cw(scale_vec, [x,y,z]))
-                    male_connector_cutout(substr(connect, 1, 4));
-                } else {
-                    translate(cw(scale_vec, [x,y,z]))
-                    female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-                }
-                
-            }
-            
-            diag_connect = lookup_kv(aux[x][y][z], "diag_connect");
-            diag_ctype = lookup_kv(aux[x][y][z], "diag_ctype", default = "glue");
-
-            if (diag_connect) {
-                
-                is_valid_diag_connect =
-                    (diag_connect[0] == "m" || diag_connect[0] == "f") &&
-                    is_valid_orientation(substr(diag_connect, 1, 4));
-                assert(is_valid_diag_connect, str("Invalid diag_connect: ", diag_connect));
-                
-                is_valid_diag_ctype =
-                    diag_ctype == "snap" || diag_ctype == "glue";
-                
-                assert(is_valid_diag_ctype, str("Invalid diag_ctype: ", diag_ctype, " (must be \"snap\" or \"glue\")"));
-                
-                if (diag_connect[0] == "f") {
-                    translate(cw(scale_vec, [x, y, z]))
-                    female_diag_connector(substr(diag_connect, 1, 4), diag_ctype);
+                translate(cw(scale_vec, [x,y,z])) {
+                    
+                    if (connect[0] == "m")
+                        male_connector_cutout(substr(connect, 1, 4));
+                    else if (connect[0] == "f")
+                        female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
+                    else    // connect[0] == "d"
+                        diag_snap_connector(substr(connect, 1, 4), clabel);
+                    
                 }
                 
             }
@@ -734,15 +717,13 @@ module male_connector(orient, label, explicit_label_orient) {
     
 }
 
-module female_diag_connector(orient, type) {
+module diag_snap_connector(orient, label) {
     
     rot = cube_face_rotation(orient);
     pre_rot = cube_edge_pre_rotation(orient);
     
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
-    
-    $fn = 32;
     
     scale($burr_scale)
     rotate(rot)
@@ -750,73 +731,85 @@ module female_diag_connector(orient, type) {
     rotate([45, 0, 0])
     translate([0, 0, $burr_inset / sqrt(2) / $burr_scale - iota]) {
         
-        if (type == "glue") {
-            
-            diag_connector_pegs(1.3 / $burr_scale, 1.2 / $burr_scale);
-            
-        } else if (type == "snap") {
+        joint_scale = 0.4;
+        joint_length = 5;
+        offset = 0.1;
         
-            linear_extrude(7.3 / $burr_scale)
-            polygon([
-                [0, 0.3],
-                [-1/2 + 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)],
-                [1/2 - 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)]
-            ]);
+        translate([0, ((1 - joint_scale - offset)) * sqrt(2)/2, 0]) {
+
+            linear_extrude((joint_length + 0.3) / $burr_scale)
+            scale(joint_scale)
+            polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
             
-        } else {
-            
-            assert(false);
+            if (label) {
+                
+                label_depth = 0.5 / $burr_scale;
+                
+                translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (joint_length + 0.3) / 2 / $burr_scale])
+                rotate([-90, 0, 0])
+                translate([0, 0, -label_depth/2])
+                linear_extrude(height=label_depth)
+                text(label, halign="center", valign="center", size=1/6, $fn=64);
+                
+            }
             
         }
         
     }
+
+}
+
+module diagonal_strut() {
+    
+    theta = atan(sqrt(2));
+    joint_scale = 0.4;
+    joint_length = 5;
+    
+    poly = [
+        [0, 2 * $diag_joint_inset * sin(theta)],
+        [-1/2, sqrt(2)/2] * $burr_scale * joint_scale + [1 / tan(theta / 2), -1] * $diag_joint_inset,
+        [1/2, sqrt(2)/2] * $burr_scale * joint_scale + [-1 / tan(theta / 2), -1] * $diag_joint_inset
+    ];
+    
+    translate([0, 0, sqrt(2)/2 * $burr_scale * joint_scale - $diag_joint_inset])
+    rotate([-90, 0, 0])
+    beveled_prism(poly, joint_length * 2, $burr_bevel = 0.75, $burr_outer_z_bevel = 1.5);
     
 }
 
-module male_diag_connector(orient, type) {
+module female_diag_glue_connector(orient, label) {
     
     rot = cube_face_rotation(orient);
     pre_rot = cube_edge_pre_rotation(orient);
     
-    theta = atan(sqrt(2));
-    eta = atan(sqrt(2)/2);
+    scale($burr_scale)
+    rotate(rot)
+    rotate(pre_rot)
+    rotate([45, 0, 0])
+    translate([0, 0, $burr_inset / sqrt(2) / $burr_scale - iota])
+    diag_connector_pegs(1.3 / $burr_scale, 1.2 / $burr_scale);
+    
+}
 
-    $fn = 32;
+module male_diag_glue_connector(orient, label) {
+    
+    rot = cube_face_rotation(orient);
+    pre_rot = cube_edge_pre_rotation(orient);
     
     scale($burr_scale)
     rotate(rot)
     rotate(pre_rot)
-    rotate([45, 0, 0]) {
-        
-        if (type == "glue") {
-            
-            translate([0, 0, (-1 + $burr_inset / sqrt(2)) / $burr_scale + iota])
-            diag_connector_pegs(1 / $burr_scale, 1 / $burr_scale);
-            
-        } else if (type == "snap") {
-            
-            translate([0, 0, (-7 + $burr_inset / sqrt(2)) / $burr_scale + iota])
-            linear_extrude(7 / $burr_scale)
-            polygon([
-                [0, 0.3],
-                [-1/2 + 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)],
-                [1/2 - 0.3 * cos(theta/2), sqrt(2)/2 - 0.2 * sin(theta/2)]
-            ]);
-            
-        } else {
-            
-            assert(false);
-            
-        }
-        
-    }
+    rotate([45, 0, 0])
+    translate([0, 0, (-1 + $burr_inset / sqrt(2)) / $burr_scale + iota])
+    diag_connector_pegs(1 / $burr_scale, 1 / $burr_scale);
     
 }
 
-module diag_connector_pegs(depth, radius) {
+module diag_connector_glue_pegs(depth, radius) {
 
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
+    $fn = 32;
 
     translate([0, 0.25, 0])
     linear_extrude(depth)
@@ -1106,10 +1099,8 @@ function to_burr_info(burr_spec) =
         [ for (y = [0:len(burr_info[x])-1])
             [ for (z = [0:len(burr_info[x][y])-1])
                 let (component = burr_info[x][y][z][0], aux = burr_info[x][y][z][1])
-                if ($unit_beveled && component != 0)
-                    [component + x / 100 + y / 10000 + z / 1000000, aux]
-                else
-                    [component, aux]
+                let (new_component = ($unit_beveled && component != 0) ? component + x / 100 + y / 10000 + z / 1000000 : component)
+                is_undef(aux) ? [new_component] : [new_component, aux]
             ]
         ]
     ];
@@ -1186,7 +1177,9 @@ function string_to_burr_info(globals, string, i=0, result=[]) =
 component_ids = ".abcdefghijklmnopqrstuvwxyz";
    
 // Parse a single character, with optional annotations.
-        
+
+valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_hoffset", "label_voffset" ];
+
 function string_to_burr_info_opt_suffix(globals, string, i, result, value) =
     substr(string, i+1, 1) == "{" ? string_to_burr_info_suffix(globals, string, i + 2, result, value)
         : string_to_burr_info_next(globals, string, i + 1, result, value);
@@ -1217,6 +1210,7 @@ function parse_annotations(string, result = [], i = 0) =
     i >= len(string) ? result
     : let (next_separator = find_character(string, ",", i),
            next_annotation = parse_annotation(substr(string, i, next_separator - i)))
+      assert(list_contains(valid_annotations, next_annotation[0]), str("Invalid annotation: ", next_annotation[0]))
       parse_annotations(string, concat(result, [next_annotation]), next_separator + 1);
       
 function parse_annotation(string) =

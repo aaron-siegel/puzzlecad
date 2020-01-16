@@ -229,7 +229,9 @@ $burr_scale = 12;
 // Render a complex piece with a male joint, female joint, and label
 burr_piece(["x{connect=mz+x-,clabel=L,label_orient=y-x+,label_text=ABC,label_hoffset=0.5}x{connect=mz+,clabel=Ly-}x{connect=fy-,clabel=Lz-}.|.x{connect=mz+}x{connect=fx+z+,clabel=L}.", "....|..x{connect=fx+}."], $burr_bevel = 1/sqrt(2), $burr_inset = 0.07);
 
-translate([0, 40, 0]) beveled_cube([15, 10, 5], center = true);
+translate([40, 0, 0]) beveled_cube([15, 10, 5]);
+
+translate([40, 15, 0]) burr_piece(["xxx|x..", "...|x.."], $burr_bevel = 1, $unit_beveled = true);
 
 // Render male connectors in all 24 orientations
 *burr_plate([
