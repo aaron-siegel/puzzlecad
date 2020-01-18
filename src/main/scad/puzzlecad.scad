@@ -321,13 +321,6 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
         }
         
-        diag_connect = lookup_kv(aux[x][y][z], "diag_connect");
-        if (diag_connect[0] == "m") {
-            diag_ctype = lookup_kv(aux[x][y][z], "diag_ctype", default = "glue");
-            translate(cw(scale_vec, [x, y, z]))
-            male_diag_connector(substr(diag_connect, 1, 4), diag_ctype);
-        }
-        
     }
     
 }
@@ -751,11 +744,11 @@ module diag_snap_connector(orient, label) {
                 
                 label_depth = 0.5 / $burr_scale;
                 
-                translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (joint_length + 0.3) / 2 / $burr_scale])
-                rotate([-90, 0, 0])
+                translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (-1 + joint_length + 0.3) / 2 / $burr_scale])
+                rotate([-90, 0, 180])
                 translate([0, 0, -label_depth/2])
                 linear_extrude(height=label_depth)
-                text(label, halign="center", valign="center", size=1/6, $fn=64);
+                text(label, halign="center", valign="center", size=$burr_scale/200, $fn=64);
                 
             }
             
@@ -793,7 +786,7 @@ module female_diag_glue_connector(orient, label) {
     rotate(pre_rot)
     rotate([45, 0, 0])
     translate([0, 0, $burr_inset / sqrt(2) / $burr_scale - iota])
-    diag_connector_pegs(1.3 / $burr_scale, 1.2 / $burr_scale);
+    diag_connector_glue_pegs(1.3 / $burr_scale, 1.2 / $burr_scale);
     
 }
 
@@ -807,7 +800,7 @@ module male_diag_glue_connector(orient, label) {
     rotate(pre_rot)
     rotate([45, 0, 0])
     translate([0, 0, (-1 + $burr_inset / sqrt(2)) / $burr_scale + iota])
-    diag_connector_pegs(1 / $burr_scale, 1 / $burr_scale);
+    diag_connector_glue_pegs(1 / $burr_scale, 1 / $burr_scale);
     
 }
 
