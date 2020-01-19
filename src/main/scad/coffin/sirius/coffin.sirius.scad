@@ -1,11 +1,11 @@
 include <puzzlecad.scad>
 
-$burr_scale = 36;
+$burr_scale = 32;
 $burr_inset = 0.11;
 $burr_bevel = 0.6;
 
-solid();
-*multicolor();
+*solid();
+multicolor();
 *diagonal_pin();
 
 module solid() {

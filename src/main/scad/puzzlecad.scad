@@ -190,10 +190,16 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             
             if (connect) {
 
-                is_valid_connect =
-                    (connect[0] == "m" || connect[0] == "f" || connect[0] == "d") &&
-                    (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) && connect[0] != "d" ||
-                     len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)));
+                is_valid_connect = 
+                    (
+                      (connect[0] == "m" || connect[0] == "f") &&
+                      (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
+                       len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
+                    ) || (
+                      (connect[0] == "d" || connect[0] == "l") &&
+                      (len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)) ||
+                       len(connect) == 6 && connect[5] == "~" && is_valid_orientation(substr(connect, 1, 4)))
+                    );
                 assert(is_valid_connect, str("Invalid connector: ", connect));
                 
                 is_valid_clabel =
@@ -214,8 +220,8 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                         male_connector_cutout(substr(connect, 1, 4));
                     else if (connect[0] == "f")
                         female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-                    else    // connect[0] == "d"
-                        diag_snap_connector(substr(connect, 1, 4), clabel);
+                    else    // connect[0] == "d" || connect[0] == "l"
+                        diag_snap_connector(substr(connect, 1, 4), clabel, twist = connect[5] == "~", lateral = connect[0] == "l");
                     
                 }
                 
@@ -450,16 +456,16 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
     aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
         
     ortho_geom = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1])
-        let (components_str = lookup_kv(aux[x][y][z], "components", default = ""))
+        let (components_str = lookup_kv(aux[x][y][z], "components"))
         let (components = strtok(components_str, ","))
         [ for (face=[0:5]) [ for (edge=[0:3]) [ for (vertex=[0:1])
             let (face_name = cube_face_names[face])
             let (edge_name = str(face_name, cube_edge_names[face][edge]))
             let (vertex_name = str(edge_name, cube_vertex_names[face][edge][vertex]))
-            len(components) == 0 ||
-              list_contains(components, face_name) ||
-              list_contains(components, edge_name) ||
-              list_contains(components, vertex_name) ? burr[x][y][z] : 0
+            is_undef(components_str) ||
+                list_contains(components, face_name) ||
+                list_contains(components, edge_name) ||
+                list_contains(components, vertex_name) ? burr[x][y][z] : 0
         ] ] ]
     ] ] ];
         
@@ -716,44 +722,43 @@ module male_connector(orient, label, explicit_label_orient) {
     
 }
 
-module diag_snap_connector(orient, label) {
+module diag_snap_connector(orient, label, twist = false, lateral = false) {
     
     rot = cube_face_rotation(orient);
     pre_rot = cube_edge_pre_rotation(orient);
+    twist_translate = twist ? [-1/2, -1/2, -1/2] : [0, 0, 0];
     
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
     
+    joint_scale = 0.4;
+    joint_length = lateral ? $burr_scale / 2 + iota : 5;
+    offset = 0.1;
+    
     scale($burr_scale)
+    translate(twist_translate)
     rotate(rot)
     rotate(pre_rot)
-    rotate([45, 0, 0])
-    translate([0, 0, $burr_inset / sqrt(2) / $burr_scale - iota]) {
-        
-        joint_scale = 0.4;
-        joint_length = 5;
-        offset = 0.1;
-        
-        translate([0, ((1 - joint_scale - offset)) * sqrt(2)/2, 0]) {
+    rotate(lateral ? [0, 0, 0] : [45, 0, 0])
+    translate(lateral ? [0, (1 - joint_scale - offset) / 4, 0]
+              : [0, (1 - joint_scale - offset) * sqrt(2) / 2, $burr_inset / sqrt(2) / $burr_scale - iota]) {
 
-            linear_extrude((joint_length + 0.3) / $burr_scale)
-            scale(joint_scale)
-            polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
+        linear_extrude((joint_length + 0.3) / $burr_scale)
+        scale(joint_scale)
+        polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
+        
+        if (label) {
             
-            if (label) {
-                
-                label_depth = 0.5 / $burr_scale;
-                
-                translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (-1 + joint_length + 0.3) / 2 / $burr_scale])
-                rotate([-90, 0, 180])
-                translate([0, 0, -label_depth/2])
-                linear_extrude(height=label_depth)
-                text(label, halign="center", valign="center", size=$burr_scale/200, $fn=64);
-                
-            }
+            label_depth = 0.5 / $burr_scale;
+            
+            translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (-1 + joint_length + 0.3) / 2 / $burr_scale])
+            rotate([-90, 0, 180])
+            translate([0, 0, -label_depth/2])
+            linear_extrude(height=label_depth)
+            text(label, halign="center", valign="center", size=$burr_scale/200, $fn=64);
             
         }
-        
+            
     }
 
 }
@@ -1710,7 +1715,8 @@ function fev_mirror(fev) =
     
 // Splits a string into a vector of tokens.
 function strtok(str, sep, i=0, token="", result=[]) =
-    len(str) == 0 ? []
+    is_undef(str) ? undef
+    : len(str) == 0 ? []
     : i == len(str) ? concat(result, token)
     : str[i] == sep ? strtok(str, sep, i+1, "", concat(result, token))
     : strtok(str, sep, i+1, str(token, str[i]), result);
