@@ -5,8 +5,8 @@ $burr_inset = 0.11;
 $burr_bevel = 0.6;
 
 *solid();
-multicolor();
-*diagonal_pin();
+*multicolor();
+*diagonal_strut();
 
 module solid() {
     
