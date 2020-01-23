@@ -22,6 +22,8 @@ $plate_sep = 6;
 $joint_inset = 0;
 $joint_cutout = 0.5;
 $diag_joint_inset = 0.015;
+$diag_joint_scale = 0.4;
+$diag_joint_position = 0.1;
 $unit_beveled = false;
 $post_rotate = [0, 0, 0];
 $post_translate = [0, 0, 0];
@@ -196,7 +198,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                       (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
                        len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
                     ) || (
-                      (connect[0] == "d" || connect[0] == "l") &&
+                      connect[0] == "d" &&
                       (len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)) ||
                        len(connect) == 6 && connect[5] == "~" && is_valid_orientation(substr(connect, 1, 4)))
                     );
@@ -208,7 +210,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     len(clabel) == 3 && is_valid_orientation(str(substr(connect, 1, 2), substr(clabel, 1, 2)));
                 assert(is_valid_clabel, str("Invalid clabel: ", clabel));
                 
-                assert(is_undef(clabel) || len(clabel) == 3 || len(connect) == 5, str("No orientation specified for clabel: ", clabel));
+                assert(is_undef(clabel) || len(clabel) == 3 || len(connect) >= 5, str("No orientation specified for clabel: ", clabel));
                 
                 if (!is_undef(clabel) && len(clabel) == 3 && len(connect) == 5) {
                     echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
@@ -220,8 +222,8 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                         male_connector_cutout(substr(connect, 1, 4));
                     else if (connect[0] == "f")
                         female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-                    else    // connect[0] == "d" || connect[0] == "l"
-                        diag_snap_connector(substr(connect, 1, 4), clabel, twist = connect[5] == "~", lateral = connect[0] == "l");
+                    else    // connect[0] == "d"
+                        diag_snap_connector(substr(connect, 1, 4), clabel, twist = connect[5] == "~");
                     
                 }
                 
@@ -722,7 +724,7 @@ module male_connector(orient, label, explicit_label_orient) {
     
 }
 
-module diag_snap_connector(orient, label, twist = false, lateral = false) {
+module diag_snap_connector(orient, label, twist = false) {
     
     rot = cube_face_rotation(orient);
     pre_rot = cube_edge_pre_rotation(orient);
@@ -731,27 +733,24 @@ module diag_snap_connector(orient, label, twist = false, lateral = false) {
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
     
-    joint_scale = 0.4;
-    joint_length = lateral ? $burr_scale / 2 + iota : 5;
-    offset = 0.1;
+    joint_length = 5;
     
     scale($burr_scale)
     translate(twist_translate)
     rotate(rot)
     rotate(pre_rot)
-    rotate(lateral ? [0, 0, 0] : [45, 0, 0])
-    translate(lateral ? [0, (1 - joint_scale - offset) / 4, 0]
-              : [0, (1 - joint_scale - offset) * sqrt(2) / 2, $burr_inset / sqrt(2) / $burr_scale - iota]) {
+    rotate([45, 0, 0])
+    translate([0, (1 - $diag_joint_scale - $diag_joint_position) * sqrt(2) / 2, $burr_inset / sqrt(2) / $burr_scale - iota]) {
 
         linear_extrude((joint_length + 0.3) / $burr_scale)
-        scale(joint_scale)
+        scale($diag_joint_scale)
         polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
         
         if (label) {
             
             label_depth = 0.5 / $burr_scale;
             
-            translate([0, sqrt(1/2) * joint_scale + label_depth / 2 - iota, (-1 + joint_length + 0.3) / 2 / $burr_scale])
+            translate([0, sqrt(1/2) * $diag_joint_scale + label_depth / 2 - iota, (-1 + joint_length + 0.3) / 2 / $burr_scale])
             rotate([-90, 0, 180])
             translate([0, 0, -label_depth/2])
             linear_extrude(height=label_depth)
@@ -766,18 +765,17 @@ module diag_snap_connector(orient, label, twist = false, lateral = false) {
 module diagonal_strut() {
     
     theta = atan(sqrt(2));
-    joint_scale = 0.4;
     joint_length = 5;
     
     poly = [
         [0, 2 * $diag_joint_inset * sin(theta)],
-        [-1/2, sqrt(2)/2] * $burr_scale * joint_scale + [1 / tan(theta / 2), -1] * $diag_joint_inset,
-        [1/2, sqrt(2)/2] * $burr_scale * joint_scale + [-1 / tan(theta / 2), -1] * $diag_joint_inset
+        [-1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [1 / tan(theta / 2), -1] * $diag_joint_inset,
+        [1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [-1 / tan(theta / 2), -1] * $diag_joint_inset
     ];
     
-    translate([0, 0, sqrt(2)/2 * $burr_scale * joint_scale - $diag_joint_inset])
+    translate([0, 0, sqrt(2)/2 * $burr_scale * $diag_joint_scale - $diag_joint_inset])
     rotate([-90, 0, 0])
-    beveled_prism(poly, joint_length * 2, $burr_bevel = 0.75, $burr_outer_z_bevel = 1.5);
+    beveled_prism(poly, joint_length * 2, $burr_bevel = 0.75, $burr_outer_z_bevel = 2);
     
 }
 
@@ -1077,9 +1075,10 @@ module beveled_prism(polygon, height, center = false) {
     
 }
 
-module beveled_polyhedron(faces) {
+module beveled_polyhedron(points, faces) {
     
-    poly = make_beveled_poly(faces);
+    literal_faces = [ for (f = faces) [ for (index = f) points[index] ] ];
+    poly = make_beveled_poly(literal_faces);
     polyhedron(poly[0], poly[1]);
     
 }
@@ -1750,7 +1749,12 @@ function lookup_kv_unordered(kv, key, default=undef, i=0) =
     kv[i][0] == key || kv[i][0] == [key[1],key[0]] ? kv[i][1] :
     lookup_kv_unordered(kv, key, default, i+1);
     
-function lookup3(array, vector) = array[vector.x][vector.y][vector.z];
+function str_interpolate(str, args, i = 0) =
+    i >= len(str) ? "" :
+    let (arg_index = str[i] == "$" ? digit(str[i + 1]) : undef)
+    is_undef(arg_index)
+        ? str(str[i], str_interpolate(str, args, i + 1))
+        : str(args[arg_index], str_interpolate(str, args, i + 2));
              
 function atof(str) =
     !is_string(str) ? undef :
@@ -1789,6 +1793,8 @@ function zyx_to_xyz(burr) =
 function vectorize(a) = a[0] == undef ? [a, a, a] : a;
 
 function is_3_vector(a) = len(a) == 3 && is_num(a[0]) && is_num(a[1]) && is_num(a[2]);
+    
+function lookup3(array, vector) = array[vector.x][vector.y][vector.z];
 
 // The componentwise (Hadamard) product of a and b.
             
@@ -1837,6 +1843,8 @@ function sum(list, k = 0) = k >= len(list) ? undef : k + 1 == len(list) ? list[k
 
 function reverse_list(list, reverse = true) =
     reverse ? [ for (i = [len(list)-1:-1:0]) list[i] ] : list;
+        
+function repeat(n, item) = [ for (i = [1:n]) item ];
 
 // Version check. This is a proper implementation of semantic versioning.
 

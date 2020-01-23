@@ -1,13 +1,19 @@
 include <puzzlecad.scad>
 
 $burr_scale = 27;
-$burr_inset = 0;
-$burr_bevel = 0;
+$burr_inset = 0.11;
+$burr_bevel = 0.6;
+
+$post_rotate = [0, 45, 0];
+
+$diag_joint_scale = 0.3;
+$diag_joint_position = 0.3;
 
 *solid();
 *twocolor_color1();
 *twocolor_color2();
-fivecolor_color1();
+*fivecolor_bases();
+fivecolor_tips();
 *diagonal_strut();
 
 module solid() {
@@ -36,14 +42,40 @@ module twocolor_color2() {
 
 }
 
-module fivecolor_color1() {
+module fivecolor_bases() {
     
-    burr_piece([
-        ".x{components={y+z+,z+y+}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={y-z+,z+y-}}.",
-        ".x{components={z-y+}}|.x{components=z-,connect=lx+y-~}x{components={},connect=lx-y-~}|.x{components=z-y-,connect=lx+y+~}x{components={},connect=lx-y+~}"
-    ], $post_rotate = [0, 45, 0], $post_translate = [-(sqrt(2)+1)/2, 0, (sqrt(2)-1)/2]);
+    // Color scheme as specified in AP-ART, entry 8-B.
+    
+    burr_plate([
+        base("ABCD"),
+        base("ACDB"),
+        base("ADBC"),
+        base("DCBA"),
+        base("BDCA"),
+        base("CBDA")
+    ], $post_translate = [-(sqrt(2)+1)/2, 0, (sqrt(2)-1)/2]);
     
 }
+
+module fivecolor_tips() {
+    
+    burr_plate(repeat(6, tip()), $post_translate = [-1/2, 0, -1/2], $plate_width = $burr_scale * 6);
+    
+}
+
+function base(labels) = [
+    ".x{components={y+z+,z+y+}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={y-z+,z+y-}}.",
+    str_interpolate(
+        ".x{components={z-y+}}|.x{components=z-,connect=dx+y-~,clabel=$2}x{components={},connect=dx-y-~,clabel=$1}|.x{components=z-y-,connect=dx+y+~,clabel=$3}x{components={},connect=dx-y+~,clabel=$0}",
+        labels
+    )
+];
+
+function tip() = [
+    "x{components=z+x+}x{components={},connect=dy-x+~}",
+    "x{components={z-x+,x+z-}}x{components=x-z-}"
+];
+
 
 /*
 module multicolor() {
