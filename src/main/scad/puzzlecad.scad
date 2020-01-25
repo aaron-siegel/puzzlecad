@@ -198,32 +198,37 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                       (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
                        len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
                     ) || (
-                      connect[0] == "d" &&
-                      (len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)) ||
-                       len(connect) == 6 && connect[5] == "~" && is_valid_orientation(substr(connect, 1, 4)))
+                      connect[0] == "d" && (connect[1] == "m" || connect[1] == "f") &&
+                      (len(connect) == 6 && is_valid_orientation(substr(connect, 2, 4)) ||
+                       len(connect) == 7 && connect[6] == "~" && is_valid_orientation(substr(connect, 2, 4)))
                     );
                 assert(is_valid_connect, str("Invalid connector: ", connect));
+                
+                type = connect[0] == "d" ? connect[1] : connect[0];
+                orient = connect[0] == "d" ? substr(connect, 2, 4) : substr(connect, 1, 4);
                 
                 is_valid_clabel =
                     is_undef(clabel) ||
                     len(clabel) == 1 ||
-                    len(clabel) == 3 && is_valid_orientation(str(substr(connect, 1, 2), substr(clabel, 1, 2)));
+                    len(clabel) == 3 && is_valid_orientation(str(substr(orient, 0, 2), substr(clabel, 1, 2)));
                 assert(is_valid_clabel, str("Invalid clabel: ", clabel));
                 
-                assert(is_undef(clabel) || len(clabel) == 3 || len(connect) >= 5, str("No orientation specified for clabel: ", clabel));
+                assert(is_undef(clabel) || len(clabel) == 3 || len(orient) == 4, str("No orientation specified for clabel: ", clabel));
                 
-                if (!is_undef(clabel) && len(clabel) == 3 && len(connect) == 5) {
+                if (!is_undef(clabel) && len(clabel) == 3 && len(orient) == 4) {
                     echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
                 }
                 
                 translate(cw(scale_vec, [x,y,z])) {
                     
                     if (connect[0] == "m")
-                        male_connector_cutout(substr(connect, 1, 4));
+                        male_connector_cutout(orient);
                     else if (connect[0] == "f")
-                        female_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-                    else    // connect[0] == "d"
-                        diag_snap_connector(substr(connect, 1, 4), clabel, twist = connect[5] == "~");
+                        female_connector(orient, clabel[0], substr(clabel, 1, 2));
+                    else if (connect[0] == "d" && connect[1] == "m")
+                        male_diag_snap_connector_cutout(orient, twist = connect[6] == "~");
+                    else if (connect[0] == "d" && connect[1] == "f")
+                        female_diag_snap_connector(orient, clabel, twist = connect[6] == "~");
                     
                 }
                 
@@ -327,6 +332,10 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             clabel = lookup_kv(aux[x][y][z], "clabel");
             translate(cw(scale_vec, [x, y, z]))
             male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
+        } else if (connect[0] == "d" && connect[1] == "m") {
+            clabel = lookup_kv(aux[x][y][z], "clabel");
+            translate(cw(scale_vec, [x, y, z]))
+            male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
         }
         
     }
@@ -724,7 +733,7 @@ module male_connector(orient, label, explicit_label_orient) {
     
 }
 
-module diag_snap_connector(orient, label, twist = false) {
+module female_diag_snap_connector(orient, label, twist = false) {
     
     rot = cube_face_rotation(orient);
     pre_rot = cube_edge_pre_rotation(orient);
@@ -754,12 +763,101 @@ module diag_snap_connector(orient, label, twist = false) {
             rotate([-90, 0, 180])
             translate([0, 0, -label_depth/2])
             linear_extrude(height=label_depth)
-            text(label, halign="center", valign="center", size=$burr_scale/200, $fn=64);
+            text(label, halign = "center", valign = "center", size = $burr_scale / 200, $fn = 64);
             
         }
             
     }
 
+}
+
+module male_diag_snap_connector_cutout(orient, twist = false) {
+    
+    rot = cube_face_rotation(orient);
+    pre_rot = cube_edge_pre_rotation(orient);
+    twist_translate = twist ? [-1/2, -1/2, -1/2] : [0, 0, 0];
+    
+    theta = atan(sqrt(2));
+    eta = atan(sqrt(2)/2);
+    
+    joint_length = 5;
+    
+    scale($burr_scale)
+    translate(twist_translate)
+    rotate(rot)
+    rotate(pre_rot)
+    rotate([45, 0, 0])
+    translate([0, (1 - $diag_joint_scale - $diag_joint_position) * sqrt(2) / 2, $burr_inset / sqrt(2) / $burr_scale - iota]) {
+
+        linear_extrude(joint_length / $burr_scale)
+        translate([0, -$joint_cutout / $burr_scale])
+        scale($diag_joint_scale + (1 + sqrt(2)) * $joint_cutout / $burr_scale)
+        polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
+    
+    }
+    
+}
+
+module male_diag_snap_connector(orient, label, twist = false) {
+    
+    rot = cube_face_rotation(orient);
+    pre_rot = cube_edge_pre_rotation(orient);
+    twist_translate = twist ? [-1/2, -1/2, -1/2] : [0, 0, 0];
+    
+    theta = atan(sqrt(2));
+    eta = atan(sqrt(2)/2);
+    
+    joint_length = 5;
+    
+    scale($burr_scale)
+    translate(twist_translate)
+    rotate(rot)
+    rotate(pre_rot)
+    rotate([45, 0, 0])
+    translate([0, (1 - $diag_joint_scale - $diag_joint_position) * sqrt(2) / 2, (-joint_length + $burr_inset / sqrt(2)) / $burr_scale + iota]) {
+        
+        difference() {
+            
+            beveled_prism(
+                [ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ] * $diag_joint_scale,
+                (joint_length * 2 + 1) / $burr_scale,
+                $burr_bevel = 0.75 / $burr_scale,
+                $burr_outer_x_bevel = undef,
+                $burr_outer_y_bevel = undef,
+                $burr_outer_z_bevel = 1.5 / $burr_scale
+            );
+            
+            if (label) {
+                
+                label_depth = 0.5 / $burr_scale;
+                
+                translate([0, sqrt(1/2) * $diag_joint_scale - label_depth / 2 + iota, joint_length / 2 / $burr_scale])
+                rotate([-90, 0, 0])
+                translate([0, 0, -label_depth/2])
+                linear_extrude(height=label_depth)
+                text(label, halign = "center", valign = "center", size = $burr_scale / 300, $fn = 64);
+                
+            }
+            
+        }
+
+        translate([0, sqrt(2)/2 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+        rotate([-90, 0, 0])
+        translate([0, 0, -0.5 / $burr_scale])
+        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+        
+        translate([$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+        rotate([90, 0, theta])
+        translate([0, 0, -0.5 / $burr_scale])
+        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+
+        translate([-$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+        rotate([90, 0, -theta])
+        translate([0, 0, -0.5 / $burr_scale])
+        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+    
+    }
+    
 }
 
 module diagonal_strut() {
@@ -881,11 +979,22 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     // Create the label, centered at the origin
     translate([0, 0, -label_depth/2])
     linear_extrude(height=label_depth)
-    text(label, halign="center", valign="center", size=$burr_scale/3.7, $fn=64);
+    text(label, halign = "center", valign = "center", size = $burr_scale / 3.7, $fn = 64);
     
 }
 
-/******* Puzzle trays and lids *******/
+/******* Puzzle containers and lids *******/
+
+module packing_box(dim, thickness, insets = 0.25) {
+    
+    render(convexity = 2)
+    difference() {
+        beveled_cube(dim + [(thickness + insets) * 2, (thickness + insets) * 2, thickness + insets]);
+        translate([thickness, thickness, thickness])
+        cube(dim + [insets * 2, insets * 2, insets]);
+    }
+    
+}
 
 $tray_scale = 16;
 $tray_padding = 2.5;
@@ -1848,20 +1957,22 @@ function repeat(n, item) = [ for (i = [1:n]) item ];
 
 // Version check. This is a proper implementation of semantic versioning.
 
-require_puzzlecad_version = undef;
-if (require_puzzlecad_version &&
-    vector_compare(to_version_spec(puzzlecad_version), to_version_spec(require_puzzlecad_version)) < 0) {
-    assert(false, str(
-        "ERROR: This model requires puzzlecad version ",
-        require_puzzlecad_version,
-        ", and you are using version ",
-        puzzlecad_version,
-        ". Please upgrade before rendering."
-    ));
+module require_puzzlecad_version(required_version) {
+    
+    if (vector_compare(to_version_spec(puzzlecad_version), to_version_spec(required_version)) < 0) {
+        assert(false, str(
+            "ERROR: This model requires puzzlecad version ",
+            required_version,
+            ", and you are using version ",
+            puzzlecad_version,
+            ". Please upgrade before rendering."
+        ));
+    }
+    
 }
 
 function to_version_spec(str) = [ for (element = strtok(str, ".")) atof(element) ];
-    
+
 function vector_compare(v1, v2, pos = 0) =
     pos >= max(len(v1), len(v2)) ? 0 :
     pos >= len(v1) ? 0 - v2[pos] :
