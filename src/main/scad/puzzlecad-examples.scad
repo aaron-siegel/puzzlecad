@@ -207,11 +207,34 @@ include <puzzlecad.scad>
 // ======================================
 // DIAGONAL GEOMETRY
 
+// Starting with version 2.0, puzzlecad can model pieces whose geometry involves diagonal cuts of
+// the cube. This geometry appears frequently in polyhedral puzzle designs, such as those of
+// Stewart Coffin, and is sometimes known as "rhombic tetrahedral" geometry. To understand this
+// geometry, first picture a cube dissected into six square pyramids, one for each face. Each
+// pyramid has a cube face as its base and the interior center of the cube as its "tip". For
+// example, uncomment and render the following line:
+
 *burr_piece("x{components=z-}", $burr_inset = 0);
+
+// That "z-" identifies which of the six pyramids to render. As always, puzzlecad uses the
+// symbols x-, x+, y-, y+, z-, and z+ to refer to the six orthogonal directions, so that "z-"
+// refers to the bottom face of the cube (the negative direction along the z axis).
+
+// You can also specify multiple components within a single voxel, separated by commas. If
+// you do this, you MUST enclose the entire "components" clause within a nested pair of braces,
+// as demonstrated by the following example, which renders the z- and x- pyramids side by side:
 
 *burr_piece("x{components={z-,x-}}", $burr_inset = 0);
 
+// Now, each of the six square pyramids can be further dissected into four tetrahedra by cutting
+// them along the base diagonals. Those tetrahedra are referenced with a pair of direction
+// symbols, for example, z-y+. You can think of the composite symbol z-y+ as meaning "the
+// tetrahedron on the y+ edge of the z- pyramid". Here's what it looks like:
+
 *burr_piece("x{components=z-y+}", $burr_inset = 0);
+
+// The following picture shows all four "z-" tetrahedra, with a gap between them. It's very
+// helpful in visualizing the tetrahedral dissection:
 
 *union() {
     translate([1, 0, 0]) burr_piece("x{components=z-y-}", $burr_inset = 0);
@@ -220,17 +243,69 @@ include <puzzlecad.scad>
     translate([2, 1, 0]) burr_piece("x{components=z-x+}", $burr_inset = 0);
 }
 
-*burr_piece([
-    "x{components={z+x+,x+z+}}x{components={z+,x-z+,x+z+}}x{components={z+x-,x-z+}}",
-    "x{components=z-x+}x{components=z-}x{components=z-x-}"
-], $burr_inset = 0);
+// Pyramids and rhombic tetrahedra can be combined within a single components block, in any
+// combination. For a fully-baked example, here's one of the pieces from the classic "star
+// puzzle":
 
 *burr_piece([
-    "x{components={z+x+,x+z+}}x{components={z+,x-z+,x+z+}}x{components={z+x-,x-z+}}",
-    "x{components=z-x+}x{components=z-}x{components=z-x-}"
-], $burr_inset = 0, $post_rotate = [45, 0, 0], $post_translate = [0, 0, -1/2]);
+    "x{components={y+z+,z+y+}}|x{components={z+,y-z+,y+z+}}|x{components={y-z+,z+y-}}",
+    "x{components=z-y+}|x{components=z-}|x{components=z-y-}"
+], $burr_scale = 32, $burr_inset = 0);
 
-// $post_rotate, $post_translate, joints
+// Note the larger value of $burr_scale being used here; $burr_scale will always refer to the edge
+// length of the enveloping cube, for consistency with rectilinear models.
+
+// Pieces modeled with diagonal geometry will often be laid out in an orientation that is not
+// suited to printing. puzzlecad provides the convenient $post_rotate and $post_translate options
+// to handle this. If they're specified, then after rendering, puzzlecad will apply a rotation of
+// $post_rotate, followed by a translation of $post_translate. (Of course, this could also be
+// done using OpenSCAD primitives; the main advantage of using $post_rotate and $post_translate
+// is that, when rendering an entire burr_plate, puzzlecad will apply the rotation and translation
+// separately to each piece on the plate.)
+
+// Here's the previous piece, rotated and translated into a friendlier orientation:
+
+*burr_piece([
+    "x{components={y+z+,z+y+}}|x{components={z+,y-z+,y+z+}}|x{components={y-z+,z+y-}}",
+    "x{components=z-y+}|x{components=z-}|x{components=z-y-}"
+], $burr_scale = 32, $burr_inset = 0, $post_rotate = [0, 45, 0], $post_translate = [-1/2, 0, -1/2]);
+
+// I find it easiest to model puzzles in their "natural" orientation, then add $post_rotate and
+// $post_translate in at the end, before generating STLs for printing.
+
+// ======================================
+// DIAGONAL JOINTS
+
+// Puzzles with diagonal geometry can have snap joints too! To put a joint on a rhombic face (one
+// of the faces of a square pyramid in the cube dissection discussed above), use the "connect=df"
+// (female) and "connect=dm" (male) annotations, with tetrahedral coordinates just as before.
+// It's easiest to see with an example; here's a stripped-down version of the "star puzzle" piece
+// mentioned above, with female snap connectors on the end:
+
+*burr_piece([
+    "x{components=y+z+,connect=dfy+z+}|x{components={z+,y-z+,y+z+}}|x{components=y-z+,connect=dfy-z+}",
+    "..|x{components=z-}|.."
+], $burr_scale = 32, $burr_inset = 0);
+
+// And, the corresponding tetrahedral tips:
+
+*burr_piece([
+    "x{components=z+y+}", "x{components=z-y+,connect=dmz-y+}"
+], $burr_scale = 32, $burr_inset = 0);
+
+// If care is taken to orient the pieces, the male connectors will slope at just enough of an
+// upward angle to print sufficiently accurately on most printers:
+
+*burr_piece([
+    "x{components=z+y+}", "x{components=z-y+,connect=dmz-y+}"
+], $burr_scale = 32, $burr_inset = 0, $post_rotate = [90, 45, 0], $post_translate = [-1/2, 1/2, -1/2]);
+
+// In this particular case, the pieces are printable without snap joints, but printing in multiple
+// components allows for much more creative color arrangements. This is the basis for Stewart
+// Coffin's Sirius puzzle and many of his subsequent designs.
+
+// Finally, the "clabel" annotation can be used to add identifying marks to the joints, just as in
+// the rectilinear case.
 
 // ======================================
 // 2D AND TRAY PUZZLES
@@ -311,7 +386,3 @@ include <puzzlecad.scad>
 // $tray_opening_border
 
 // $piece_holder_buf
-
-// ======================================
-// ADVANCED TECHNIQUES: CUSTOM BEVELING
-
