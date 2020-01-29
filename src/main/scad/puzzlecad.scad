@@ -66,11 +66,14 @@ module burr_piece(burr_spec, center = false, label = undef, piece_number = undef
         $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
     ));
     
+    burr_info = to_burr_info(burr_spec);
+    bounding_box = piece_bounding_box(burr_info);
+    
     translate(cw(scale_vec, $post_translate))
-    translate(center ? [0, 0, 0] : scale_vec / 2 - inset_vec)
     rotate($post_rotate)
+    translate(center ? [0, 0, 0] : -bounding_box[0])
     difference() {
-        burr_piece_base(burr_spec);
+        burr_piece_base(burr_info);
         if (label) {
             translate([-scale_vec.x/2+1+inset_vec.x, scale_vec.y/2, scale_vec.z/2])
             rotate([90, 0, -90])
@@ -93,19 +96,59 @@ module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0
     scale_vec = vectorize($burr_scale);
     
     if (i < len(burr_specs)) {
+        
         cur_piece = to_burr_info(burr_specs[i]);
-        piece_width = len(cur_piece) * scale_vec.x;
-        piece_depth = len(cur_piece[0]) * scale_vec.y;
-        if (x + piece_width < $plate_width) {
-            translate([x, y, 0]) burr_piece(burr_specs[i], label = labels[i], piece_number = i+1);
-            burr_plate(burr_specs, labels, i + 1,
-                y, x + piece_width + $plate_sep, max([row_depth, piece_depth]));
+        bounding_box = piece_bounding_box(cur_piece);
+        piece_width = bounding_box[1].x - bounding_box[0].x;
+        piece_depth = bounding_box[1].y - bounding_box[0].y;
+        
+        if (x == 0 || x + piece_width < $plate_width) {
+            
+            translate([x, y, 0])
+            burr_piece(burr_specs[i], label = labels[i], piece_number = i + 1);
+            
+            burr_plate(
+                burr_specs, labels, i + 1,
+                y, x + piece_width + $plate_sep, max([row_depth, piece_depth])
+            );
+            
         } else {
+            
             burr_plate(burr_specs, labels, i, y + row_depth + $plate_sep, 0, 0);
+            
         }
+        
     }
     
 }
+
+function piece_bounding_box(burr_info) =
+    let (
+        scale_vec = vectorize($burr_scale),
+        cell_bounding_boxes =
+            [ for (x = [0:len(burr_info)-1])
+              for (y = [0:len(burr_info[x])-1])
+              for (z = [0:len(burr_info[x][y])-1])
+              let (burr_cell = burr_info[x][y][z][0], aux_cell = burr_info[x][y][z][1])
+              if (burr_cell > 0 && is_undef(lookup_kv(aux_cell, "components")))
+                  [[x - 1/2, y - 1/2, z - 1/2], [x + 1/2, y + 1/2, z + 1/2]]
+              else if (burr_cell > 0)
+                  for (component = strtok(lookup_kv(aux_cell, "components"), ","))
+                      [ for (bb = bounding_box(component)) bb + [x, y, z] ]
+            ]
+    )
+    [ for (vec = bounding_box_union(cell_bounding_boxes)) cw(vec, scale_vec) ];
+                   
+function bounding_box_union(bb_list, i = 0, result = undef) =
+      i >= len(bb_list) ? result
+    : is_undef(result) ? bounding_box_union(bb_list, i + 1, bb_list[i])
+    : bounding_box_union(bb_list, i + 1,
+      [ [ min(result[0].x, bb_list[i][0].x),
+          min(result[0].y, bb_list[i][0].y),
+          min(result[0].z, bb_list[i][0].z) ],
+        [ max(result[1].x, bb_list[i][1].x),
+          max(result[1].y, bb_list[i][1].y),
+          max(result[1].z, bb_list[i][1].z) ] ]);
 
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
@@ -1276,7 +1319,7 @@ function strings_to_burr_info_2(globals, strings) = zyx_to_xyz(
             string_to_burr_info(globals, row)
         ]
     ]);
-        
+
 // Parse a single string into a 1x1xN substruct.
  
 function string_to_burr_info(globals, string, i=0, result=[]) =
@@ -1287,7 +1330,7 @@ function string_to_burr_info(globals, string, i=0, result=[]) =
         : assert(false, "Invalid burr specification.");
          
 component_ids = ".abcdefghijklmnopqrstuvwxyz";
-   
+
 // Parse a single character, with optional annotations.
 
 valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_hoffset", "label_voffset", "label_scale" ];
@@ -1791,6 +1834,16 @@ function cube_edge_pre_rotation(edge_name) =
          edge_index = index_of(cube_edge_names[face_index], edge_subname))
     cube_edge_pre_rotations[edge_index];
 
+// name can be a face, face-edge, or orthoscheme name.
+// TODO Pregenerate and cache these?
+function bounding_box(name) =
+    [ [ is_substr(name, "x+") ? 0 : -1/2,
+        is_substr(name, "y+") ? 0 : -1/2,
+        is_substr(name, "z+") ? 0 : -1/2 ],
+      [ is_substr(name, "x-") ? 0 :  1/2,
+        is_substr(name, "y-") ? 0 :  1/2,
+        is_substr(name, "z-") ? 0 :  1/2 ] ];
+
 // These are used for determining adjacencies for diagonal geometry.
 
 fe_swaps = [ for (face = [0:5]) [ for (edge = [0:3])
@@ -1857,6 +1910,16 @@ function lookup_kv_unordered(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
     kv[i][0] == key || kv[i][0] == [key[1],key[0]] ? kv[i][1] :
     lookup_kv_unordered(kv, key, default, i+1);
+    
+function is_substr(str, substr, i = 0) =
+      i > len(str) - len(substr) ? false
+    : is_substr_at(str, substr, i) ? true
+    : is_substr(str, substr, i + 1);
+    
+function is_substr_at(str, substr, i, j = 0) =
+      j >= len(substr) ? true
+    : str[i + j] != substr[j] ? false
+    : is_substr_at(str, substr, i, j + 1);
     
 function str_interpolate(str, args, i = 0) =
     i >= len(str) ? "" :

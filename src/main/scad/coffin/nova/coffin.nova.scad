@@ -56,7 +56,7 @@ module fivecolor_bases() {
         base("DGBE"),
         base("BHCE"),
         base("CFDE")
-    ], $post_rotate = [0, 45, 0], $post_translate = [-(sqrt(2)+1)/2, 0, (sqrt(2)-1)/2], $plate_width = $burr_scale * 8);
+    ], $post_rotate = [0, 45, 0], $post_translate = [0, 0, sqrt(1/8)]);
     
 }
 
