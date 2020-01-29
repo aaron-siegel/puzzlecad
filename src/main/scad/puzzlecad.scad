@@ -21,7 +21,6 @@ $plate_depth = 180;
 $plate_sep = 6;
 $joint_inset = 0;
 $joint_cutout = 0.5;
-$diag_joint_inset = 0.015;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
 $unit_beveled = false;
@@ -230,10 +229,16 @@ module burr_piece_base(burr_spec, test_poly = undef) {
         
         for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
             
-            connect = lookup_kv(aux[x][y][z], "connect");
-            clabel = lookup_kv(aux[x][y][z], "clabel");
-            
-            if (connect) {
+            connect_str = lookup_kv(aux[x][y][z], "connect");
+            connect_list = strtok(connect_str, ",");
+            clabel_str = lookup_kv(aux[x][y][z], "clabel");
+            clabel_list = strtok(clabel_str, ",");
+             
+            if (connect_list)
+            for (i = [0:len(connect_list)-1]) {
+                
+                connect = connect_list[i];
+                clabel = clabel_list[i];
 
                 is_valid_connect = 
                     (
@@ -370,15 +375,28 @@ module burr_piece_base(burr_spec, test_poly = undef) {
     
     for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
         
-        connect = lookup_kv(aux[x][y][z], "connect");
-        if (connect[0] == "m") {
-            clabel = lookup_kv(aux[x][y][z], "clabel");
-            translate(cw(scale_vec, [x, y, z]))
-            male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-        } else if (connect[0] == "d" && connect[1] == "m") {
-            clabel = lookup_kv(aux[x][y][z], "clabel");
-            translate(cw(scale_vec, [x, y, z]))
-            male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
+            
+        connect_str = lookup_kv(aux[x][y][z], "connect");
+        connect_list = strtok(connect_str, ",");
+        clabel_str = lookup_kv(aux[x][y][z], "clabel");
+        clabel_list = strtok(clabel_str, ",");
+         
+        if (connect_list)
+        for (i = [0:len(connect_list)-1]) {
+            
+            connect = connect_list[i];
+            clabel = clabel_list[i];
+            
+            if (connect[0] == "m") {
+                clabel = lookup_kv(aux[x][y][z], "clabel");
+                translate(cw(scale_vec, [x, y, z]))
+                male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
+            } else if (connect[0] == "d" && connect[1] == "m") {
+                clabel = lookup_kv(aux[x][y][z], "clabel");
+                translate(cw(scale_vec, [x, y, z]))
+                male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
+            }
+            
         }
         
     }
@@ -903,18 +921,18 @@ module male_diag_snap_connector(orient, label, twist = false) {
     
 }
 
-module diagonal_strut() {
+module diagonal_strut(inset = 0.015) {
     
     theta = atan(sqrt(2));
     joint_length = 5;
     
     poly = [
-        [0, 2 * $diag_joint_inset * sin(theta)],
-        [-1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [1 / tan(theta / 2), -1] * $diag_joint_inset,
-        [1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [-1 / tan(theta / 2), -1] * $diag_joint_inset
+        [0, 2 * inset * sin(theta)],
+        [-1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [1 / tan(theta / 2), -1] * inset,
+        [1/2, sqrt(2)/2] * $burr_scale * $diag_joint_scale + [-1 / tan(theta / 2), -1] * inset
     ];
     
-    translate([0, 0, sqrt(2)/2 * $burr_scale * $diag_joint_scale - $diag_joint_inset])
+    translate([0, 0, sqrt(2)/2 * $burr_scale * $diag_joint_scale - inset])
     rotate([-90, 0, 0])
     beveled_prism(poly, joint_length * 2, $burr_bevel = 0.75, $burr_outer_z_bevel = 2);
     

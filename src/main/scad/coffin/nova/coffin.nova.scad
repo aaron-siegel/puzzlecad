@@ -3,21 +3,17 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 32;
-$burr_inset = 0.11;
+$burr_inset = 0;// 0.12;
 $burr_bevel = 0.6;
 
-$diag_joint_scale = 0.3;
-$diag_joint_position = 0.3;
-
 *solid();
-*twocolor_color1();
-*twocolor_color2();
+*twocolor_base();
+*twocolor_tip();
 *fivecolor_bases();
-*fivecolor_orbit1();
-*fivecolor_orbit2();
-*fivecolor_orbit3();
-*fivecolor_orbit4();
-*diagonal_strut();
+*fivecolor_tips_1();
+*fivecolor_tips_2();
+*fivecolor_tips_3();
+*fivecolor_tips_4();
 
 module solid() {
     
@@ -28,7 +24,7 @@ module solid() {
     
 }
 
-module twocolor_color1() {
+module twocolor_base() {
     
     burr_piece([
         ".x{components={y+z+,z+y+,z+x-}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={y-z+,z+y-,z+x+}}.",
@@ -37,11 +33,12 @@ module twocolor_color1() {
     
 }
 
-module twocolor_color2() {
+module twocolor_tip() {
     
     burr_piece([
-        "x{components=z+y+,connect=dfz+y+}", "x{components=z-y+}"
-    ], $post_rotate = [-45, 0, 0], $post_translate = [1, 0, -1/2]);
+        "x{components=z+x+}.|..",
+        "x{components={z-x+,x+z-}}x{components=x-z-}|.x{components={},connect=dmy-x-~}"
+    ], $post_rotate = [0, 45, 0], $post_translate = [-1/2, 0, -1/2]);
 
 }
 
@@ -56,29 +53,33 @@ module fivecolor_bases() {
         base("DGBE"),
         base("BHCE"),
         base("CFDE")
-    ], $post_rotate = [0, 45, 0], $post_translate = [0, 0, sqrt(1/8)]);
+    ],  $post_rotate = [0, 45, 0],
+        $post_translate = [0, 0, sqrt(1/8)],
+        $diag_joint_scale = 0.3,
+        $diag_joint_position = 0.3
+    );
     
 }
 
-module fivecolor_orbit1() {
+module fivecolor_tips_1() {
     
     fivecolor_tips("AE");
     
 }
 
-module fivecolor_orbit2() {
+module fivecolor_tips_2() {
     
     fivecolor_tips("BF");
     
 }
 
-module fivecolor_orbit3() {
+module fivecolor_tips_3() {
     
     fivecolor_tips("CG");
     
 }
 
-module fivecolor_orbit4() {
+module fivecolor_tips_4() {
     
     fivecolor_tips("DH");
     
@@ -89,14 +90,18 @@ module fivecolor_tips(labels) {
     burr_plate(repeat(3, tip1(labels[0])),
         $post_rotate = [-135, 0, 0],
         $post_translate = [-1/2, 0, sqrt(2)/2 - 1/2],
-        $plate_width = $burr_scale * 3
+        $plate_width = $burr_scale * 3,
+        $diag_joint_scale = 0.3,
+        $diag_joint_position = 0.3
     );
 
     translate([$burr_scale * 2, 0, 0])
     burr_plate(repeat(3, tip2(labels[1])),
         $post_rotate = [-90, -45, 0],
         $post_translate = [-1/2, 0, -1/2],
-        $plate_width = $burr_scale * 3
+        $plate_width = $burr_scale * 3,
+        $diag_joint_scale = 0.3,
+        $diag_joint_position = 0.3
     );
     
 }
