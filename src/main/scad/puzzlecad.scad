@@ -1432,16 +1432,31 @@ function remove_face_degeneracies_once(face) = len(face) == 0 ? [] : [
     face[k]
 ];
 
+// We can remove extraneous collinear points, mainly for reasons of efficiency. This has to
+// be done carefully in order to preserve manifoldness: we can only shorten a collinear sequence of
+// points [a, b, c] from one face *if* the edge pairings of [a, b] and [b, c] are also collinear,
+// i.e., *if* the collinear sequence [c, b, a] appears on some other face.
+
 function remove_collinear_points(faces, face) = len(face) == 0 ? [] : [
     for (k=[0:len(face)-1])
-    if (num_faces_containing(faces, face[k]) >= 3 || (
-        let (a = face[(k-1+len(face)) % len(face)], b = face[k], c = face[(k+1) % len(face)])
-        let (foo = assert(!is_undef(a) && !is_undef(b) && !is_undef(c), face))
-        norm(cross(b - a, c - b)) >= $poly_err_tolerance
-    ))
+    let (a = face[(k-1+len(face)) % len(face)], b = face[k], c = face[(k+1) % len(face)])
+    let (foo = assert(!is_undef(a) && !is_undef(b) && !is_undef(c), face))
+    if (norm(cross(b - a, c - b)) >= $poly_err_tolerance || !is_sequential_triplet(faces, [c, b, a]))
     face[k]
 ];
-    
+
+function is_sequential_triplet(faces, points, i = 0) =
+      i >= len(faces) ? false
+    : is_sequential_triplet_in_face(faces[i], points) ? true
+    : is_sequential_triplet(faces, points, i + 1);
+
+function is_sequential_triplet_in_face(face, points, j = 0) =
+      j >= len(face) ? false
+    : norm(face[j] - points[0]) < $poly_err_tolerance &&
+      norm(face[(j+1) % len(face)] - points[1]) < $poly_err_tolerance &&
+      norm(face[(j+2) % len(face)] - points[2]) < $poly_err_tolerance ? true
+    : is_sequential_triplet_in_face(face, points, j + 1);
+
 function num_faces_containing(faces, point) =
     sum([ for (face = faces) face_contains_point(face, point) ? 1 : 0 ]);
         
