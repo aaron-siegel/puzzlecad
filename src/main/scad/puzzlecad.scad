@@ -1466,16 +1466,17 @@ function face_contains_point(face, point, i = 0) =
     : face_contains_point(face, point, i + 1);
     
 function merge_coplanar_faces(faces) =
-    let(merged_faces = remove_degeneracies(merge_coplanar_faces_once(faces)))
+//    let (simplified_faces = [ for (f = faces) remove_collinear_points(faces, f) ])
+    let (merged_faces = remove_degeneracies(merge_coplanar_faces_once(faces)))
       len(faces) == len(merged_faces) ? merged_faces    // No mergers happened
     : merge_coplanar_faces(merged_faces);               // Something changed, so iterate
     
 function merge_coplanar_faces_once(faces, i = 0) =
       i >= len(faces) ? faces
-    : ( let(face_normal = unit_vector(polygon_normal(faces[i])))
-        let(coplanar_face_info = first_coplanar_face(faces, i, face_normal, i+1))
+    : ( let (face_normal = polygon_normal(faces[i]))
+        let (coplanar_face_info = first_coplanar_face(faces, i, face_normal, i+1))
         is_undef(coplanar_face_info) ? merge_coplanar_faces_once(faces, i+1)
-          : let(coplanar_index = coplanar_face_info[0])
+          : let (coplanar_index = coplanar_face_info[0])
             assert(coplanar_index > i)
             let(amalgamated_face = coplanar_face_info[1])
             merge_coplanar_faces_once(replace_in_list(remove_from_list(faces, coplanar_index), i, amalgamated_face), i)
@@ -1485,41 +1486,55 @@ function first_coplanar_face(faces, face_index, face_normal, j) =
       j >= len(faces) ? undef
     : ( let (face1 = faces[face_index],
              face2 = faces[j],
-             face2_normal = unit_vector(polygon_normal(faces[j])),
-             face1_d = face_normal * face1[0],
-             face2_d = face2_normal * face2[0])
-        norm(face_normal - face2_normal) >= $poly_err_tolerance ||
-        abs(face1_d - face2_d) >= $poly_err_tolerance
+             face2_normal = polygon_normal(faces[j]),
+             face1_d = unit_vector(face_normal) * face1[0],
+             face2_d = unit_vector(face2_normal) * face2[0])
+        norm(face_normal) >= $poly_err_tolerance && norm(face2_normal) >= $poly_err_tolerance &&
+        (norm(unit_vector(face_normal) - unit_vector(face2_normal)) >= $poly_err_tolerance ||
+         abs(face1_d - face2_d) >= $poly_err_tolerance)
           ? first_coplanar_face(faces, face_index, face_normal, j+1)
           : let (indices = edge_pair_indices(face1, face2))
-            is_undef(indices)
-            ? first_coplanar_face(faces, face_index, face_normal, j+1)
-            : [j, amalgamate_faces(face1, face2, indices)]
+            len(indices) > 0
+                && are_indices_cyclically_consecutive(len(face1), [ for (epi = indices) epi[0] ])
+                && are_indices_cyclically_consecutive(len(face2), [ for (epi = indices) epi[1] ])
+            ? [j, amalgamate_faces(face1, face2, indices[0])]
+            : first_coplanar_face(faces, face_index, face_normal, j+1)
       );
 
 function amalgamate_faces(face1, face2, indices) =
     concat([ for (k=[1:len(face1)-1]) face1[(indices[0]+k) % len(face1)] ],
            [ for (k=[0:len(face2)-2]) face2[(indices[1]+k) % len(face2)] ]);
 
-function edge_pair_indices(face1, face2, i = 0) =
-      i >= len(face1) ? undef
-    : let (result = edge_pair_indices_2(face1, face2, i))
-      is_undef(result) ? edge_pair_indices(face1, face2, i + 1) : result;
+function edge_pair_indices(face1, face2) =
+    [ for (i = [0:len(face1)-1])
+        let (edge_pair = edge_pair_indices_2(face1, face2, i))
+        if (!is_undef(edge_pair))
+        edge_pair
+    ];
 
 function edge_pair_indices_2(face1, face2, i, j = 0) =
       j >= len(face2) ? undef
-    : let(p = face1[i], q = face1[(i+1) % len(face1)])
-      norm(p - face2[j]) < $poly_err_tolerance &&
-      norm(q - face2[(j-1+len(face2)) % len(face2)]) < $poly_err_tolerance &&
-      (norm(polygon_normal(face1)) >= $poly_err_tolerance || all_points_between(face1, p, q)) &&
-      (norm(polygon_normal(face2)) >= $poly_err_tolerance || all_points_between(face2, p, q))
-    ? [i, j]
+    : is_valid_edge_pair(face1, face2, i, j) ? [i, j]
     : edge_pair_indices_2(face1, face2, i, j+1);
            
+function is_valid_edge_pair(face1, face2, i, j) =
+    let(p = face1[i], q = face1[(i+1) % len(face1)])
+    norm(p - face2[j]) < $poly_err_tolerance &&
+    norm(q - face2[(j-1+len(face2)) % len(face2)]) < $poly_err_tolerance &&
+    (norm(polygon_normal(face1)) >= $poly_err_tolerance || all_points_between(face1, p, q)) &&
+    (norm(polygon_normal(face2)) >= $poly_err_tolerance || all_points_between(face2, p, q));
+
 function all_points_between(points, p, q, i = 0) =
       i >= len(points) ? true
     : (points[i] - p) * (points[i] - q) >= $poly_err_tolerance ? false
     : all_points_between(points, p, q, i + 1);
+
+function are_indices_cyclically_consecutive(length, indices) =
+    let (transition_points = [
+        for (i = [0:length-1])
+        if (list_contains(indices, i) != list_contains(indices, (i + 1) % length))
+        i ])
+    len(transition_points) <= 2;
     
 function make_point_index(points) = [
     for (n = [0:len(points)-1])
@@ -1588,12 +1603,39 @@ function compare_scalar_lists(a, b, i=0) =
     : a[i] == b[i] ? compare_scalar_lists(a, b, i+1)
     : a[i] - b[i];
 
+// TODO This checks for edge-validity, but not corner-validity
+    
+function is_manifold(points, faces) =
+    let (
+        all_edges = [ for (f = faces, i = [0:len(f)-1]) [ f[i], f[(i+1) % len(f)] ] ],
+        sorted_edges = quicksort_scalar_lists(all_edges),
+        reversed_edges = [ for (edge = all_edges) [ edge[1], edge[0] ] ],
+        sorted_reversed_edges = quicksort_scalar_lists(reversed_edges)
+    )
+    !contains_duplicate(sorted_edges) &&
+        sorted_edges == sorted_reversed_edges &&
+        !contains_degenerate_face(points, faces);
+        
+function contains_duplicate(sorted_list, i = 0) =
+      i >= len(sorted_list)-1 ? false
+    : sorted_list[i] == sorted_list[i+1] ? true
+    : contains_duplicate(sorted_list, i + 1);
+        
+function contains_degenerate_face(points, faces, i = 0) =
+      i >= len(faces) ? false
+    : let (face_normal = polygon_normal([ for (p = faces[i]) points[p] ]))
+      !(norm(face_normal) >= $poly_err_tolerance) ? true
+    : contains_degenerate_face(points, faces, i + 1);
+
 /******* Polyhedron Beveling *******/
 
 function make_beveled_poly(faces) =
     !has_beveling() ? make_poly(faces)
     : let (poly = make_poly(merge_coplanar_faces(faces)))
-      make_beveled_poly_normalized(poly[0], poly[1]);
+      assert(is_manifold(poly[0], poly[1]), "Non-manifold surface! This could be a bug in puzzlecad.")
+      let (beveled_poly = make_beveled_poly_normalized(poly[0], poly[1]))
+      assert(is_manifold(beveled_poly[0], beveled_poly[1]), "Non-manifold surface! This could be a bug in puzzlecad.")
+      beveled_poly;
     
 function has_beveling() =
     $burr_bevel >= 0.01 ||
@@ -1761,7 +1803,7 @@ function make_beveled_poly_normalized(vertices, faces) = let(
         ]
             
     )
-
+//    [new_vertex_locations, linearized_new_faces];
     make_poly(literal_new_faces);
 
 function faces_containing_vertex(faces, vertex, k = 0) =
