@@ -1639,9 +1639,13 @@ function make_beveled_poly(faces) =
     
 function has_beveling() =
     $burr_bevel >= 0.01 ||
-    $burr_outer_x_bevel >= 0.01 ||
-    $burr_outer_y_bevel >= 0.01 ||
-    $burr_outer_z_bevel >= 0.01;
+    is_positive_bevel($burr_outer_x_bevel) ||
+    is_positive_bevel($burr_outer_y_bevel) ||
+    is_positive_bevel($burr_outer_z_bevel);
+    
+function is_positive_bevel(bevel) =
+    let (bevel_or_pair = to_2_vector(bevel))
+    bevel_or_pair[0] >= 0.01 || bevel_or_pair[1] >= 0.01;
 
 function make_beveled_poly_normalized(vertices, faces) = let(
     
@@ -1699,15 +1703,22 @@ function make_beveled_poly_normalized(vertices, faces) = let(
     ymin = min([ for (v = vertices) v.y ]),
     ymax = max([ for (v = vertices) v.y ]),
     zmin = min([ for (v = vertices) v.z ]),
-    zmax = max([ for (v = vertices) v.z ]),   
+    zmax = max([ for (v = vertices) v.z ]),
+        
+    outer_x_bevel = to_2_vector($burr_outer_x_bevel),
+    outer_y_bevel = to_2_vector($burr_outer_y_bevel),
+    outer_z_bevel = to_2_vector($burr_outer_z_bevel),
 
     edge_bevelings =
         [ for (edge_scheme = edge_schemes)
             let (p = vertices[edge_scheme[0][0]], q = vertices[edge_scheme[0][1]])
             let (bevel =
-                  $burr_outer_x_bevel && (values_are_close(xmin, p.x, q.x) || values_are_close(xmax, p.x, q.x)) ? $burr_outer_x_bevel
-                : $burr_outer_y_bevel && (values_are_close(ymin, p.y, q.y) || values_are_close(ymax, p.y, q.y)) ? $burr_outer_y_bevel
-                : $burr_outer_z_bevel && (values_are_close(zmin, p.z, q.z) || values_are_close(zmax, p.z, q.z)) ? $burr_outer_z_bevel
+                  outer_x_bevel && values_are_close(xmin, p.x, q.x) ? outer_x_bevel[0]
+                : outer_x_bevel && values_are_close(xmax, p.x, q.x) ? outer_x_bevel[1]
+                : outer_y_bevel && values_are_close(ymin, p.y, q.y) ? outer_y_bevel[0]
+                : outer_y_bevel && values_are_close(ymax, p.y, q.y) ? outer_y_bevel[1]
+                : outer_z_bevel && values_are_close(zmin, p.z, q.z) ? outer_z_bevel[0]
+                : outer_z_bevel && values_are_close(zmax, p.z, q.z) ? outer_z_bevel[1]
                 : $burr_bevel)
             [edge_scheme[0], bevel]
         ],
@@ -2036,8 +2047,10 @@ function zyx_to_xyz(burr) =
             ]
         ]
     ];
+            
+function to_2_vector(a) = is_num(a) ? [a, a] : a;
  
-function vectorize(a) = a[0] == undef ? [a, a, a] : a;
+function vectorize(a) = is_num(a) ? [a, a, a] : a;
 
 function is_3_vector(a) = len(a) == 3 && is_num(a[0]) && is_num(a[1]) && is_num(a[2]);
     
