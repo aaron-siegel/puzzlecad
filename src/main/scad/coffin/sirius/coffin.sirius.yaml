@@ -1,0 +1,11 @@
+thing-id: 4122252
+name: "Sirius - Interlocking puzzle by Stewart Coffin (STC #4)"
+tags: [puzzle, 3D_puzzle]
+images: [assembly-B.jpg, assembly-A.jpg, pieces.jpg]
+targets: [solid, multicolor]
+description: |
+    It's modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it and change the size, tolerance, or beveling. Make sure it's in the same folder as puzzlecad.scad.
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!

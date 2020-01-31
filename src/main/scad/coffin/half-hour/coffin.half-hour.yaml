@@ -1,0 +1,25 @@
+thing-id: 3355035
+name: "Half-Hour - Assembly puzzle by Stewart Coffin (STC #29)"
+tags: [puzzle, 3D_puzzle]
+images: [other-shapes.png]
+targets: [pieces, box]
+description: |
+    Assemble the six pieces to form a 3x3x3 cube. This seems like a straightforward puzzle, but it's harder than it looks!
+
+    Coffin called this puzzle "Half-Hour" because it can reasonably be expected to take half an hour to solve. I confess that it took me longer than that. In coffin's words:
+    
+    "As the reader can probably tell, I sometimes run out of names faster than ideas. Some solve this easy looking puzzle quickly and are apt to question the name, but others take a lot longer and question it for the opposite reason. ... It has only one solution. It was the culmination of quite an exhaustive investigation into the near countless number of possible designs."
+    
+    Coffin also provided a number of other shapes that can be made with the same set of pieces; several of them are shown in one of the images, which originally appeared in Coffin's book AP-ART. If you solve the cube assembly too quickly, you might enjoy some of these other challenges.
+
+    UPDATED January 2020 with a new design and larger pieces.
+    
+    ### Printing instructions
+    
+    Print either `coffin.half-hour.pieces.stl` _or_ `coffin.half-hour.pieces-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material. Optionally, you may also print the corresponding box to hold the pieces in place when not in use (as shown in the first image).
+
+    The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!
