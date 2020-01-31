@@ -5,90 +5,49 @@ $plate_width = 180;
 $burr_inset = 0.06;
 $burr_bevel = 1;
 
-color3();
+*color1();
+*color2();
+*color3();
+*color4();
 
 module color1() {
     burr_plate([
-        ["x{connect=fy-,clabel=Bz-}|x{connect=mz+,clabel=Ay-}"],
-        ["x{connect=mz+,clabel=Bx+}x{connect=fz-,clabel=Xy-}"],
-        [".aa{connect=fz-,clabel=Xy-}|b{connect=fx-,clabel=Cy-}b.", "...|c.."],
-        ["abb{connect=fy+,clabel=Xz-}|a{connect=mz+,clabel=Ey-}.."],
-        ["x{connect=mz+,clabel=Hy-}|x"],
-        ["abb{connect=fy+,clabel=Xz-}|a{connect=mz+,clabel=Ky-}.."]
+        ["x{connect=fy-z+,clabel=B}|x{connect=mz+y+,clabel=A}"],
+        ["x{connect=mz+x-,clabel=B}x{connect=fz-y+,clabel=X}"],
+        [".aa{connect=fz-y+,clabel=X}|b{connect=fx-z+,clabel=C}b.", "...|c.."],
+        ["abb{connect=fy+z+,clabel=X}|a{connect=mz+y+,clabel=E}.."],
+        ["x{connect=mz+y+,clabel=H}|x"],
+        ["abb{connect=fy+z+,clabel=X}|a{connect=mz+y+,clabel=K}.."]
     ]);
 }
 
 module color2() {
     burr_plate([
-        ["x{connect=fx+,clabel=Xz-}|x{connect=mz+,clabel=Cy-}"],
-        ["aab|.c.|.c{connect=mz+,clabel=Dy-}.", "..b|...|..."],
-        ["x{connect=mz+,clabel=Fy-}x{connect=fz-,clabel=Ey-}"],
-        ["a.|a.|bb{connect=mz+,clabel=Gy-}"],
-        ["a{connect=fz+,clabel=Xy-}a.|.bb{connect=mz+,clabel=Jy-}"],
-        ["xx{connect=fz-,clabel=Ky-}"]
+        ["x{connect=fx+z+,clabel=X}|x{connect=mz+x-,clabel=C}"],
+        ["aab|.c.|.c{connect=mz+y+,clabel=D}.", "..b|...|..."],
+        ["x{connect=mz+y+,clabel=F}x{connect=fz-y+,clabel=E}"],
+        ["a.|a.|bb{connect=mz+y+,clabel=G}"],
+        ["a{connect=fz+y+,clabel=X}a.|.bb{connect=mz+y+,clabel=J}"],
+        ["xx{connect=fz-y+,clabel=K}"]
     ]);
 }
 
 module color3() {
     burr_plate([
-        ["..|.."],      // Leave some space for the key piece at the end
-        ["abb{connect=fz-,clabel=Ay-}", "a.."],
-        ["x{connect=fy+,clabel=Xz-}x{connect=fz-,clabel=Dy-}"],
-        ["x|x{connect=fz-,clabel=Fy-}"],
-        ["a{connect=fx-,clabel=Gy-}b{connect=fy+,clabel=Hz-,label_orient=z+x+,label_text=Involute}b|a.."],
-        ["x{connect=fz-,clabel=Jy-}x{connect=fy-,clabel=Xz-}"],
+        ["aa|.b"],
+        ["abb{connect=fz-y+,clabel=A}", "a.."],
+        ["x{connect=fy+z+,clabel=X}x{connect=fz-y+,clabel=D}"],
+        ["x|x{connect=fz-y+,clabel=F}"],
+        ["a{connect=fx-y+,clabel=G}b{connect=fy+z+,clabel=H,label_orient=z+x+,label_text=Involute}b|a.."],
+        ["x{connect=fz-y+,clabel=J}x{connect=fy-z+,clabel=X}"],
     ]);
-    // Render the key piece with a tighter tolerance
-    burr_piece(["aa|.b"], $burr_scale = 16.2, $burr_inset = 0.01);
 }
 
 module color4() {
-    burr_plate([
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"]
-    ], $burr_inset = 0.08);
+    burr_plate(repeat(8, ["x{connect=mz+y+,clabel=X}"]), $plate_width = 100);
 }
+
 /*
-module color1() {
-    burr_plate([
-        ["..|.."],      // Leave some space for the key piece at the end
-        ["ab.|.b.|.cc", "a{connect=mz+,clabel=Ay-}..|...|..."],
-        ["x{connect=mz+,clabel=Xy-}x{connect=fz-,clabel=Ay-}"],
-        ["a{connect=fz-,clabel=Xy-}.bb{connect=fz-,clabel=Xy-}|acc.", "....|.d.."],
-        ["aab|.c.|.c{connect=mz+,clabel=Cy-}.", "..b|...|..."],
-        ["x{connect=fy+,clabel=Xz-}x{connect=fz-,clabel=Cy-}"],
-        [".a|bb|c.", ".a|..|c{connect=fx-,clabel=Dy-}."],
-        ["x{connect=fx+,clabel=Xy-}", "x{connect=mz+,clabel=Dy-}"],
-        ["a{connect=fx-,clabel=Ey-}b{note=z+x+,note_label=Involute}b|ac.", "...|.c."],
-        ["a.|a.|bb{connect=mz+,clabel=Ey-}"],
-        ["a{connect=mz+,clabel=Xy-}a.|.bb{connect=mz+,clabel=Fy-}"],
-        ["x{connect=fz-,clabel=Fy-}x{connect=fy-,clabel=Xz-}"],
-        ["abb{connect=fy+,clabel=Xz-}|a{connect=mz+,clabel=Gy-}.."],
-        ["xx{connect=fz-,clabel=Gy-}"]
-    ]);
-    // Render the key piece with a tighter tolerance
-    burr_piece(["aa|.b"], $burr_inset = 0.045);
-}
-
-module color2() {
-    burr_plate([
-        ["x{connect=fz-,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=fz-,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"],
-        ["x{connect=mz+,clabel=Xy-}"]
-    ], $joint_inset = 0.1);
-}
-
 module easy_print() {
     burr_plate([
         ["..|.."],      // Leave some space for the key piece at the end

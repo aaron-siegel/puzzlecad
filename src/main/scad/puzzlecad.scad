@@ -67,17 +67,19 @@ module burr_piece(burr_spec, center = false, label = undef, piece_number = undef
     
     burr_info = to_burr_info(burr_spec);
     bounding_box = piece_bounding_box(burr_info);
-    
-    translate(cw(scale_vec, $post_translate))
-    rotate($post_rotate)
-    translate(center ? [0, 0, 0] : -bounding_box[0])
-    difference() {
-        burr_piece_base(burr_info);
-        if (label) {
-            translate([-scale_vec.x/2+1+inset_vec.x, scale_vec.y/2, scale_vec.z/2])
-            rotate([90, 0, -90])
-            linear_extrude(height=1)
-            text(label, halign="center", valign="center", size=6, $fn=64);
+
+    if (!is_undef(bounding_box)) {
+        translate(cw(scale_vec, $post_translate))
+        rotate($post_rotate)
+        translate(center ? [0, 0, 0] : -bounding_box[0])
+        difference() {
+            burr_piece_base(burr_info);
+            if (label) {
+                translate([-scale_vec.x/2+1+inset_vec.x, scale_vec.y/2, scale_vec.z/2])
+                rotate([90, 0, -90])
+                linear_extrude(height=1)
+                text(label, halign="center", valign="center", size=6, $fn=64);
+            }
         }
     }
     
@@ -136,7 +138,8 @@ function piece_bounding_box(burr_info) =
                       [ for (bb = bounding_box(component)) bb + [x, y, z] ]
             ]
     )
-    [ for (vec = bounding_box_union(cell_bounding_boxes)) cw(vec, scale_vec) ];
+    let (union = bounding_box_union(cell_bounding_boxes))
+    is_undef(union) ? undef : [ for (vec = union) cw(vec, scale_vec) ];
                    
 function bounding_box_union(bb_list, i = 0, result = undef) =
       i >= len(bb_list) ? result
@@ -318,7 +321,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     assert(voffset, str("Invalid label_voffset: ", voffset_str))
                    -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
                 
-                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
+                label_scale = is_undef(label_scale_str) ? 0.5 : atof(label_scale_str);
                 assert(label_scale, str("Invalid label_scale: ", label_scale_str));
 
                 // Translate by the explicit offsets

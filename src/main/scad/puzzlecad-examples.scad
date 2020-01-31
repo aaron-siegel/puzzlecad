@@ -192,9 +192,9 @@ include <puzzlecad.scad>
 // is an entirely aesthetic decision. Puzzlecad provides several further annotations for fine-tuning
 // the appearance of the labels:
 
-// label_scale      font size of the label, *relative* to $burr_scale. The default is 0.4, so that
-//                  if (say) $burr_scale = 17, then the label will be printed in 6.8-point font
-//                  (6.8 = 17 x 0.4).
+// label_scale      font size of the label, *relative* to $burr_scale. The default is 0.5, so that
+//                  if (say) $burr_scale = 17, then the label will be printed in 8.5-point font
+//                  (8.5 = 17 x 0.5).
 
 // label_hoffset    optional horizontal offset to apply to the label, in units of $burr_scale. This
 //                  can be useful for fine-tuning the placement of the label. If label_hoffset is
