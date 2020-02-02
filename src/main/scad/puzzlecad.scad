@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0";
+puzzlecad_version = "2.0b1";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -513,7 +513,7 @@ module burr_piece_component(burr_info, component_id, test_poly = undef) {
         
         // Render the component.
         
-        polyhedron(poly[0], poly[1]);
+        polyhedron(poly[0], poly[1], convexity = 10);
 
     }
         
@@ -624,7 +624,7 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
         render(convexity = 2)
         difference() {
             
-            polyhedron(poly[0], poly[1]);
+            polyhedron(poly[0], poly[1], convexity = 10);
             
             if ($burr_inset > 0) {
                 for (x=[-1:xlen], y=[-1:ylen], z=[-1:zlen]) {
@@ -726,7 +726,7 @@ module female_connector(orient, label, explicit_label_orient) {
             cube(size3, center = true);
         }
         if (!is_undef(label)) {
-            connector_label(1, orient, label, explicit_label_orient);
+            #connector_label(1, orient, label, explicit_label_orient);
         }
     }
     
@@ -1027,7 +1027,7 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     label_depth = 0.5;
     label_orient = len(orient) == 4 ? mirrored_face_name(substr(orient, 2, 2)) : explicit_label_orient;
     label_rot = cube_edge_pre_rotation(str(substr(orient, 0, 2), label_orient));
-    label_translate = $burr_scale / 3 - $burr_inset + (label_depth / 2 + $joint_inset - iota) * parity;
+    label_translate = $burr_scale / 3 - $burr_inset + (label_depth / 2 + $joint_inset - 10 * iota) * parity;
 
     assert(!is_undef(label_rot), str("Invalid label orientation: ", orient, label_orient));
     
@@ -1229,7 +1229,7 @@ module beveled_prism(polygon, height, center = false) {
     top = [ for (p = polygon) [ p.x, p.y, height ] ];
         
     assert(
-        unit_vector(polygon_normal(top)) == [0, 0, -1],
+        norm(unit_vector(polygon_normal(top)) - [0, 0, -1]) < $poly_err_tolerance,
         "beveled_prism: faces of the specified polygon must wind clockwise."
     );
 
@@ -2125,7 +2125,9 @@ module require_puzzlecad_version(required_version) {
     
 }
 
-function to_version_spec(str) = [ for (element = strtok(str, ".")) atof(element) ];
+function to_version_spec(str) = [ for (element = strtok(strip_beta(str), ".")) atof(element) ];
+
+function strip_beta(str) = let (b = index_of(str, "b")) b == -1 ? str : substr(str, 0, b);
 
 function vector_compare(v1, v2, pos = 0) =
     pos >= max(len(v1), len(v2)) ? 0 :
@@ -2133,3 +2135,7 @@ function vector_compare(v1, v2, pos = 0) =
     pos >= len(v2) ? v1[pos] - 0:
     v1[pos] != v2[pos] ? v1[pos] - v2[pos] :
     vector_compare(v1, v2, pos + 1);
+
+if (list_contains(puzzlecad_version, "b")) {
+    echo(str("NOTE: You are using a beta version of puzzlecad (version ", puzzlecad_version, ")."));
+}
