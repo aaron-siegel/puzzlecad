@@ -1,7 +1,7 @@
 thing-id: 3355035
 name: "Half-Hour - Assembly puzzle by Stewart Coffin (STC #29)"
 tags: [puzzle, 3D_puzzle]
-images: [other-shapes.png]
+images: [assembled-in-box.jpg, assembled-loose.jpg, pieces.jpg, other-shapes.png]
 targets: [pieces, box]
 description: |
     Assemble the six pieces to form a 3x3x3 cube. This seems like a straightforward puzzle, but it's harder than it looks!
@@ -12,7 +12,7 @@ description: |
     
     Coffin also provided a number of other shapes that can be made with the same set of pieces; several of them are shown in one of the images, which originally appeared in Coffin's book AP-ART. If you solve the cube assembly too quickly, you might enjoy some of these other challenges.
 
-    UPDATED January 2020 with a new design and larger pieces.
+    UPDATED February 2020 with a new design and larger pieces.
     
     ### Printing instructions
     
