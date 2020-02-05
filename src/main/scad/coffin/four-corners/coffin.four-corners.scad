@@ -18,7 +18,7 @@ module solid() {
     burr_piece([
         ".x{components={y+z+,z+y+,z+x-}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={y-z+,z+y-,z+x+}}.",
         "x{components=x+z-}x{components={z-y+,z-x-,x-z-}}.|.x{components=z-}.|.x{components={z-y-,x+z-,z-x+}}x{components=x-z-}"
-    ], $post_translate = [-(sqrt(2)+1)/2, 0, (sqrt(2)-1)/2]);
+    ], $post_translate = [-sqrt(1/2), 0, sqrt(1/2)]);
     
 }
 
