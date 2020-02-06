@@ -1,7 +1,7 @@
 include <puzzlecad.scad>
 
 $burr_scale = 27;
-$burr_inset = 0;//0.11;
+$burr_inset = 0.11;
 $burr_bevel = 0.6;
 $post_rotate = [0, 45, 0];
 
