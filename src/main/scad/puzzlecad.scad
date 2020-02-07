@@ -747,7 +747,7 @@ module male_connector_cutout(orient) {
             linear_extrude($burr_scale / 3 - 0.5, center = true)
             polygon([[-size/2, -size/2], [-size/2, 0], [0, size/2], [size/2, 0], [size/2, -size/2]]);
         } else {
-            cube([size, size, $burr_scale / 3], center = true);
+            cube([size, size, $burr_scale / 3 - 0.5], center = true);
         }
     }
     
@@ -761,34 +761,34 @@ module male_connector(orient, label, explicit_label_orient) {
     rot = cube_face_rotation(orient);
     taper_rot = cube_edge_pre_rotation(orient);
     size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2;
+    // Subtract off an extra 0.35 mm to provide added clearance at the top.
+    total_height = size - 0.35 + $burr_scale / 3;
     
     rotate(rot)
-    // Subtract off an extra 0.35 mm to provide added clearance at the top.
-    translate([0, 0, ($burr_scale + size) / 2 - 0.35])
+    translate([0, 0, total_height / 2 + $burr_scale / 6])
     union() {
         difference() {
             if (taper_rot) {
                 rotate(taper_rot)
-                translate([0, 0, -$burr_scale / 6 - 0.5])
-                tapered_pentagon([size, size, size + $burr_scale / 3 + 1], center = true, clipped = true);
+                tapered_pentagon([size, size, total_height], center = true, clipped = true);
             } else {
-                translate([0, 0, -$burr_scale / 6 - 0.5])
-                tapered_cube([size, size, size + $burr_scale / 3 + 1], center = true);
+                tapered_cube([size, size, total_height], center = true);
             }
             if (!is_undef(label)) {
+                translate([0, 0, $burr_scale / 6])
                 connector_label(-1, orient, label, explicit_label_orient);
             }
         }
-        translate([0, (size + $joint_cutout) / 2 - 0.5, -$burr_scale / 2])
+        translate([0, (size + $joint_cutout) / 2 - 0.5, -$burr_scale / 3])
         rotate([90, 0, 0])
         cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
-        translate([0, -(size + $joint_cutout) / 2 + 0.5, -$burr_scale / 2])
+        translate([0, -(size + $joint_cutout) / 2 + 0.5, -$burr_scale / 3])
         rotate([90, 0, 0])
         cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
-        translate([(size + $joint_cutout) / 2 - 0.5, 0, -$burr_scale / 2])
+        translate([(size + $joint_cutout) / 2 - 0.5, 0, -$burr_scale / 3])
         rotate([0, 90, 0])
         cylinder(h = $joint_cutout + 1 +iota, r = 1, $fn = 32, center = true);
-        translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 2])
+        translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 3])
         rotate([0, 90, 0])
         cylinder(h = $joint_cutout + 1 +iota, r = 1, $fn = 32, center = true);
     }
@@ -995,7 +995,7 @@ module tapered_cube(size, center = false) {
         $burr_bevel = 0,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
-        $burr_outer_z_bevel = 1.5
+        $burr_outer_z_bevel = [0, 1.5]
     );
     
 }
@@ -1012,7 +1012,7 @@ module tapered_pentagon(size, center = false, clipped = false) {
         $burr_bevel = 0,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
-        $burr_outer_z_bevel = 1.5
+        $burr_outer_z_bevel = [0, 1.5]
     );
     
 }
