@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0b1";
+puzzlecad_version = "2.0b2";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -391,11 +391,9 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             clabel = clabel_list[i];
             
             if (connect[0] == "m") {
-                clabel = lookup_kv(aux[x][y][z], "clabel");
                 translate(cw(scale_vec, [x, y, z]))
                 male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
             } else if (connect[0] == "d" && connect[1] == "m") {
-                clabel = lookup_kv(aux[x][y][z], "clabel");
                 translate(cw(scale_vec, [x, y, z]))
                 male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
             }
@@ -726,7 +724,7 @@ module female_connector(orient, label, explicit_label_orient) {
             cube(size3, center = true);
         }
         if (!is_undef(label)) {
-            #connector_label(1, orient, label, explicit_label_orient);
+            connector_label(1, orient, label, explicit_label_orient);
         }
     }
     
@@ -743,10 +741,10 @@ module male_connector_cutout(orient) {
     size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2 + $joint_cutout * 2;
     
     rotate(rot)
-    translate([0, 0, $burr_scale / 3 + iota]) {
+    translate([0, 0, $burr_scale / 3 + 0.25 + iota]) {
         if (taper_rot) {
             rotate(taper_rot)
-            linear_extrude($burr_scale / 3, center = true)
+            linear_extrude($burr_scale / 3 - 0.5, center = true)
             polygon([[-size/2, -size/2], [-size/2, 0], [0, size/2], [size/2, 0], [size/2, -size/2]]);
         } else {
             cube([size, size, $burr_scale / 3], center = true);
