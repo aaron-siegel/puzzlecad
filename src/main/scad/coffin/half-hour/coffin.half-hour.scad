@@ -3,7 +3,7 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 20;
-$burr_inset = 0.07;
+$burr_inset = 0.07;     // This can be 0.06 for a tighter fit
 $burr_bevel = 1.3;
 
 // Uncomment one of the following lines to render the appropriate component.

@@ -3,6 +3,9 @@ name: "Half-Hour - Assembly puzzle by Stewart Coffin (STC #29)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled-in-box.jpg, assembled-loose.jpg, pieces.jpg, other-shapes.png]
 targets: [pieces, box]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'smaller', code: '$burr_scale = 17;', targets: ''}
 description: |
     Assemble the six pieces to form a 3x3x3 cube. This seems like a straightforward puzzle, but it's harder than it looks!
 
@@ -16,9 +19,9 @@ description: |
     
     ### Printing instructions
     
-    Print either `coffin.half-hour.pieces.stl` _or_ `coffin.half-hour.pieces-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material. Optionally, you may also print the corresponding box to hold the pieces in place when not in use (as shown in the first image).
+    Print either `coffin.half-hour.pieces.stl` _or_ `coffin.half-hour.pieces-smaller.stl`. I prefer the larger version, but the smaller one will use around 1/3 less material. Optionally, you may also print a box to hold the pieces in place in their solved state when not in use (as shown in the cover photo) - be sure to use the box model whose size matches the pieces you print.
 
-    The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
+    ${puzzlecad-boilerplate}
 
     ${stewart-coffin-bio}
 
