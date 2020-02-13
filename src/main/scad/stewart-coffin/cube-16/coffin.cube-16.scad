@@ -1,7 +1,7 @@
 include <puzzlecad.scad>
 
 $burr_scale = 16;
-$burr_inset = 0.06;
+$burr_inset = 0.07;
 $burr_bevel = 1;
 
 burr_plate([
