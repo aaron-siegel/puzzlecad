@@ -16,6 +16,7 @@ $burr_bevel = 1.2;
 *single_color();
 
 module color_1() {
+
     burr_plate([
         ["x{connect=fz-y+,clabel=X}x{connect=mz+x+,clabel=A}"],
         ["x{connect=fy-z+,clabel=A}|x{connect=mz+y+,clabel=B}"],
@@ -25,9 +26,11 @@ module color_1() {
         [".a{connect=mz+y-,clabel=J}.|ba.|.c{connect=fz-y+,clabel=K}c"],
         ["x", "x{connect=mz+y+,clabel=K}"]
     ]);
+
 }
 
 module color_2() {
+
     burr_plate([
         ["ab{label_text=STC #30,label_orient=y-x+,label_scale=0.35}b{connect=fz-y+,clabel=B}", "a.."],
         ["x{connect=fx+z+,clabel=D}|x{connect=fz+y+,clabel=X}"],
@@ -37,6 +40,7 @@ module color_2() {
         ["x", "x{connect=mz+x-,clabel=L}"],
         ["x{connect={fz-x-,mz+x-},clabel={L,M}}|x{connect=fz+x-,clabel=X}"],
     ]);
+
 }
 
 module color_3() {

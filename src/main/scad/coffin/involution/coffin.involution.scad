@@ -6,7 +6,6 @@ $burr_scale = 16;
 $plate_width = 120;
 $burr_inset = 0.07;     // This can be 0.06 for a tighter fit
 $burr_bevel = 1.2;
-$joint_inset = 0.025;
 
 // Uncomment one of the following lines to render that module.
 
@@ -78,7 +77,7 @@ module piece_2() {
 
 module piece_3() {
     burr_plate([
-        ["a..|bcc{connect=mz+x+,clabel=D}|b{connect=mz+y+,clabel=X}..", "a..|...|..."], // 3
+        ["a..|bcc{connect=mz+x+,clabel=D}|b{connect=fz+y+,clabel=X}..", "a..|...|..."], // 3
         ["x{connect=fx+z+,clabel=D}|x{connect=fz+y+,clabel=X}"], // 2
     ]);
 }
@@ -102,7 +101,7 @@ module piece_5() {
 
 module piece_6() {
     burr_plate([
-        ["a{connect=mz+y+,clabel=X}ab{connect=mx+z-,clabel=K}|.c.", "..b|..."], // 3
+        ["a{connect=fz+y+,clabel=X}ab{connect=mx+z-,clabel=K}|.c.", "..b|..."], // 3
         ["a|a{connect=fx-z+,clabel=K}", "b|.", "b|."], // 1
     ]);
 }
