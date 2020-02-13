@@ -3,25 +3,26 @@ name: "Coffin's Quartet - Interlocking puzzle by Stewart Coffin (STC #93)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
 targets: [--]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'smaller', code: '$burr_scale = 17;', targets: ''}
 description: |
     Assemble the four pieces into a 3x3x3 cube.
     
     This is a neat little design that makes a great introduction to Stewart Coffin's interlocking puzzles. As a puzzle, it's not too difficult, but it's a very elegant design: a 3x3x3 cube dissection that completely interlocks. Coffin wrote of this puzzle:
     
-    "[D]issections of the 3x3x3 cube continue to
-    fascinate me, but especially those that interlock. Better still,
-    with all dissimilar non-symmetrical pieces. Is such a five-piece
-    version possible? I doubt it, after having searched for years. ...
-    A four-piece
-    version that satisfies all of these requirements can also be
-    entertaining. Here is one."
+    "[D]issections of the 3x3x3 cube continue to fascinate me, but especially those that interlock. Better still, with all dissimilar non-symmetrical pieces. Is such a five-piece version possible? I doubt it, after having searched for years. ... A four-piece version that satisfies all of these requirements can also be entertaining. Here is one."
     
-    Coffin also poses a provocative question: "How many others are possible? Why not explore on your own ..." If you like this puzzle, you might try searching for other similar designs ... and please post any that you find :)
+    Coffin also poses a provocative question: "How many others are possible? Why not explore on your own ..." If you like this puzzle, you might try searching for other similar designs ... and please post any that you find!
     
     This puzzle has gone by various names over the years, including _Interlock Four_, _Coffin's Quartet_, and _Coffin's Four-Piece Cube_. Coffin's own "official" name is _Four-Piece Serially Interlocking Cube_. I usually prefer the canonical names, but that's a mouthful, so in this case I went with perhaps the most widely used of the others.
-
+    
+    UPDATED February 2020 with a new design and larger pieces.
+    
     ### Printing Instructions
-
+    
+    Print either `coffin.coffins-quartet.stl` _or_ `coffin.coffins-quartet-smaller.stl`. I prefer the larger version, but the smaller one will use around 1/3 less material.
+    
     ${snap-joints-boilerplate}
 
     ${puzzlecad-boilerplate}

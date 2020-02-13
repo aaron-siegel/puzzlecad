@@ -1,8 +1,8 @@
 include <puzzlecad.scad>
 
-$burr_scale = 17;
-$burr_inset = 0.06;
-$burr_bevel = 1;
+$burr_scale = 20;
+$burr_inset = 0.07;     // This can be 0.06 for a tighter fit
+$burr_bevel = 1.3;
 $unit_beveled = true;
 
 burr_plate([
