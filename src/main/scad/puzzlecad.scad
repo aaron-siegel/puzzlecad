@@ -19,7 +19,7 @@ $burr_bevel = 0.5;
 $plate_width = 180;
 $plate_depth = 180;
 $plate_sep = 6;
-$joint_inset = 0.025;
+$joint_inset = 0.015;
 $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
@@ -69,7 +69,7 @@ module burr_piece(burr_spec, center = false, label = undef, piece_number = undef
     bounding_box = piece_bounding_box(burr_info);
 
     if (!is_undef(bounding_box)) {
-        translate(cw(scale_vec, $post_translate))
+//        translate(cw(scale_vec, $post_translate))
         rotate($post_rotate)
         translate(center ? [0, 0, 0] : -bounding_box[0])
         difference() {
@@ -126,31 +126,47 @@ module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0
 function piece_bounding_box(burr_info) =
     let (
         scale_vec = vectorize($burr_scale),
-        cell_bounding_boxes =
+        cell_bounding_points =
             [ for (x = [0:len(burr_info)-1])
               for (y = [0:len(burr_info[x])-1])
               for (z = [0:len(burr_info[x][y])-1])
               let (burr_cell = burr_info[x][y][z][0], aux_cell = burr_info[x][y][z][1])
               if (burr_cell > 0 && is_undef(lookup_kv(aux_cell, "components")))
-                  [[x - 1/2, y - 1/2, z - 1/2], [x + 1/2, y + 1/2, z + 1/2]]
+                  for (p = cube_bounding_points())
+                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
               else if (burr_cell > 0)
                   for (component = strtok(lookup_kv(aux_cell, "components"), ","))
-                      [ for (bb = bounding_box(component)) bb + [x, y, z] ]
+                  for (p = component_bounding_points(component))
+                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
             ]
     )
-    let (union = bounding_box_union(cell_bounding_boxes))
-    is_undef(union) ? undef : [ for (vec = union) cw(vec, scale_vec) ];
-                   
-function bounding_box_union(bb_list, i = 0, result = undef) =
-      i >= len(bb_list) ? result
-    : is_undef(result) ? bounding_box_union(bb_list, i + 1, bb_list[i])
-    : bounding_box_union(bb_list, i + 1,
-      [ [ min(result[0].x, bb_list[i][0].x),
-          min(result[0].y, bb_list[i][0].y),
-          min(result[0].z, bb_list[i][0].z) ],
-        [ max(result[1].x, bb_list[i][1].x),
-          max(result[1].y, bb_list[i][1].y),
-          max(result[1].z, bb_list[i][1].z) ] ]);
+    bounding_box_of_points(cell_bounding_points);
+
+function bounding_box_of_points(points, i = 0, box = undef) =
+      i >= len(points) ? box
+    : is_undef(box) ? bounding_box_of_points(points, i + 1, [points[i], points[i]])
+    : let (
+        new_min = [min(box[0].x, points[i].x), min(box[0].y, points[i].y), min(box[0].z, points[i].z)],
+        new_max = [max(box[1].x, points[i].x), max(box[1].y, points[i].y), max(box[1].z, points[i].z)]
+      )
+      bounding_box_of_points(points, i + 1, [new_min, new_max]);
+
+function cube_bounding_points() =
+    [ for (i = [-1, 1], j = [-1, 1], k = [-1, 1])
+        cw([i, j, k] / 2, [1, 1, 1] - 2 * $burr_inset * cw_inverse(vectorize($burr_scale))) ];
+
+// name can be a face, face-edge, or orthoscheme name.
+// TODO Pregenerate and cache these?
+function component_bounding_points(name) =
+    let (face_rot = cube_face_rotation(name))
+    let (scaled_inset = $burr_inset * cw([2, 2, 1], cw_inverse(vectorize($burr_scale))))
+    let (pos = [0.5, 0.5, 0.5] - scaled_inset, neg = -[0.5, 0.5, 0.5] + scaled_inset)
+    len(name) == 2 ?
+        [ for (p = [[0, 0, scaled_inset.z], [pos.x, pos.y, pos.z], [pos.x, neg.y, pos.z], [neg.x, neg.y, pos.z], [neg.x, pos.y, pos.z]])
+            apply_rot(face_rot, p) ] :
+        let (edge_rot = cube_edge_pre_rotation(name))
+        [ for (p = [[0, scaled_inset.y, 2 * scaled_inset.z], [0, scaled_inset.y, pos.z], [pos.x, pos.y, pos.z], [neg.x, pos.y, pos.z]])
+            apply_rot(face_rot, apply_rot(edge_rot, p)) ];
 
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
@@ -2062,6 +2078,8 @@ function lookup3(array, vector) = array[vector.x][vector.y][vector.z];
 function cw(a, b) = 
     a[0] == undef || b[0] == undef ? a * b : [ for (i=[0:min(len(a), len(b))-1]) a[i]*b[i] ];
         
+function cw_inverse(a) = [ 1 / a.x, 1 / a.y, 1 / a.z ];
+        
 function unit_vector(vector) = vector / norm(vector);
 
 function angle(a, b) = assert(!is_undef(a) && !is_undef(b), [a, b]) atan2(norm(cross(a, b)), a*b);
@@ -2076,6 +2094,26 @@ function poly_x(poly) = [ for (p = poly) p.x ];
 function poly_y(poly) = [ for (p = poly) p.y ];
 
 function range(vec) = max(vec) - min(vec);
+
+function apply_rot(rotation, vector) =
+    let (
+        applied_x = [
+            vector.x,
+            vector.y * cos(rotation.x) - vector.z * sin(rotation.x),
+            vector.z * cos(rotation.x) + vector.y * sin(rotation.x)
+        ],
+        applied_y = [
+            applied_x.x * cos(rotation.y) + applied_x.z * sin(rotation.y),
+            applied_x.y,
+            applied_x.z * cos(rotation.y) - applied_x.x * sin(rotation.y)
+        ],
+        applied_z = [
+            applied_y.x * cos(rotation.z) - applied_y.y * sin(rotation.z),
+            applied_y.y * cos(rotation.z) + applied_y.x * sin(rotation.z),
+            applied_y.z
+        ]
+    )
+    applied_z;
 
 /***** List manipulation *****/
     
