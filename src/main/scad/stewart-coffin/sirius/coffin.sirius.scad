@@ -6,7 +6,7 @@ $burr_bevel = 0.6;
 $post_rotate = [0, 45, 0];
 
 *solid();
-multicolor();
+*multicolor();
 
 module solid() {
     

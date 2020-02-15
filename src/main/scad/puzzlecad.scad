@@ -745,10 +745,10 @@ module male_connector(orient, label, explicit_label_orient) {
         cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
         translate([(size + $joint_cutout) / 2 - 0.5, 0, -$burr_scale / 3])
         rotate([0, 90, 0])
-        cylinder(h = $joint_cutout + 1 +iota, r = 1, $fn = 32, center = true);
+        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
         translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 3])
         rotate([0, 90, 0])
-        cylinder(h = $joint_cutout + 1 +iota, r = 1, $fn = 32, center = true);
+        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
     }
     
 }
@@ -762,7 +762,7 @@ module female_diag_snap_connector(orient, label, twist = false) {
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
     
-    joint_length = 5;
+    joint_length = $burr_scale / 5;
     
     scale($burr_scale)
     translate(twist_translate)
@@ -773,7 +773,11 @@ module female_diag_snap_connector(orient, label, twist = false) {
 
         linear_extrude((joint_length + 0.3) / $burr_scale)
         scale($diag_joint_scale)
-        polygon([ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ]);
+        polygon([
+            [0, -$joint_inset / $burr_scale / $diag_joint_scale],
+            [-1/2 - sqrt(2) * $joint_inset / $burr_scale/ $diag_joint_scale, sqrt(2)/2 + $joint_inset / $burr_scale / $diag_joint_scale],
+            [1/2 + sqrt(2) * $joint_inset / $burr_scale/ $diag_joint_scale, sqrt(2)/2 + $joint_inset / $burr_scale / $diag_joint_scale]
+        ]);
         
         if (label) {
             
@@ -800,7 +804,7 @@ module male_diag_snap_connector_cutout(orient, twist = false) {
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
     
-    joint_length = 5;
+    joint_length = $burr_scale / 5;
     
     scale($burr_scale)
     translate(twist_translate)
@@ -827,7 +831,7 @@ module male_diag_snap_connector(orient, label, twist = false) {
     theta = atan(sqrt(2));
     eta = atan(sqrt(2)/2);
     
-    joint_length = 5;
+    joint_length = $burr_scale / 5;
     
     scale($burr_scale)
     translate(twist_translate)
@@ -839,7 +843,9 @@ module male_diag_snap_connector(orient, label, twist = false) {
         difference() {
             
             beveled_prism(
-                [ [0, 0], [-1/2, sqrt(2)/2], [1/2, sqrt(2)/2] ] * $diag_joint_scale,
+                [[0, $joint_inset / $burr_scale / $diag_joint_scale],
+                 [-1/2 + sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale],
+                 [1/2 - sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale]]             * $diag_joint_scale,
                 (joint_length * 2 + 1) / $burr_scale,
                 $burr_bevel = 0.75 / $burr_scale,
                 $burr_outer_x_bevel = undef,
