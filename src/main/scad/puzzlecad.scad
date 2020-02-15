@@ -25,7 +25,6 @@ $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
 $unit_beveled = false;
 $post_rotate = [0, 0, 0];
-$post_translate = [0, 0, 0];
 
 // Optional parameters that can be used to increase
 // the amount of beveling on outer edges of burr pieces:
@@ -46,13 +45,11 @@ $puzzlecad_debug = false;
  *    - a stick number: 975
  *    - a string for a single-layer puzzle piece: "xxxx.|x..x.|x....|xxxxx"
  *    - an array of such strings, one per layer
- * "label" is a text label that appears on the end of a burr stick; this currently works correctly
- *    ONLY for 2x2xN pieces.
  * "piece_number" is the ordinal number of the burr piece in a build plate (or sequence of pieces)
  *    and is used only for output/debugging (it has no effect on rendering).
  */
 
-module burr_piece(burr_spec, center = false, label = undef, piece_number = undef) {
+module burr_piece(burr_spec, center = false, piece_number = undef) {
 
     scale_vec = vectorize($burr_scale);
     inset_vec = vectorize($burr_inset);
@@ -69,18 +66,9 @@ module burr_piece(burr_spec, center = false, label = undef, piece_number = undef
     bounding_box = piece_bounding_box(burr_info);
 
     if (!is_undef(bounding_box)) {
-//        translate(cw(scale_vec, $post_translate))
-        rotate($post_rotate)
         translate(center ? [0, 0, 0] : -bounding_box[0])
-        difference() {
-            burr_piece_base(burr_info);
-            if (label) {
-                translate([-scale_vec.x/2+1+inset_vec.x, scale_vec.y/2, scale_vec.z/2])
-                rotate([90, 0, -90])
-                linear_extrude(height=1)
-                text(label, halign="center", valign="center", size=6, $fn=64);
-            }
-        }
+        rotate($post_rotate)
+        burr_piece_base(burr_info);
     }
     
 }
@@ -88,11 +76,10 @@ module burr_piece(burr_spec, center = false, label = undef, piece_number = undef
 /* Module for rendering multiple burr pieces on a single plate. The module will prearrange the
  * pieces so that they can be generated into a single STL/OBJ file.
  * "burr_specs" is a vector of burr pieces (specified the same way as when calling burr_piece).
- * "labels" is an (optional) vector of labels.
  * The other arguments should be left as defaults (they're used for recursive calls to burr_plate).
  */
 
-module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0) {
+module burr_plate(burr_specs, i = 0, y = 0, x = 0, row_depth = 0) {
     
     scale_vec = vectorize($burr_scale);
     
@@ -106,67 +93,22 @@ module burr_plate(burr_specs, labels = undef, i = 0, y = 0, x = 0, row_depth = 0
         if (x == 0 || x + piece_width < $plate_width) {
             
             translate([x, y, 0])
-            burr_piece(burr_specs[i], label = labels[i], piece_number = i + 1);
+            burr_piece(burr_specs[i], piece_number = i + 1);
             
             burr_plate(
-                burr_specs, labels, i + 1,
+                burr_specs, i + 1,
                 y, x + piece_width + $plate_sep, max([row_depth, piece_depth])
             );
             
         } else {
             
-            burr_plate(burr_specs, labels, i, y + row_depth + $plate_sep, 0, 0);
+            burr_plate(burr_specs, i, y + row_depth + $plate_sep, 0, 0);
             
         }
         
     }
     
 }
-
-function piece_bounding_box(burr_info) =
-    let (
-        scale_vec = vectorize($burr_scale),
-        cell_bounding_points =
-            [ for (x = [0:len(burr_info)-1])
-              for (y = [0:len(burr_info[x])-1])
-              for (z = [0:len(burr_info[x][y])-1])
-              let (burr_cell = burr_info[x][y][z][0], aux_cell = burr_info[x][y][z][1])
-              if (burr_cell > 0 && is_undef(lookup_kv(aux_cell, "components")))
-                  for (p = cube_bounding_points())
-                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
-              else if (burr_cell > 0)
-                  for (component = strtok(lookup_kv(aux_cell, "components"), ","))
-                  for (p = component_bounding_points(component))
-                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
-            ]
-    )
-    bounding_box_of_points(cell_bounding_points);
-
-function bounding_box_of_points(points, i = 0, box = undef) =
-      i >= len(points) ? box
-    : is_undef(box) ? bounding_box_of_points(points, i + 1, [points[i], points[i]])
-    : let (
-        new_min = [min(box[0].x, points[i].x), min(box[0].y, points[i].y), min(box[0].z, points[i].z)],
-        new_max = [max(box[1].x, points[i].x), max(box[1].y, points[i].y), max(box[1].z, points[i].z)]
-      )
-      bounding_box_of_points(points, i + 1, [new_min, new_max]);
-
-function cube_bounding_points() =
-    [ for (i = [-1, 1], j = [-1, 1], k = [-1, 1])
-        cw([i, j, k] / 2, [1, 1, 1] - 2 * $burr_inset * cw_inverse(vectorize($burr_scale))) ];
-
-// name can be a face, face-edge, or orthoscheme name.
-// TODO Pregenerate and cache these?
-function component_bounding_points(name) =
-    let (face_rot = cube_face_rotation(name))
-    let (scaled_inset = $burr_inset * cw([2, 2, 1], cw_inverse(vectorize($burr_scale))))
-    let (pos = [0.5, 0.5, 0.5] - scaled_inset, neg = -[0.5, 0.5, 0.5] + scaled_inset)
-    len(name) == 2 ?
-        [ for (p = [[0, 0, scaled_inset.z], [pos.x, pos.y, pos.z], [pos.x, neg.y, pos.z], [neg.x, neg.y, pos.z], [neg.x, pos.y, pos.z]])
-            apply_rot(face_rot, p) ] :
-        let (edge_rot = cube_edge_pre_rotation(name))
-        [ for (p = [[0, scaled_inset.y, 2 * scaled_inset.z], [0, scaled_inset.y, pos.z], [pos.x, pos.y, pos.z], [neg.x, pos.y, pos.z]])
-            apply_rot(face_rot, apply_rot(edge_rot, p)) ];
 
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
@@ -1060,6 +1002,53 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     text(label, halign = "center", valign = "center", size = $burr_scale / 3.7, $fn = 64);
     
 }
+
+/******* Bounding box computation *******/
+
+function piece_bounding_box(burr_info) =
+    let (
+        scale_vec = vectorize($burr_scale),
+        cell_bounding_points =
+            [ for (x = [0:len(burr_info)-1])
+              for (y = [0:len(burr_info[x])-1])
+              for (z = [0:len(burr_info[x][y])-1])
+              let (burr_cell = burr_info[x][y][z][0], aux_cell = burr_info[x][y][z][1])
+              if (burr_cell > 0 && is_undef(lookup_kv(aux_cell, "components")))
+                  for (p = cube_bounding_points())
+                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
+              else if (burr_cell > 0)
+                  for (component = strtok(lookup_kv(aux_cell, "components"), ","))
+                  for (p = component_bounding_points(component))
+                      apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
+            ]
+    )
+    bounding_box_of_points(cell_bounding_points);
+
+function bounding_box_of_points(points, i = 0, box = undef) =
+      i >= len(points) ? box
+    : is_undef(box) ? bounding_box_of_points(points, i + 1, [points[i], points[i]])
+    : let (
+        new_min = [min(box[0].x, points[i].x), min(box[0].y, points[i].y), min(box[0].z, points[i].z)],
+        new_max = [max(box[1].x, points[i].x), max(box[1].y, points[i].y), max(box[1].z, points[i].z)]
+      )
+      bounding_box_of_points(points, i + 1, [new_min, new_max]);
+
+function cube_bounding_points() =
+    [ for (i = [-1, 1], j = [-1, 1], k = [-1, 1])
+        cw([i, j, k] / 2, [1, 1, 1] - 2 * $burr_inset * cw_inverse(vectorize($burr_scale))) ];
+
+// name can be a face, face-edge, or orthoscheme name.
+// TODO Pregenerate and cache these?
+function component_bounding_points(name) =
+    let (face_rot = cube_face_rotation(name))
+    let (scaled_inset = $burr_inset * cw([2, 2, 1], cw_inverse(vectorize($burr_scale))))
+    let (pos = [0.5, 0.5, 0.5] - scaled_inset, neg = -[0.5, 0.5, 0.5] + scaled_inset)
+    len(name) == 2 ?
+        [ for (p = [[0, 0, scaled_inset.z], [pos.x, pos.y, pos.z], [pos.x, neg.y, pos.z], [neg.x, neg.y, pos.z], [neg.x, pos.y, pos.z]])
+            apply_rot(face_rot, p) ] :
+        let (edge_rot = cube_edge_pre_rotation(name))
+        [ for (p = [[0, scaled_inset.y, 2 * scaled_inset.z], [0, scaled_inset.y, pos.z], [pos.x, pos.y, pos.z], [neg.x, pos.y, pos.z]])
+            apply_rot(face_rot, apply_rot(edge_rot, p)) ];
 
 /******* Puzzle containers and lids *******/
 
