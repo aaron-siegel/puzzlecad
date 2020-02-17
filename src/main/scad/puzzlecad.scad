@@ -1009,6 +1009,55 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     
 }
 
+/******* Auto-joint capabilities *******/
+
+function auto_layout(burr_info) =
+    let (layers = zyx_to_xyz(burr_info))
+    let (layout = auto_layout_r(layers))
+    [ for (component = layout) zyx_to_xyz(component) ];
+
+function auto_layout_r(layers, result = []) =
+      len(layers) == 0 ? result
+    : let (first_uncovered_layer = first_uncovered_layer(layers))
+      let (component = [
+          for (z = [0:first_uncovered_layer-1])
+          if (z == first_uncovered_layer-1)
+              auto_layout_joints(layers, z, "m")
+          else
+              layers[z]
+          ])
+      let (remainder = first_uncovered_layer >= len(layers) ? [] : [
+          for (z = [first_uncovered_layer:len(layers)-1])
+          if (z == first_uncovered_layer)
+              auto_layout_joints(layers, z, "f")
+          else
+              layers[z]
+          ])
+      auto_layout_r(remainder, concat(result, [component]));
+    
+function first_uncovered_layer(layers, z = 1) =
+      z >= len(layers) || !is_covered_layer(layers, z) ? z
+    : first_uncovered_layer(layers, z + 1);
+    
+function is_covered_layer(layers, z, y = 0, x = 0) =
+      assert(!is_undef(layers[z]))
+      y >= len(layers[z]) ? true
+    : x >= len(layers[z][y]) ? is_covered_layer(layers, z, y + 1, 0)
+    : layers[z-1][y][x][0] > 0 || !(layers[z][y][x][0] > 0) ? is_covered_layer(layers, z, y, x + 1)
+    : false;
+          
+function auto_layout_joints(layers, z, type) =
+    type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
+    [ for (y = [0:len(layers[z])-1])
+        [ for (x = [0:len(layers[z][y])-1])
+          if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
+              let (new_aux = [["connect", type == "f" ? "fz-y+" : "mz+y+"]])
+              [layers[z][y][x][0], is_undef(layers[z][y][x][1]) ? new_aux : concat(layers[z][y][x][1], new_aux)]
+          else
+              layers[z][y][x]
+        ]
+    ];
+
 /******* Bounding box computation *******/
 
 function piece_bounding_box(burr_info) =
