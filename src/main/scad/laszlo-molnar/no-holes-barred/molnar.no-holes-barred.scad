@@ -11,7 +11,7 @@ $burr_scale = 17;
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 height = $burr_scale * 3 + box_puzzle_border + $burr_inset;
 
-*box();
+box();
 *pieces();
 *piece_triangle();
 
@@ -34,7 +34,7 @@ module box() {
         rotate(a=90, v=[1, 0, 0])
         cylinder(r = 2.2, h = 2.2, $fn = 32);
         
-        translate([dim / 2, box_puzzle_border, height - $burr_scale * 3/ 4])
+        translate([dim / 2, box_puzzle_border, height - $burr_scale * 3 / 4])
         rotate(a=90, v=[1, 0, 0])
         cylinder(r = 2.2, h = 2.2, $fn = 32);
      }
@@ -54,15 +54,15 @@ module piece_triangle() {
    burr_plate([
        ["x{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}"]
    ]);
-   translate([$burr_scale * 1 / 4, 0, $burr_scale * 1 / 4])
+   translate([$burr_scale * 1 / 4, 0.001, $burr_scale * 1 / 4])
    rotate(a=90, v=[1, 0, 0])
    cylinder(r = 2.0, h = 2.0, $fn = 32);
     
-   translate([$burr_scale *1 / 4, 0, $burr_scale * 3 / 4])
+   translate([$burr_scale *1 / 4, 0.001, $burr_scale * 3 / 4])
    rotate(a=90, v=[1, 0, 0])
    cylinder(r = 2.0, h = 2.0, $fn = 32);
     
-   translate([$burr_scale *3 / 4, 0, $burr_scale * 1 / 2])
+   translate([$burr_scale *3 / 4, 0.001, $burr_scale * 1 / 2])
    rotate(a=90, v=[1, 0, 0])
    cylinder(r = 2.0, h = 2.0, $fn = 32);
 }
