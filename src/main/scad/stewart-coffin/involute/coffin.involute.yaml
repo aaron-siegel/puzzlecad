@@ -1,0 +1,32 @@
+thing-id: 3351486
+name: "Involute - Interlocking puzzle by Stewart Coffin (STC #214)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg, closeup.jpg]
+targets: [color_1, color_2, color_3, color_4, single_color]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'smaller', code: '$burr_scale = 12.75; $burr_bevel = 1;', targets: ['single_color']}
+description: |
+    Assemble the eight pieces into a 4x4x4 cube.
+    
+    _Involute_ is the third and final entry in Stewart Coffin's classic trilogy of interlocking cube puzzles. It is a refinement of his earlier designs, [Convolution](https://www.thingiverse.com/thing:3351526) and [Involution](https://www.thingiverse.com/thing:3360935).
+    
+    4x4x4 cube puzzles are a highly successful genre, with hundreds of notable designs now published by dozens of puzzle designers. Nonetheless, _Involute_ still stands as a masterpiece: unrivaled in elegance of design; and involving "coordinate motion of a most baffling kind" (Coffin's words) that, as far as I know, remains unique. No enthusiast of mechanical puzzles will want to be without a copy.
+    
+    UPDATED February 2020 with a new design and larger size.
+
+    ### Printing Instructions
+    
+    Two versions are provided, a four-color version and a single-color version. The multicolor version uses "snap joints" to enable each piece to be printed in several components with different colors (see below for details). It's the preferred version and is the one shown in the photo. The single-color version lacks the aesthetic properties of the multicolor one, but it is designed to be relatively easy to print.
+    
+    To print the four-color version, print `coffin.involute.color-1.stl` through `coffin.involute.color-4.stl` each in a different filament color; colors 1 through 3 will appear on the "windmill" patterns on the cube faces, and color 4 will appear on the corners. You can also print a two-color version by using the same color for `color-1` through `color-3`.
+    
+    To print the single-color version, print `coffin.involute.single-color.stl`. There is also a smaller variant provided, `coffin.involute.single-color-smaller.stl`, which will use around half as much material.
+
+    ${snap-joints-boilerplate}
+
+    ${puzzlecad-boilerplate}
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!

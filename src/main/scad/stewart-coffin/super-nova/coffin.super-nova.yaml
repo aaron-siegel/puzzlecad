@@ -1,0 +1,18 @@
+thing-id: 4130744
+name: "Super Nova - Interlocking puzzle by Stewart Coffin (STC #14)"
+tags: [puzzle, 3D_puzzle]
+images: []
+targets: [color1, color2]
+description: |
+    Assemble the six pieces into the polyhedral shape shown on the cover photo. This is a more difficult version of Coffin's earlier design [Nova](https://www.thingiverse.com/thing:4130743).
+
+    Coffin wrote of this puzzle: "It has the same assembled shape as Nova #8 - the second stellation of the rhombic dodecahedron. With six dissimilar non-symmetrical pieces, now it becomes more of a puzzle. ... But alas, it inherently has two solutions rather than the preferred just one."
+    
+    ### Printing Instructions
+    
+    
+    The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!
