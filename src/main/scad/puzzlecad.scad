@@ -24,6 +24,7 @@ $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
 $unit_beveled = false;
+$auto_layout = false;
 $post_rotate = [0, 0, 0];
 
 // Optional parameters that can be used to increase
@@ -79,13 +80,34 @@ module burr_piece(burr_spec, center = false, piece_number = undef) {
  * The other arguments should be left as defaults (they're used for recursive calls to burr_plate).
  */
 
-module burr_plate(burr_specs, i = 0, y = 0, x = 0, row_depth = 0) {
+module burr_plate(burr_specs) {
+    
+    burr_infos = [ for (burr_spec = burr_specs) to_burr_info(burr_spec) ];
+
+    if ($auto_layout) {
+        
+        layout_burr_infos = [
+            for (burr_info = burr_infos)
+            for (layout_burr_info = auto_layout(burr_info))
+            layout_burr_info
+        ];
+        burr_plate_r(layout_burr_infos);
+        
+    } else {
+        
+        burr_plate_r(burr_infos);
+        
+    }
+    
+}
+
+module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
     
     scale_vec = vectorize($burr_scale);
     
-    if (i < len(burr_specs)) {
+    if (i < len(burr_infos)) {
         
-        cur_piece = to_burr_info(burr_specs[i]);
+        cur_piece = burr_infos[i];
         bounding_box = piece_bounding_box(cur_piece);
         piece_width = bounding_box[1].x - bounding_box[0].x;
         piece_depth = bounding_box[1].y - bounding_box[0].y;
@@ -93,16 +115,16 @@ module burr_plate(burr_specs, i = 0, y = 0, x = 0, row_depth = 0) {
         if (x == 0 || x + piece_width < $plate_width) {
             
             translate([x, y, 0])
-            burr_piece(burr_specs[i], piece_number = i + 1);
+            burr_piece(cur_piece, piece_number = i + 1);
             
-            burr_plate(
-                burr_specs, i + 1,
+            burr_plate_r(
+                burr_infos, i + 1,
                 y, x + piece_width + $plate_sep, max([row_depth, piece_depth])
             );
             
         } else {
             
-            burr_plate(burr_specs, i, y + row_depth + $plate_sep, 0, 0);
+            burr_plate_r(burr_infos, i, y + row_depth + $plate_sep, 0, 0);
             
         }
         
@@ -1009,7 +1031,7 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     
 }
 
-/******* Auto-joint capabilities *******/
+/******* Auto-layout capabilities *******/
 
 function auto_layout(burr_info) =
     let (layers = zyx_to_xyz(burr_info))
