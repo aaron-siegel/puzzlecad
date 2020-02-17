@@ -12,7 +12,7 @@ include <puzzlecad.scad>
 // To view the effect of any of the examples in this tutorial, just put this file in
 // the same directory as puzzlecad.scad, load it in OpenSCAD, and remove the asterisk
 // preceding that example. (But just one at a time - remove multiple asterisks and you'll
-// get a jumbled mess!)
+// get a jumbled mess!) Then press F6 to render.
 
 // ======================================
 // BASIC USAGE

@@ -21,7 +21,7 @@ module solid() {
     burr_plate([
         [".x{components={z+x-,y+z+,z+y+,z+x+}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={z+x-,y-z+,z+y-,z+x+}}.",
          "x{components=x+z-}x{components={x-z-,z-x-,z-y+,z-x+,x+z-}}x{components=x-z-}|.x{components=z-}.|x{components=x+z-}x{components={x-z-,z-x-,z-y-,z-x+,x+z-}}x{components=x-z-}"]
-    ], $post_translate = [0, 0, sqrt(1/2)]);
+    ]);
     
 }
 
@@ -30,7 +30,7 @@ module twocolor_base() {
     burr_piece([
         ".x{components={y+z+,z+y+,z+x-}}.|.x{components={z+,y-z+,y+z+}}.|.x{components={y-z+,z+y-,z+x+}}.",
         "x{components=x+z-}x{components={z-y+,z-x-,x-z-}}|.x{components=z-}x{components={},connect=dfx-y-~}|.x{components={z-y-,x+z-,z-x+},connect=dfx+y+~}x{components=x-z-}"
-    ], $post_rotate = [0, 45, 0], $post_translate = [0, 0, sqrt(1/2)]);
+    ]);
     
 }
 
@@ -39,7 +39,7 @@ module twocolor_tip() {
     burr_piece([
         "x{components=z+x+}.|..",
         "x{components={z-x+,x+z-}}x{components=x-z-}|.x{components={},connect=dmy-x-~}"
-    ], $post_rotate = [0, 45, 0]);
+    ]);
 
 }
 
@@ -54,11 +54,7 @@ module fivecolor_bases() {
         base("DGBE"),
         base("BHCE"),
         base("CFDE")
-    ],  $post_rotate = [0, 45, 0],
-        $post_translate = [0, 0, sqrt(1/8)],
-        $diag_joint_scale = 0.3,
-        $diag_joint_position = 0.3
-    );
+    ], $diag_joint_scale = 0.3, $diag_joint_position = 0.3);
     
 }
 
@@ -91,8 +87,7 @@ module fivecolor_tips(labels) {
     burr_plate(
         concat(repeat(3, tip1(labels[0])), repeat(3, tip2(labels[1]))),
         $diag_joint_scale = 0.3,
-        $diag_joint_position = 0.3,
-        $plate_sep = 20
+        $diag_joint_position = 0.3
     );
     
 }
