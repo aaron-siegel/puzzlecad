@@ -1034,6 +1034,20 @@ module connector_label(parity, orient, label, explicit_label_orient) {
 /******* Auto-layout capabilities *******/
 
 function auto_layout(burr_info) =
+    auto_layout_2(burr_info, ["z+", "z-", "x+", "x-", "y+", "y-"]);
+
+function auto_layout_2(burr_info, allowed_rotations) =
+    let (
+        rotated_burr_info = [ for (dir = allowed_rotations) rotate_burr_info(burr_info, dir) ],
+        layout_components = [ for (rbi = rotated_burr_info) auto_layout_2(rbi) ],
+        badness_scores = [ for (components = layout_components)
+            1e6 * len(components) + 1e3 * sum([ for (component = components) len(component[0][0]) ])
+        ],
+        index_of_optimum = argmin(badness_scores)
+    )
+    layout_components[index_of_optimum];
+
+function auto_layout_3(burr_info) =
     let (layers = zyx_to_xyz(burr_info))
     let (layout = auto_layout_r(layers))
     [ for (component = layout) zyx_to_xyz(component) ];
@@ -1067,7 +1081,7 @@ function is_covered_layer(layers, z, y = 0, x = 0) =
     : x >= len(layers[z][y]) ? is_covered_layer(layers, z, y + 1, 0)
     : layers[z-1][y][x][0] > 0 || !(layers[z][y][x][0] > 0) ? is_covered_layer(layers, z, y, x + 1)
     : false;
-          
+
 function auto_layout_joints(layers, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
     [ for (y = [0:len(layers[z])-1])
@@ -1079,6 +1093,16 @@ function auto_layout_joints(layers, z, type) =
               layers[z][y][x]
         ]
     ];
+          
+function rotate_burr_info(burr_info, orient) =
+    let (xlen = len(burr_info), ylen = len(burr_info[0]), zlen = len(burr_info[0][0]))
+      orient == "z+" ? burr_info
+    : orient == "z-" ? [ for (x = [xlen-1:-1:0]) [ for (y = [0:ylen-1]) [ for (z = [zlen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : orient == "x+" ? [ for (z = [zlen-1:-1:0]) [ for (y = [0:ylen-1]) [ for (x = [0:xlen-1]) burr_info[x][y][z] ] ] ]
+    : orient == "x-" ? [ for (z = [0:zlen-1]) [ for (y = [0:ylen-1]) [ for (x = [xlen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : orient == "y+" ? [ for (x = [0:xlen-1]) [ for (z = [zlen-1:-1:0]) [ for (y = [0:ylen-1]) burr_info[x][y][z] ] ] ]
+    : orient == "y-" ? [ for (x = [0:xlen-1]) [ for (z = [0:zlen-1]) [ for (y = [ylen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : assert(false, str("Invalid orientation: ", orient));
 
 /******* Bounding box computation *******/
 
@@ -2210,6 +2234,13 @@ function reverse_list(list, reverse = true) =
     reverse ? [ for (i = [len(list)-1:-1:0]) list[i] ] : list;
         
 function repeat(n, item) = [ for (i = [1:n]) item ];
+
+/***** Misc *****/
+
+function argmin(list, i = 0, cur_argmin = undef, cur_min = undef) =
+      i >= len(list) ? cur_argmin
+    : is_undef(cur_argmin) || list[i] < cur_min ? argmin(list, i + 1, i, list[i])
+    : argmin(list, i + 1, cur_argmin, cur_min);
 
 // Version check. This is a proper implementation of semantic versioning.
 

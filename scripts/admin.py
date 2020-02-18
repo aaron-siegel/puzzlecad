@@ -5,6 +5,9 @@ import argparse
 import json
 import yaml
 import os
+import subprocess
+import shutil
+from glob import glob
 
 # Get config from user dir
 
@@ -23,7 +26,6 @@ output_dir = '../out'
 os.environ['OPENSCADPATH'] = libs_dir
 
 parser = argparse.ArgumentParser()
-#parser.add_argument('-t', '--access-token', default = '')
 parser.add_argument('command')
 parser.add_argument('cmdargs', nargs='*')
 
@@ -38,6 +40,10 @@ def process_command(args):
 	elif args.command == 'build':
 	
 		build_stls(args.cmdargs[0], load_yaml_file(args.cmdargs[0]))
+		
+	elif args.command == "bundle-puzzlecad":
+	
+		bundle_puzzlecad(args.cmdargs[0])
 		
 	elif args.command == 'update-thing':
 	
@@ -136,7 +142,7 @@ def update_thing(access_token, yaml_file, targets_str):
 		
 		thingiverse_post_file(thing_id, scad_path)
 		
-		configurations = contents['configurations'] if 'configurations' in contents else {'name': '', 'code': '', 'targets': ''}
+		configurations = contents['configurations'] if 'configurations' in contents else [{'name': '', 'code': '', 'targets': ''}]
 		
 		for configuration in configurations:
 			configuration_targets = contents['targets'] if configuration['targets'] == '' else configuration['targets']
@@ -162,7 +168,7 @@ def build_stls(yaml_file, contents):
 	
 	print(f'Building STLs from source {scad_path} ...')
 	
-	configurations = contents['configurations'] if 'configurations' in contents else {'name': '', 'code': '', 'targets': ''}
+	configurations = contents['configurations'] if 'configurations' in contents else [{'name': '', 'code': '', 'targets': ''}]
 
 	for configuration in configurations:
 		configuration_targets = contents['targets'] if configuration['targets'] == '' else configuration['targets']
@@ -216,6 +222,51 @@ def substitute_globals(description):
 		description = description.replace('${' + key + '}', globals[key])
 
 	return description;
+
+def bundle_puzzlecad(version):
+
+	# Rudimentary poor-excuse-for-a-build-script,
+	# but I'm trying to keep things super simple right now
+	
+	print(f'Bundling puzzlecad version {version} ...')
+	
+	os.makedirs('../out/dist', exist_ok = True)
+
+	print('Building java components ...')
+	os.makedirs('../out/java', exist_ok = True)
+	result = subprocess.run(
+		['javac', 'org/puzzlecad/XmpuzzleToScad.java', '-d', '../../../out/java'],
+		cwd = '../src/main/java'
+		)
+	if result.returncode != 0:
+		print('Failed!')
+		return
+		
+	print('Building jar ...')
+	result = subprocess.run(
+		['jar', 'cfm', '../dist/bt-to-scad.jar', '../../src/main/java/manifest', '.'],
+		cwd = '../out/java'
+		)
+	if result.returncode != 0:
+		print('Failed!')
+		return
+
+	print('Copying to distribution dir ...')
+	shutil.copy('../src/main/scad/puzzlecad.scad', '../out/dist')
+	shutil.copy('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
+	shutil.copy('../src/main/scad/dist/half-hour.scad', '../out/dist')
+	
+	print('Creating archive ...')
+	dist_files = [ os.path.relpath(file, '../out/dist') for file in glob('../out/dist/*') ]
+	subprocess.run(
+		['zip', f'../puzzlecad-{version}.zip'] + dist_files,
+		cwd = '../out/dist'
+		)
+	if result.returncode != 0:
+		print('Failed!')
+		return
+
+	print('Done!')
 	
 def thingiverse_get(endpoint, access_token):
 
