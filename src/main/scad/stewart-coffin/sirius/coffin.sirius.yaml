@@ -1,10 +1,20 @@
 thing-id: 4122252
 name: "Sirius - Interlocking puzzle by Stewart Coffin (STC #4)"
 tags: [puzzle, 3D_puzzle]
-images: [assembly-B.jpg, assembly-A.jpg, pieces.jpg]
-targets: [solid, multicolor]
+images: [assembly-B-alt.jpg, assembly-A-alt.jpg, pieces-alt.jpg]
+targets: [--]
 description: |
-    It's modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it and change the size, tolerance, or beveling. Make sure it's in the same folder as puzzlecad.scad.
+    _Sirius_ is the first and simplest puzzle in a long line of related designs by Stewart Coffin. It consists of six interlocking pieces, each identical in shape but with various color permutations, that assemble into a star-like interlocking shape. (Mathematically, it has the shape of the first stellation of the rhombic dodecahedron.)
+    
+    The interlocking mechanism predates Coffin; his innovation was to introduce a color scheme that yields the striking color symmetries shown in the photos. While there are many ways to assemble the six pieces, just two of them have three-fold color symmetry. They are shown in the first two images.
+    
+    ### Printing Instructions
+    
+    Print six copies of `coffin.sirius.stl`, two each in three different colors. Then assemble the pieces as shown in the third image: pair each color base with exactly one color tip, so that you wind up with three sets of two _identical_ pieces. You _must_ assemble them this way, or you will not achieve the intended color configuration.
+    
+    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue (but this usually isn't necessary).
+
+    ${puzzlecad-boilerplate}
 
     ${stewart-coffin-bio}
 
