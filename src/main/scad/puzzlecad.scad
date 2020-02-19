@@ -46,31 +46,10 @@ $puzzlecad_debug = false;
  *    - a stick number: 975
  *    - a string for a single-layer puzzle piece: "xxxx.|x..x.|x....|xxxxx"
  *    - an array of such strings, one per layer
- * "piece_number" is the ordinal number of the burr piece in a build plate (or sequence of pieces)
- *    and is used only for output/debugging (it has no effect on rendering).
  */
-
-module burr_piece(burr_spec, center = false, piece_number = undef) {
-
-    scale_vec = vectorize($burr_scale);
-    inset_vec = vectorize($burr_inset);
+module burr_piece(burr_spec) {
     
-    echo(str(
-        "Generating piece", piece_number ? str(" #", piece_number) : "",
-        " at scale ", $burr_scale,
-        " with inset ", $burr_inset,
-        ", bevel ", $burr_bevel,
-        $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
-    ));
-    
-    burr_info = to_burr_info(burr_spec);
-    bounding_box = piece_bounding_box(burr_info);
-
-    if (!is_undef(bounding_box)) {
-        translate(center ? [0, 0, 0] : -bounding_box[0])
-        rotate($post_rotate)
-        burr_piece_base(burr_info);
-    }
+    burr_plate([burr_spec]);
     
 }
 
@@ -111,7 +90,7 @@ module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
         if (x == 0 || x + piece_width < $plate_width) {
             
             translate([x, y, 0])
-            burr_piece(cur_piece, piece_number = i + 1);
+            burr_piece_2(cur_piece, piece_number = i + 1);
             
             burr_plate_r(
                 burr_infos, i + 1,
@@ -131,10 +110,32 @@ module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
 
-// TODO Connectors don't work properly if $burr_scale is a vector with different values along each dimension.
-
 iota = 0.00001;
 iota_vec = [iota, iota, iota];
+
+module burr_piece_2(burr_spec, center = false, piece_number = undef) {
+
+    scale_vec = vectorize($burr_scale);
+    inset_vec = vectorize($burr_inset);
+    
+    echo(str(
+        "Generating piece", piece_number ? str(" #", piece_number) : "",
+        " at scale ", $burr_scale,
+        " with inset ", $burr_inset,
+        ", bevel ", $burr_bevel,
+        $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
+    ));
+    
+    burr_info = to_burr_info(burr_spec);
+    bounding_box = piece_bounding_box(burr_info);
+
+    if (!is_undef(bounding_box)) {
+        translate(center ? [0, 0, 0] : -bounding_box[0])
+        rotate($post_rotate)
+        burr_piece_base(burr_info);
+    }
+    
+}
 
 module burr_piece_base(burr_spec, test_poly = undef) {
   
@@ -1126,8 +1127,8 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
                 if (joint_index == -1)
                     layers[z][y][x]
                 else
-                    let (new_aux = [["connect", type == "f" ? "fz-y+" : "mz+y+"], ["clabel", auto_joint_letters[next_joint_letter + joint_index]]])
-                    [layers[z][y][x][0], is_undef(layers[z][y][x][1]) ? new_aux : concat(layers[z][y][x][1], new_aux)]
+                    let (new_aux = add_connect_to_aux(layers[z][y][x][1], type == "f" ? "fz-y+" : "mz+y+", auto_joint_letters[next_joint_letter + joint_index]))
+                    [layers[z][y][x][0], new_aux]
         ]
     ];
 
@@ -1137,7 +1138,16 @@ function to_blank_layer(layer) =
             [ 0, cell[1] ]
         ]
     ];
-          
+
+function add_connect_to_aux(aux, connect, clabel) =
+    let (
+        cur_connect = lookup_kv(aux, "connect"),
+        cur_clabel = lookup_kv(aux, "clabel"),
+        new_connect = is_undef(cur_connect) ? connect : str(cur_connect, ",", connect),
+        new_clabel = is_undef(cur_clabel) ? clabel : str(cur_clabel, ",", clabel)
+    )
+    put_kv(put_kv(aux, ["connect", new_connect]), ["clabel", new_clabel]);
+
 function rotate_burr_info(burr_info, orient) =
     rotate_burr_info_markup(rotate_burr_info_geom(burr_info, orient), orient);
 
@@ -1160,15 +1170,20 @@ function rotate_burr_info_markup(burr_info, orient) =
         ]
     ];
 
-// DOESN'T HANDLE MULTI CONNECTORS YET
-
 function rotate_markup_entry(kv, orient) =
     [ kv[0],
-        kv[0] == "connect" ? rotate_connect(kv[1], orient)
+        kv[0] == "connect" ? rotate_connects(kv[1], orient)
       : kv[0] == "label_orient" ? str(rotate_orient(substr(kv[1], 0, 2), orient), rotate_orient(substr(kv[1], 2, 2), orient))
       : kv[1]
     ];
 
+function rotate_connects(value, orient) =
+    let (
+        connects = strtok(value, ","),
+        rotated_connects = [ for (connect = connects) rotate_connect(connect, orient) ]
+    )
+    mkstring(rotated_connects, ",");
+        
 function rotate_connect(value, orient) =
       len(value) == 3 ? str(value[0], rotate_orient(substr(value, 1, 2), orient))
     : len(value) == 5 ? str(value[0], rotate_orient(substr(value, 1, 2), orient), rotate_orient(substr(value, 3, 2), orient))
@@ -2187,6 +2202,12 @@ function lookup_kv(kv, key, default=undef, i=0) =
     kv[i][0] == key ? (kv[i][1] != undef ? kv[i][1] : true) :
     lookup_kv(kv, key, default, i+1);
 
+function put_kv(kv, entry, i=0) =
+    is_undef(kv) ? [entry] :
+    i >= len(kv) ? concat(kv, [entry]) :
+    kv[i][0] == entry[0] ? replace_in_list(kv, i, entry) :
+    put_kv(kv, entry, i + 1);
+
 function lookup_kv_unordered(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
     kv[i][0] == key || kv[i][0] == [key[1],key[0]] ? kv[i][1] :
@@ -2208,6 +2229,11 @@ function str_interpolate(str, args, i = 0) =
     is_undef(arg_index)
         ? str(str[i], str_interpolate(str, args, i + 1))
         : str(args[arg_index], str_interpolate(str, args, i + 2));
+        
+function mkstring(list, sep, i = 0) =
+      i >= len(list) ? ""
+    : i == len(list) - 1 ? list[i]
+    : str(list[i], sep, mkstring(list, sep, i + 1));
              
 function atof(str) =
     !is_string(str) ? undef :
