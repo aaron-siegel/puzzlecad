@@ -6,7 +6,6 @@ $burr_inset = 0.125;
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
-$joint_inset = 0.06;
 
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 height = $burr_scale * 3 + box_puzzle_border + $burr_inset * 2;
@@ -36,11 +35,11 @@ module box() {
 
 module pieces() {
     burr_plate([
-        ["xx{connect=mz+x+,clabel=Cy+}"],
-        ["x.|x{connect=fz+y-,clabel=By-}."],
-        ["x{connect=mz+y-,clabel=By-}xx{connect=fy+z+,clabel=Cz-}"],
-        ["x.|x{connect=fz+y-,clabel=Ay-}."],
-        ["x{connect=mz+y-,clabel=Ay-}xx|..x"],
+        ["xx{connect=mz+x+,clabel=C}"],
+        ["x.|x{connect=fz+y-,clabel=B}."],
+        ["x{connect=mz+y-,clabel=B}xx{connect=fy+z+,clabel=C}"],
+        ["x.|x{connect=fz+y-,clabel=A}."],
+        ["x{connect=mz+y-,clabel=A}xx|..x"],
         ["xxx|..x", "x..|..."],
         ["xxx|..x"],
         [".x|xx"],
