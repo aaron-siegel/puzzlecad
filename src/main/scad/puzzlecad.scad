@@ -1033,56 +1033,82 @@ module connector_label(parity, orient, label, explicit_label_orient) {
 
 /******* Auto-layout capabilities *******/
 
-function auto_layout(burr_info) =
-    auto_layout_2(burr_info, ["z+", "z-", "x+", "x-", "y+", "y-"]);
+// Returns a structure [result, next_joint_letter]
 
-function auto_layout_2(burr_info, allowed_rotations) =
+function auto_layout(burr_info, next_joint_letter = 0) =
     let (
-        rotated_burr_info = [ for (dir = allowed_rotations) rotate_burr_info(burr_info, dir) ],
-        layout_components = [ for (rbi = rotated_burr_info) auto_layout_2(rbi) ],
-        badness_scores = [ for (components = layout_components)
-            1e6 * len(components) + 1e3 * sum([ for (component = components) len(component[0][0]) ])
+        layers = zyx_to_xyz(burr_info),
+        layout = auto_layout_r(layers, next_joint_letter, layout_rotation_dirs),
+        new_components = layout[0],
+        new_next_joint_letter = layout[1])
+    [ for (component = new_components) zyx_to_xyz(component) ];
+        
+function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
+    let (
+        rotated_layers = [ for (dir = allowed_rotations) zyx_to_xyz(rotate_burr_info(zyx_to_xyz(layers), dir)) ],
+        layout_components = [ for (rl = rotated_layers) dissect_components(rl, next_joint_letter) ],
+        badness_scores = [ for (components_info = layout_components) let (components = components_info[0])
+            1e4 * len(components)
+                + 1e2 * sum([ for (component = components) occupied_layer_count(component) ])
+                + sum([ for (component = components) zminus_connector_count(component) ])
         ],
         index_of_optimum = argmin(badness_scores)
     )
     layout_components[index_of_optimum];
 
-function auto_layout_3(burr_info) =
-    let (layers = zyx_to_xyz(burr_info))
-    let (layout = auto_layout_r(layers))
-    [ for (component = layout) zyx_to_xyz(component) ];
+function dissect_components(layers, next_joint_letter) =
+    let (first_occupied_layer = first_occupied_layer(layers))
+      first_occupied_layer >= len(layers) ? [[], next_joint_letter]
+    : let (first_uncovered_layer = first_uncovered_layer(layers, first_occupied_layer + 1))
+      let (base_component = [
+          for (z = [0:len(layers)-1])
+          if (z < first_uncovered_layer - 1)
+              layers[z]
+          else if (z == first_uncovered_layer - 1)
+              auto_layout_joints(layers, next_joint_letter, z, "m")
+          else
+              to_blank_layer(layers[z])
+          ])
+      first_uncovered_layer >= len(layers) ? [[base_component], next_joint_letter]
+      : let (new_next_joint_letter = next_joint_letter + joint_location_count(layers, first_uncovered_layer))
+        assert(new_next_joint_letter <= 52, "$auto_layout failed: more than 52 connectors!")
+        let (remainder = first_uncovered_layer >= len(layers) ? [] : [
+            for (z = [0:len(layers)-1])
+            if (z < first_uncovered_layer)
+                to_blank_layer(layers[z])
+            else if (z == first_uncovered_layer)
+                auto_layout_joints(layers, next_joint_letter, z, "f")
+            else
+                layers[z]
+            ])
+        let (remainder_layout = auto_layout_r(remainder, new_next_joint_letter, ["z+", "z-"]))
+        [concat([base_component], remainder_layout[0]), remainder_layout[1]];
 
-function auto_layout_r(layers, result = []) =
-      len(layers) == 0 ? result
-    : let (first_uncovered_layer = first_uncovered_layer(layers))
-      let (component = [
-          for (z = [0:first_uncovered_layer-1])
-          if (z == first_uncovered_layer-1)
-              auto_layout_joints(layers, z, "m")
-          else
-              layers[z]
-          ])
-      let (remainder = first_uncovered_layer >= len(layers) ? [] : [
-          for (z = [first_uncovered_layer:len(layers)-1])
-          if (z == first_uncovered_layer)
-              auto_layout_joints(layers, z, "f")
-          else
-              layers[z]
-          ])
-      auto_layout_r(remainder, concat(result, [component]));
+function first_occupied_layer(layers, z = 0) =
+      z >= len(layers) ? z :
+      layer_volume(layers[z]) > 0 ? z : first_occupied_layer(layers, z + 1);
+            
+function occupied_layer_count(layers) =
+      sum([ for (z = [0:len(layers)-1]) layer_volume(layers[z]) > 0 ? 1 : 0]);
+      
+function layer_volume(layer) =
+      sum([ for (y = [0:len(layer)-1], x = [0:len(layer[y])-1]) layer[y][x][0] > 0 ? 1 : 0 ]);
     
 function first_uncovered_layer(layers, z = 1) =
-      z >= len(layers) || !is_covered_layer(layers, z) ? z
+      z >= len(layers) || joint_location_count(layers, z) > 0 ? z
     : first_uncovered_layer(layers, z + 1);
-    
-function is_covered_layer(layers, z, y = 0, x = 0) =
-      assert(!is_undef(layers[z]))
-      y >= len(layers[z]) ? true
-    : x >= len(layers[z][y]) ? is_covered_layer(layers, z, y + 1, 0)
-    : layers[z-1][y][x][0] > 0 || !(layers[z][y][x][0] > 0) ? is_covered_layer(layers, z, y, x + 1)
-    : false;
+      
+function joint_location_count(layers, z) =
+      sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+          layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
+      ]);
+      
+function zminus_connector_count(layers) =
+      sum([ for (layer = layers, yslice = layer, cell = yslice)
+          let (connect = lookup_kv(cell[1], "connect"))
+          substr(connect, 0, 3) == "fz-" ? 1 : 0 ]);
 
-function auto_layout_joints(layers, z, type) =
+function auto_layout_joints(layers, next_joint_letter, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
     [ for (y = [0:len(layers[z])-1])
         [ for (x = [0:len(layers[z][y])-1])
@@ -1094,7 +1120,17 @@ function auto_layout_joints(layers, z, type) =
         ]
     ];
           
+function to_blank_layer(layer) =
+    [ for (yslice = layer)
+        [ for (cell = yslice)
+            [ 0, cell[1] ]
+        ]
+    ];
+          
 function rotate_burr_info(burr_info, orient) =
+    rotate_burr_info_markup(rotate_burr_info_geom(burr_info, orient), orient);
+
+function rotate_burr_info_geom(burr_info, orient) =
     let (xlen = len(burr_info), ylen = len(burr_info[0]), zlen = len(burr_info[0][0]))
       orient == "z+" ? burr_info
     : orient == "z-" ? [ for (x = [xlen-1:-1:0]) [ for (y = [0:ylen-1]) [ for (z = [zlen-1:-1:0]) burr_info[x][y][z] ] ] ]
@@ -1103,6 +1139,45 @@ function rotate_burr_info(burr_info, orient) =
     : orient == "y+" ? [ for (x = [0:xlen-1]) [ for (z = [zlen-1:-1:0]) [ for (y = [0:ylen-1]) burr_info[x][y][z] ] ] ]
     : orient == "y-" ? [ for (x = [0:xlen-1]) [ for (z = [0:zlen-1]) [ for (y = [ylen-1:-1:0]) burr_info[x][y][z] ] ] ]
     : assert(false, str("Invalid orientation: ", orient));
+    
+function rotate_burr_info_markup(burr_info, orient) =
+    [ for (xslice = burr_info)
+        [ for (yslice = xslice)
+            [ for (cell = yslice)
+                [ cell[0], [ for (kv = cell[1]) rotate_markup_entry(kv, orient) ] ]
+            ]
+        ]
+    ];
+
+// DOESN'T HANDLE MULTI CONNECTORS YET
+
+function rotate_markup_entry(kv, orient) =
+    [ kv[0],
+        kv[0] == "connect" ? rotate_connect(kv[1], orient)
+      : kv[0] == "label_orient" ? str(rotate_orient(substr(kv[1], 0, 2), orient), rotate_orient(substr(kv[1], 2, 2), orient))
+      : kv[1]
+    ];
+
+function rotate_connect(value, orient) =
+      len(value) == 3 ? str(value[0], rotate_orient(substr(value, 1, 2), orient))
+    : len(value) == 5 ? str(value[0], rotate_orient(substr(value, 1, 2), orient), rotate_orient(substr(value, 3, 2), orient))
+    : value;
+
+function rotate_orient(dir, orient) =
+    lookup_kv(reorient_perm, orient)[
+        index_of(layout_rotation_dirs, dir)
+    ];
+
+layout_rotation_dirs = ["z+", "z-", "x+", "x-", "y+", "y-"];
+                
+reorient_perm = [
+    [ "z+", ["z+", "z-", "x+", "x-", "y+", "y-"] ],
+    [ "z-", ["z-", "z+", "x-", "x+", "y+", "y-"] ],
+    [ "x+", ["x-", "x+", "z+", "z-", "y+", "y-"] ],
+    [ "x-", ["x+", "x-", "z-", "z+", "y+", "y-"] ],
+    [ "y+", ["y-", "y+", "x+", "x-", "z+", "z-"] ],
+    [ "y-", ["y+", "y-", "x+", "x-", "z-", "z+"] ]
+];
 
 /******* Bounding box computation *******/
 
