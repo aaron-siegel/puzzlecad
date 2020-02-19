@@ -235,7 +235,7 @@ def bundle_puzzlecad(version):
 	print('Building java components ...')
 	os.makedirs('../out/java', exist_ok = True)
 	result = subprocess.run(
-		['javac', 'org/puzzlecad/XmpuzzleToScad.java', '-d', '../../../out/java'],
+		['javac', 'org/puzzlecad/XmpuzzleToScad.java', '-d', '../../../out/java', '-source', '1.6', '-target', '1.6'],
 		cwd = '../src/main/java'
 		)
 	if result.returncode != 0:
