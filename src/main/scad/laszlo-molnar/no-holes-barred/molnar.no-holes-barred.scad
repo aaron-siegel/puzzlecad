@@ -3,7 +3,7 @@ include <puzzlecad.scad>
 box_puzzle_border = 6;
 box_puzzle_top_inset = 1;
 
-$burr_inset = 0.12;
+$burr_inset = 0.125;
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
@@ -11,7 +11,7 @@ $burr_scale = 17;
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 height = $burr_scale * 3 + box_puzzle_border + $burr_inset;
 
-box();
+*box();
 *pieces();
 *piece_triangle();
 
