@@ -86,11 +86,7 @@ module burr_plate(burr_specs) {
 
     if ($auto_layout) {
         
-        layout_burr_infos = [
-            for (burr_info = burr_infos)
-            for (layout_burr_info = auto_layout(burr_info))
-            layout_burr_info
-        ];
+        layout_burr_infos = auto_layout_plate(burr_infos);
         burr_plate_r(layout_burr_infos);
         
     } else {
@@ -1035,13 +1031,22 @@ module connector_label(parity, orient, label, explicit_label_orient) {
 
 // Returns a structure [result, next_joint_letter]
 
+function auto_layout_plate(burr_infos, next_joint_letter = 0, i = 0, result = []) =
+      i >= len(burr_infos) ? result
+    : let (
+          piece_layout_info = auto_layout(burr_infos[i], next_joint_letter),
+          piece_layout = piece_layout_info[0],
+          new_next_joint_letter = piece_layout_info[1]
+      )
+      auto_layout_plate(burr_infos, new_next_joint_letter, i + 1, concat(result, piece_layout));
+
 function auto_layout(burr_info, next_joint_letter = 0) =
     let (
         layers = zyx_to_xyz(burr_info),
         layout = auto_layout_r(layers, next_joint_letter, layout_rotation_dirs),
         new_components = layout[0],
         new_next_joint_letter = layout[1])
-    [ for (component = new_components) zyx_to_xyz(component) ];
+    [ [ for (component = new_components) zyx_to_xyz(component) ], new_next_joint_letter ];
         
 function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
     let (
@@ -1071,7 +1076,7 @@ function dissect_components(layers, next_joint_letter) =
           ])
       first_uncovered_layer >= len(layers) ? [[base_component], next_joint_letter]
       : let (new_next_joint_letter = next_joint_letter + joint_location_count(layers, first_uncovered_layer))
-        assert(new_next_joint_letter <= 52, "$auto_layout failed: more than 52 connectors!")
+        assert(new_next_joint_letter <= 50, "$auto_layout failed: more than 50 connectors!")
         let (remainder = first_uncovered_layer >= len(layers) ? [] : [
             for (z = [0:len(layers)-1])
             if (z < first_uncovered_layer)
@@ -1110,16 +1115,22 @@ function zminus_connector_count(layers) =
 
 function auto_layout_joints(layers, next_joint_letter, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
+    let (joint_locations =
+       [ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+           if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
+               [x, y]
+       ])
     [ for (y = [0:len(layers[z])-1])
         [ for (x = [0:len(layers[z][y])-1])
-          if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
-              let (new_aux = [["connect", type == "f" ? "fz-y+" : "mz+y+"]])
-              [layers[z][y][x][0], is_undef(layers[z][y][x][1]) ? new_aux : concat(layers[z][y][x][1], new_aux)]
-          else
-              layers[z][y][x]
+            let (joint_index = index_of(joint_locations, [x, y]))
+                if (joint_index == -1)
+                    layers[z][y][x]
+                else
+                    let (new_aux = [["connect", type == "f" ? "fz-y+" : "mz+y+"], ["clabel", auto_joint_letters[next_joint_letter + joint_index]]])
+                    [layers[z][y][x][0], is_undef(layers[z][y][x][1]) ? new_aux : concat(layers[z][y][x][1], new_aux)]
         ]
     ];
-          
+
 function to_blank_layer(layer) =
     [ for (yslice = layer)
         [ for (cell = yslice)
@@ -1178,6 +1189,8 @@ reorient_perm = [
     [ "y+", ["y-", "y+", "x+", "x-", "z+", "z-"] ],
     [ "y-", ["y+", "y-", "x+", "x-", "z-", "z+"] ]
 ];
+
+auto_joint_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstuvwxyz";
 
 /******* Bounding box computation *******/
 
@@ -2215,8 +2228,6 @@ function digit(char) =
     char == "0" ? 0 : char == "1" ? 1 : char == "2" ? 2 : char == "3" ? 3 : char == "4" ? 4 :
     char == "5" ? 5 : char == "6" ? 6 : char == "7" ? 7 : char == "8" ? 8 : char == "9" ? 9 :
     undef;
-
-uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /***** Vector manipulation *****/
 
