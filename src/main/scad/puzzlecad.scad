@@ -46,31 +46,10 @@ $puzzlecad_debug = false;
  *    - a stick number: 975
  *    - a string for a single-layer puzzle piece: "xxxx.|x..x.|x....|xxxxx"
  *    - an array of such strings, one per layer
- * "piece_number" is the ordinal number of the burr piece in a build plate (or sequence of pieces)
- *    and is used only for output/debugging (it has no effect on rendering).
  */
-
-module burr_piece(burr_spec, center = false, piece_number = undef) {
-
-    scale_vec = vectorize($burr_scale);
-    inset_vec = vectorize($burr_inset);
+module burr_piece(burr_spec) {
     
-    echo(str(
-        "Generating piece", piece_number ? str(" #", piece_number) : "",
-        " at scale ", $burr_scale,
-        " with inset ", $burr_inset,
-        ", bevel ", $burr_bevel,
-        $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
-    ));
-    
-    burr_info = to_burr_info(burr_spec);
-    bounding_box = piece_bounding_box(burr_info);
-
-    if (!is_undef(bounding_box)) {
-        translate(center ? [0, 0, 0] : -bounding_box[0])
-        rotate($post_rotate)
-        burr_piece_base(burr_info);
-    }
+    burr_plate([burr_spec]);
     
 }
 
@@ -86,11 +65,7 @@ module burr_plate(burr_specs) {
 
     if ($auto_layout) {
         
-        layout_burr_infos = [
-            for (burr_info = burr_infos)
-            for (layout_burr_info = auto_layout(burr_info))
-            layout_burr_info
-        ];
+        layout_burr_infos = auto_layout_plate(burr_infos);
         burr_plate_r(layout_burr_infos);
         
     } else {
@@ -115,7 +90,7 @@ module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
         if (x == 0 || x + piece_width < $plate_width) {
             
             translate([x, y, 0])
-            burr_piece(cur_piece, piece_number = i + 1);
+            burr_piece_2(cur_piece, piece_number = i + 1);
             
             burr_plate_r(
                 burr_infos, i + 1,
@@ -135,10 +110,32 @@ module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
 /* This module does most of the work. It should seldom be called directly (use burr_piece instead).
  */
 
-// TODO Connectors don't work properly if $burr_scale is a vector with different values along each dimension.
-
 iota = 0.00001;
 iota_vec = [iota, iota, iota];
+
+module burr_piece_2(burr_spec, center = false, piece_number = undef) {
+
+    scale_vec = vectorize($burr_scale);
+    inset_vec = vectorize($burr_inset);
+    
+    echo(str(
+        "Generating piece", piece_number ? str(" #", piece_number) : "",
+        " at scale ", $burr_scale,
+        " with inset ", $burr_inset,
+        ", bevel ", $burr_bevel,
+        $joint_inset > 0 ? str(", joint inset ", $joint_inset) : ""
+    ));
+    
+    burr_info = to_burr_info(burr_spec);
+    bounding_box = piece_bounding_box(burr_info);
+
+    if (!is_undef(bounding_box)) {
+        translate(center ? [0, 0, 0] : -bounding_box[0])
+        rotate($post_rotate)
+        burr_piece_base(burr_info);
+    }
+    
+}
 
 module burr_piece_base(burr_spec, test_poly = undef) {
   
@@ -301,7 +298,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     assert(voffset, str("Invalid label_voffset: ", voffset_str))
                    -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
                 
-                label_scale = is_undef(label_scale_str) ? 0.5 : atof(label_scale_str);
+                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
                 assert(label_scale, str("Invalid label_scale: ", label_scale_str));
 
                 // Translate by the explicit offsets
@@ -1033,52 +1030,182 @@ module connector_label(parity, orient, label, explicit_label_orient) {
 
 /******* Auto-layout capabilities *******/
 
-function auto_layout(burr_info) =
-    let (layers = zyx_to_xyz(burr_info))
-    let (layout = auto_layout_r(layers))
-    [ for (component = layout) zyx_to_xyz(component) ];
+// Returns a structure [result, next_joint_letter]
 
-function auto_layout_r(layers, result = []) =
-      len(layers) == 0 ? result
-    : let (first_uncovered_layer = first_uncovered_layer(layers))
-      let (component = [
-          for (z = [0:first_uncovered_layer-1])
-          if (z == first_uncovered_layer-1)
-              auto_layout_joints(layers, z, "m")
-          else
+function auto_layout_plate(burr_infos, next_joint_letter = 0, i = 0, result = []) =
+      i >= len(burr_infos) ? result
+    : let (
+          piece_layout_info = auto_layout(burr_infos[i], next_joint_letter),
+          piece_layout = piece_layout_info[0],
+          new_next_joint_letter = piece_layout_info[1]
+      )
+      auto_layout_plate(burr_infos, new_next_joint_letter, i + 1, concat(result, piece_layout));
+
+function auto_layout(burr_info, next_joint_letter = 0) =
+    let (
+        layers = zyx_to_xyz(burr_info),
+        layout = auto_layout_r(layers, next_joint_letter, layout_rotation_dirs),
+        new_components = layout[0],
+        new_next_joint_letter = layout[1])
+    [ [ for (component = new_components) zyx_to_xyz(component) ], new_next_joint_letter ];
+        
+function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
+    let (
+        rotated_layers = [ for (dir = allowed_rotations) zyx_to_xyz(rotate_burr_info(zyx_to_xyz(layers), dir)) ],
+        layout_components = [ for (rl = rotated_layers) dissect_components(rl, next_joint_letter) ],
+        badness_scores = [ for (components_info = layout_components) let (components = components_info[0])
+            1e4 * len(components)
+                + 1e2 * sum([ for (component = components) occupied_layer_count(component) ])
+                + sum([ for (component = components) zminus_connector_count(component) ])
+        ],
+        index_of_optimum = argmin(badness_scores)
+    )
+    layout_components[index_of_optimum];
+
+function dissect_components(layers, next_joint_letter) =
+    let (first_occupied_layer = first_occupied_layer(layers))
+      first_occupied_layer >= len(layers) ? [[], next_joint_letter]
+    : let (first_uncovered_layer = first_uncovered_layer(layers, first_occupied_layer + 1))
+      let (base_component = [
+          for (z = [0:len(layers)-1])
+          if (z < first_uncovered_layer - 1)
               layers[z]
-          ])
-      let (remainder = first_uncovered_layer >= len(layers) ? [] : [
-          for (z = [first_uncovered_layer:len(layers)-1])
-          if (z == first_uncovered_layer)
-              auto_layout_joints(layers, z, "f")
+          else if (z == first_uncovered_layer - 1)
+              auto_layout_joints(layers, next_joint_letter, z, "m")
           else
-              layers[z]
+              to_blank_layer(layers[z])
           ])
-      auto_layout_r(remainder, concat(result, [component]));
+      first_uncovered_layer >= len(layers) ? [[base_component], next_joint_letter]
+      : let (new_next_joint_letter = next_joint_letter + joint_location_count(layers, first_uncovered_layer))
+        assert(new_next_joint_letter <= 50, "$auto_layout failed: more than 50 connectors!")
+        let (remainder = first_uncovered_layer >= len(layers) ? [] : [
+            for (z = [0:len(layers)-1])
+            if (z < first_uncovered_layer)
+                to_blank_layer(layers[z])
+            else if (z == first_uncovered_layer)
+                auto_layout_joints(layers, next_joint_letter, z, "f")
+            else
+                layers[z]
+            ])
+        let (remainder_layout = auto_layout_r(remainder, new_next_joint_letter, ["z+", "z-"]))
+        [concat([base_component], remainder_layout[0]), remainder_layout[1]];
+
+function first_occupied_layer(layers, z = 0) =
+      z >= len(layers) ? z :
+      layer_volume(layers[z]) > 0 ? z : first_occupied_layer(layers, z + 1);
+            
+function occupied_layer_count(layers) =
+      sum([ for (z = [0:len(layers)-1]) layer_volume(layers[z]) > 0 ? 1 : 0]);
+      
+function layer_volume(layer) =
+      sum([ for (y = [0:len(layer)-1], x = [0:len(layer[y])-1]) layer[y][x][0] > 0 ? 1 : 0 ]);
     
 function first_uncovered_layer(layers, z = 1) =
-      z >= len(layers) || !is_covered_layer(layers, z) ? z
+      z >= len(layers) || joint_location_count(layers, z) > 0 ? z
     : first_uncovered_layer(layers, z + 1);
-    
-function is_covered_layer(layers, z, y = 0, x = 0) =
-      assert(!is_undef(layers[z]))
-      y >= len(layers[z]) ? true
-    : x >= len(layers[z][y]) ? is_covered_layer(layers, z, y + 1, 0)
-    : layers[z-1][y][x][0] > 0 || !(layers[z][y][x][0] > 0) ? is_covered_layer(layers, z, y, x + 1)
-    : false;
-          
-function auto_layout_joints(layers, z, type) =
+      
+function joint_location_count(layers, z) =
+      sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+          layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
+      ]);
+      
+function zminus_connector_count(layers) =
+      sum([ for (layer = layers, yslice = layer, cell = yslice)
+          let (connect = lookup_kv(cell[1], "connect"))
+          substr(connect, 0, 3) == "fz-" ? 1 : 0 ]);
+
+function auto_layout_joints(layers, next_joint_letter, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
+    let (joint_locations =
+       [ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+           if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
+               [x, y]
+       ])
     [ for (y = [0:len(layers[z])-1])
         [ for (x = [0:len(layers[z][y])-1])
-          if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
-              let (new_aux = [["connect", type == "f" ? "fz-y+" : "mz+y+"]])
-              [layers[z][y][x][0], is_undef(layers[z][y][x][1]) ? new_aux : concat(layers[z][y][x][1], new_aux)]
-          else
-              layers[z][y][x]
+            let (joint_index = index_of(joint_locations, [x, y]))
+                if (joint_index == -1)
+                    layers[z][y][x]
+                else
+                    let (new_aux = add_connect_to_aux(layers[z][y][x][1], type == "f" ? "fz-y+" : "mz+y+", auto_joint_letters[next_joint_letter + joint_index]))
+                    [layers[z][y][x][0], new_aux]
         ]
     ];
+
+function to_blank_layer(layer) =
+    [ for (yslice = layer)
+        [ for (cell = yslice)
+            [ 0, cell[1] ]
+        ]
+    ];
+
+function add_connect_to_aux(aux, connect, clabel) =
+    let (
+        cur_connect = lookup_kv(aux, "connect"),
+        cur_clabel = lookup_kv(aux, "clabel"),
+        new_connect = is_undef(cur_connect) ? connect : str(cur_connect, ",", connect),
+        new_clabel = is_undef(cur_clabel) ? clabel : str(cur_clabel, ",", clabel)
+    )
+    put_kv(put_kv(aux, ["connect", new_connect]), ["clabel", new_clabel]);
+
+function rotate_burr_info(burr_info, orient) =
+    rotate_burr_info_markup(rotate_burr_info_geom(burr_info, orient), orient);
+
+function rotate_burr_info_geom(burr_info, orient) =
+    let (xlen = len(burr_info), ylen = len(burr_info[0]), zlen = len(burr_info[0][0]))
+      orient == "z+" ? burr_info
+    : orient == "z-" ? [ for (x = [xlen-1:-1:0]) [ for (y = [0:ylen-1]) [ for (z = [zlen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : orient == "x+" ? [ for (z = [zlen-1:-1:0]) [ for (y = [0:ylen-1]) [ for (x = [0:xlen-1]) burr_info[x][y][z] ] ] ]
+    : orient == "x-" ? [ for (z = [0:zlen-1]) [ for (y = [0:ylen-1]) [ for (x = [xlen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : orient == "y+" ? [ for (x = [0:xlen-1]) [ for (z = [zlen-1:-1:0]) [ for (y = [0:ylen-1]) burr_info[x][y][z] ] ] ]
+    : orient == "y-" ? [ for (x = [0:xlen-1]) [ for (z = [0:zlen-1]) [ for (y = [ylen-1:-1:0]) burr_info[x][y][z] ] ] ]
+    : assert(false, str("Invalid orientation: ", orient));
+    
+function rotate_burr_info_markup(burr_info, orient) =
+    [ for (xslice = burr_info)
+        [ for (yslice = xslice)
+            [ for (cell = yslice)
+                [ cell[0], [ for (kv = cell[1]) rotate_markup_entry(kv, orient) ] ]
+            ]
+        ]
+    ];
+
+function rotate_markup_entry(kv, orient) =
+    [ kv[0],
+        kv[0] == "connect" ? rotate_connects(kv[1], orient)
+      : kv[0] == "label_orient" ? str(rotate_orient(substr(kv[1], 0, 2), orient), rotate_orient(substr(kv[1], 2, 2), orient))
+      : kv[1]
+    ];
+
+function rotate_connects(value, orient) =
+    let (
+        connects = strtok(value, ","),
+        rotated_connects = [ for (connect = connects) rotate_connect(connect, orient) ]
+    )
+    mkstring(rotated_connects, ",");
+        
+function rotate_connect(value, orient) =
+      len(value) == 3 ? str(value[0], rotate_orient(substr(value, 1, 2), orient))
+    : len(value) == 5 ? str(value[0], rotate_orient(substr(value, 1, 2), orient), rotate_orient(substr(value, 3, 2), orient))
+    : value;
+
+function rotate_orient(dir, orient) =
+    lookup_kv(reorient_perm, orient)[
+        index_of(layout_rotation_dirs, dir)
+    ];
+
+layout_rotation_dirs = ["z+", "z-", "x+", "x-", "y+", "y-"];
+                
+reorient_perm = [
+    [ "z+", ["z+", "z-", "x+", "x-", "y+", "y-"] ],
+    [ "z-", ["z-", "z+", "x-", "x+", "y+", "y-"] ],
+    [ "x+", ["x-", "x+", "z+", "z-", "y+", "y-"] ],
+    [ "x-", ["x+", "x-", "z-", "z+", "y+", "y-"] ],
+    [ "y+", ["y-", "y+", "x+", "x-", "z+", "z-"] ],
+    [ "y-", ["y+", "y-", "x+", "x-", "z-", "z+"] ]
+];
+
+auto_joint_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstuvwxyz";
 
 /******* Bounding box computation *******/
 
@@ -2075,6 +2202,12 @@ function lookup_kv(kv, key, default=undef, i=0) =
     kv[i][0] == key ? (kv[i][1] != undef ? kv[i][1] : true) :
     lookup_kv(kv, key, default, i+1);
 
+function put_kv(kv, entry, i=0) =
+    is_undef(kv) ? [entry] :
+    i >= len(kv) ? concat(kv, [entry]) :
+    kv[i][0] == entry[0] ? replace_in_list(kv, i, entry) :
+    put_kv(kv, entry, i + 1);
+
 function lookup_kv_unordered(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
     kv[i][0] == key || kv[i][0] == [key[1],key[0]] ? kv[i][1] :
@@ -2096,6 +2229,11 @@ function str_interpolate(str, args, i = 0) =
     is_undef(arg_index)
         ? str(str[i], str_interpolate(str, args, i + 1))
         : str(args[arg_index], str_interpolate(str, args, i + 2));
+        
+function mkstring(list, sep, i = 0) =
+      i >= len(list) ? ""
+    : i == len(list) - 1 ? list[i]
+    : str(list[i], sep, mkstring(list, sep, i + 1));
              
 function atof(str) =
     !is_string(str) ? undef :
@@ -2116,8 +2254,6 @@ function digit(char) =
     char == "0" ? 0 : char == "1" ? 1 : char == "2" ? 2 : char == "3" ? 3 : char == "4" ? 4 :
     char == "5" ? 5 : char == "6" ? 6 : char == "7" ? 7 : char == "8" ? 8 : char == "9" ? 9 :
     undef;
-
-uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /***** Vector manipulation *****/
 
@@ -2210,6 +2346,13 @@ function reverse_list(list, reverse = true) =
     reverse ? [ for (i = [len(list)-1:-1:0]) list[i] ] : list;
         
 function repeat(n, item) = [ for (i = [1:n]) item ];
+
+/***** Misc *****/
+
+function argmin(list, i = 0, cur_argmin = undef, cur_min = undef) =
+      i >= len(list) ? cur_argmin
+    : is_undef(cur_argmin) || list[i] < cur_min ? argmin(list, i + 1, i, list[i])
+    : argmin(list, i + 1, cur_argmin, cur_min);
 
 // Version check. This is a proper implementation of semantic versioning.
 
