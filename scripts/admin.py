@@ -254,7 +254,7 @@ def bundle_puzzlecad(version):
 	print('Copying to distribution dir ...')
 	shutil.copy('../src/main/scad/puzzlecad.scad', '../out/dist')
 	shutil.copy('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
-	shutil.copy('../src/main/scad/dist/half-hour.scad', '../out/dist')
+	shutil.copy('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
 	
 	print('Creating archive ...')
 	dist_files = [ os.path.relpath(file, '../out/dist') for file in glob('../out/dist/*') ]
