@@ -298,7 +298,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     assert(voffset, str("Invalid label_voffset: ", voffset_str))
                    -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
                 
-                label_scale = is_undef(label_scale_str) ? 0.5 : atof(label_scale_str);
+                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
                 assert(label_scale, str("Invalid label_scale: ", label_scale_str));
 
                 // Translate by the explicit offsets

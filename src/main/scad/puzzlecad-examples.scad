@@ -9,10 +9,18 @@ include <puzzlecad.scad>
 // Creative Commons - Attribution license. A copy of this license is available here:
 // https://creativecommons.org/licenses/by/3.0/
 
-// To view the effect of any of the examples in this tutorial, just put this file in
-// the same directory as puzzlecad.scad, load it in OpenSCAD, and remove the asterisk
-// preceding that example. (But just one at a time - remove multiple asterisks and you'll
-// get a jumbled mess!) Then press F6 to render.
+// ======================================
+// THE TUTORIAL
+
+// This is an interactive puzzlecad tutorial. The text of the tutorial is in the form of
+// code comments, interspersed with examples of OpenSCAD code. All of the OpenSCAD code
+// is initially commented out with asterisks, suppressing the output. As you work through
+// the text, uncomment each code example and press F6 to render it; this will enable you to
+// see the effect of each code snippet in real time (and, if you choose, to play around with
+// different combinations of parameters).
+
+// Be sure you uncomment just one line at a time! Otherwise, OpenSCAD will render several
+// examples one on top of the other, leading to a jumbled mess.
 
 // ======================================
 // BASIC USAGE
@@ -23,25 +31,34 @@ include <puzzlecad.scad>
 // Standard six-piece burr pieces can be generated just by specifying their Kaenel number.
 // (See http://robspuzzlepage.com/interlocking.htm for the definition of Kaenel number.)
 // Here's the "right-handed offset":
+
 *burr_piece(975);
+
+// (Remember, to see what the output looks like, remove the asterisk at the beginning of the
+// preceding snippet and press F6 to render. Then put the asterisk back and move on to the
+// next example.)
 
 // General burr pieces are given by strings composed of the characters "x" and ".", where "x"
 // signifies a filled location and "." an empty one. The following example is a simple "T"
 // shaped piece from Stewart Coffin's Half Hour puzzle. Note how there are 2 substrings of "x"
 // and "." characters, separated by a vertical bar "|".
+
 *burr_piece(".x.|xxx");
 
 // Multi-layer burr pieces are given by a vector of strings, one per layer. Here's a more
 // complex piece, also from Half Hour. The single "x" in the second string corresponds to the
 // single voxel (cube) in the upper layer:
+
 *burr_piece([".xx|xx.", "...|.x."]);
 
 // Sometimes it's convenient to generate all the pieces of a puzzle at once. The handy
 // module burr_plate makes this easy to do. Bill Cutler's Burr #305:
+
 *burr_plate([52, 615, 792, 960, 975, 992]);
 
 // burr_plate arranges a whole vector of pieces on a single canvas. Here's all six pieces for
 // Half Hour:
+
 *burr_plate([
     ["xxx|.x.", "...|.x."],
     [".xx|xx.", "...|.x."],
@@ -56,6 +73,7 @@ include <puzzlecad.scad>
 // is ideal for six-piece burr puzzles and similarly-sized interlocking puzzles, but for a
 // design like Half Hour, it's uncomfortably small. The dimensions can be adjusted with the
 // $burr_scale parameter, like so:
+
 *burr_plate([
     ["xxx|.x.", "...|.x."],
     [".xx|xx.", "...|.x."],
@@ -89,6 +107,7 @@ include <puzzlecad.scad>
 
 // Here's another rendering of Half Hour - exactly the same puzzle, but with a different look -
 // showcasing several of the above options:
+
 *burr_plate([
     ["xxx|.x.", "...|.x."],
     [".xx|xx.", "...|.x."],
@@ -96,105 +115,124 @@ include <puzzlecad.scad>
     [".x.|xxx"],
     ["x..|xxx"],
     ["x.|xx", "..|.x"]
-], $burr_scale = 17, $burr_bevel = 1, $unit_beveled = true);
+], $burr_scale = 17, $burr_bevel = 1.3, $unit_beveled = true);
 
 // ======================================
 // CONNECTORS
 
 // Many puzzle pieces cannot be printed in one piece without supports, since there is no
 // orientation for which they lie completely flat on the print bed. A good example of this is
-// the following piece from Stewart Coffin's Interlock Four. No matter how it is rotated,
-// some part of it will hang over empty space.
+// the following piece from Stewart Coffin's interlocking design, Coffin's Quartet. No matter
+// how it is rotated, some part of it will hang over empty space.
+
 *burr_piece(["x..|xxx|...", "...|..x|..x"]);
 
-// Puzzlecad provides a mechanism for coping with such pieces without supports, using an idea
-// originally due to Rich Gain. Pieces like the above can be printed in two separate components,
+// Puzzlecad provides a general mechanism for coping with such pieces, using an idea
+// originally due to Richard Gain. Pieces like the above can be printed in two separate components,
 // which can then be locked together using "snap joints". Here's what that looks like in practice:
-*burr_plate([["x..|xxx{connect=mz+}"], ["x{connect=fz+}|x"]]);
 
-// After the two components are printed, they can be snapped into place in the obvious manner.
-// The joints are designed to form a strong, permanent connection once snapped together.
-// They are intentionally tight and depending on the printer and materials used, they may need to
-// be clamped or hammered into place.
+*burr_piece(["x..|xxx|...", "...|..x|..x"], $auto_layout = true);
 
-// That "{connect=mz+}" after the final "x" in the first component is an annotation: it tells
-// puzzlecad to attach a male connector in the z+ direction. Likewise, "{connect=fz+}"
-// specifies a female connector pointing in the z+ direction. The "z+" is a standard directional
-// indicator that is used throughout puzzlecad; it refers to the positive orientation on OpenSCAD's
-// standard z axis. There are six directional indicators in all (x+, x-, y+, y-, z+, z-), which
-// correspond one-to-one with the six faces of the cube.
+// After printing, and before attempting to solve the puzzle, the two components of this piece can
+// be snapped together. The joints are designed to form a strong, permanent connection. They will
+// usually snap cleanly and tightly together, but may sometimes need to be hammered or clamped into
+// place (if too tight) or reinforced with a few drops of superglue (if too loose).
 
-// The joints are slightly ambiguous as printed: there are multiple ways to snap any pair of
-// joints together; and if you're printing multiple pieces with joints, it can be hard to keep
-// track of which components are intended to snap onto which others. To help keep things straight,
-// puzzlecad provides an optional labeling feature. Here's the same piece as before, with labels:
-*burr_plate([["x..|xxx{connect=mz+,clabel=Ay-}"], ["x{connect=fz+,clabel=Ay-}|x"]]);
+// Note that the only change we made was to add a new $auto_layout parameter. Setting
+// $auto_layout = true  instructs puzzlecad to do the work of laying out snap joints for you.
+// puzzlecad will automatically perform the dissection, rotating pieces so as to minimize the number
+// of components.
 
-// That "clabel=Ay-" annotation tells puzzlecad to stamp the letter "A" on the y- face of the joint.
-// (If the labels are hard to see, try rendering with F6 rather than doing a preview. For the female
-// connector, the label is stamped on the inside surface of the cavity, so you may need to rotate
-// the OpenSCAD view a bit to see it.) This makes it easy to tell, during puzzle assembly, that the
-// two "A" joints fit together, oriented so that the "A" labels come into contact.
-
-// A huge variety of puzzle shapes can be formed without supports using snap joints. Here's the full
-// Interlock Four puzzle:
-*burr_plate([
-    ["..x|xxx|x{connect=mz+,clabel=Ay-}.."], ["x|x", ".|x{connect=fz+,clabel=Ay-}"],
-    ["x..|xxx|x.x", "...|...|x.."],
-    ["x..|xxx{connect=mz+,clabel=By-}"], ["x{connect=fz+,clabel=By-}|x"],
-    [".x|x{connect=mz+,clabel=Cy-}x"], ["x{connect=fz+,clabel=Cy-}x|.x"]
-    ]);
+// You can that the letter "A" is stamped on the visible face of the male joint. (If it's hard to
+// see, you might be in preview mode; try pressing F6 to fully render the model.) If you rotate
+// the view 180 degrees, you'll see that there's a corresponding letter "A" stamped on the inside
+// face of the corresponding female joint. These labels identify which pieces go together, which is
+// useful for keeping things straight when printing large puzzles with lots of components and joints.
 
 // ======================================
-// ORIENTED CONNECTORS
+// MANUALLY LAYING OUT CONNECTORS
 
-// Starting with version 2.0, puzzlecad provides a new type of "oriented" connector, tapered on one
-// side. Here's our sample Interlock Four piece rendered using oriented connectors:
+// puzzlecad's $auto_layout feature is simple and powerful, but sometimes you'll want to lay out
+// snap joints manually, giving you more control over the structure and appearance of the output.
+// This can be done by attaching "annotations" to the relevant voxels of the burr piece. The following
+// gives the identical result to $auto_layout = true (but without the labels - those need to be
+// manually laid out now as well; we'll get to them shortly):
+
+*burr_plate([["x..|xxx{connect=mz+y+}"], ["x{connect=fz+y+}|x"]]);
+
+// That "{connect=mz+y+}" after the final "x" in the first component is an annotation: it tells
+// puzzlecad to attach a male connector to the preceding voxel. You can read "mz+y+" as code for
+// "render a male connector on the z+ face of the preceding voxel, pointing in the y+ direction."
+// Here "z+" and "y+" are standard directional indicators that are used throughout puzzlecad; they
+// refers to the positive orientation on OpenSCAD's standard z and y axes. There are six directional
+// indicators in all:
+// x+, x-, y+, y-, z+, z-
+// corresponding one-to-one with the six faces of the cube.
+// Likewise, "{connect=fz+y+}" says "render a female connector on the z+ face of the preceding voxel,
+// pointing in the y+ direction."
+
+// To add labels, we simply include another annotation "clabel" within the brackets, like so:
+
 *burr_plate([["x..|xxx{connect=mz+y+,clabel=A}"], ["x{connect=fz+y+,clabel=A}|x"]]);
 
-// To specify an oriented connector, put *two* orientations in the "connect" annotation: the first
-// specifies the cube face to which the connector attaches (as before); the second specifies the
-// direction in which to taper the connector. Then the label should be specified *without* any
-// orientation, as it will *always* be placed opposite the taper.
+// That "clabel=A" annotation tells puzzlecad to stamp the letter "A" on the connector, on the face
+// opposite the pointy tip.
 
-// Oriented connectors slightly reduce the contact surface, but they have two huge advantages.
-// First, it's easier to see how they align: the joints only fit together in one way. And second,
-// female oriented connectors can be printed accurately in horizontal (x+, x-, y+, or y-) orientation,
-// with the tip of the pentagon facing up. Here's a square connector and oriented connector side-by-side
-// to illustrate what that means:
-*burr_piece("x{connect=fy-}x{connect=fy-z+}");
+// A huge variety of puzzle shapes can be formed without supports using snap joints. Here's the full
+// Coffin's Quartet puzzle, ready for printing:
 
-// The square cavity will have a rough interior surface due to the "overhang" on the upper face, while
-// the oriented cavity will have a smooth, accurate interior surface.
-
-// Here's a final form of Interlock Four, with oriented connectors, ready for printing:
 *burr_plate([
     ["..x|xxx|x{connect=mz+y+,clabel=A}.."], ["x|x", ".|x{connect=fz+y+,clabel=A}"],
     ["x..|xxx|x.x", "...|...|x.."],
     ["x..|xxx{connect=mz+y+,clabel=B}"], ["x{connect=fz+y+,clabel=B}|x"],
     [".x|x{connect=mz+y+,clabel=C}x"], ["x{connect=fz+y+,clabel=C}x|.x"]
-    ], $burr_scale = 17, $burr_inset = 0.06, $burr_bevel = 1);
+    ], $burr_scale = 17, $burr_inset = 0.07, $burr_bevel = 1.3);
+    
+// Female connectors can print cleanly on the vertical surface of a piece, provided that they point
+// up (i.e., the second orientation coordinate is z+). For example:
+
+*burr_piece("x{connect=fy-z+}");
+
+// Because the overhanging surface rises at a 45 degree angle, most printers will be able to
+// print it with a smooth surface that maintains a clean, accurate fit. Combining these techniques
+// provides a great deal of flexibility in how the puzzle joints are laid out.
+
+// ======================================
+// SQUARE CONNECTORS
+
+// An additional type of connector is available in puzzlecad - the "square snap joint". The
+// "house-shaped" connectors discussed above are preferred in most cases, but the square joints
+// provide slightly more contact surface. They're something of a relic of earlier versions of
+// puzzlecad, but they're still there if you want to use them.
+
+// To render a square snap joint, simply omit the second orientation coordinate. Like so:
+*burr_plate([["x..|xxx{connect=mz+,clabel=Ay-}"], ["x{connect=fz+,clabel=Ay-}|x"]]);
+
+// Note that you now have to specify an orientation for the clabel; the square connectors are
+// symmetric, so it's otherwise ambiguous where to render the label.
 
 // ======================================
 // LABELS
 
 // Sometimes it's desirable to print the name of the model on one of the pieces. You can do this
 // easily in puzzlecad with the label_text and label_orient annotations. Try the following example:
+
 *burr_piece(
     ["xx{label_text=Half Hour,label_orient=z+x+}x|.x.", "...|.x."],
-    $burr_scale = 17, $burr_bevel = 1);
+    $burr_scale = 17, $burr_bevel = 1
+    );
 
 // This tells puzzlecad to print the text "Half Hour" centered on the specified voxel, in the z+x+
-// orientation. In this case, the "z+x+" orientation means "print the text on the z+ face of the
-// voxel, running left-to-right in the x+ direction".
+// orientation. In this case, the "z+x+" orientation means "print the text centered on the z+ face
+// of the voxel, running left-to-right in the x+ direction".
 
 // Whether to use labels, and whether to print them on the inside or outside face of the puzzle,
 // is an entirely aesthetic decision. Puzzlecad provides several further annotations for fine-tuning
 // the appearance of the labels:
 
-// label_scale      font size of the label, *relative* to $burr_scale. The default is 0.5, so that
-//                  if (say) $burr_scale = 17, then the label will be printed in 8.5-point font
-//                  (8.5 = 17 x 0.5).
+// label_scale      font size of the label, *relative* to $burr_scale. The default is 0.4, so that
+//                  if (say) $burr_scale = 17, then the label will be printed in 6.8-point font
+//                  (6.8 = 17 x 0.4).
 
 // label_hoffset    optional horizontal offset to apply to the label, in units of $burr_scale. This
 //                  can be useful for fine-tuning the placement of the label. If label_hoffset is
@@ -214,7 +252,7 @@ include <puzzlecad.scad>
 // pyramid has a cube face as its base and the interior center of the cube as its "tip". For
 // example, uncomment and render the following line:
 
-*burr_piece("x{components=z-}", $burr_inset = 0);
+*burr_piece("x{components=z-}", $burr_scale = 20, $burr_inset = 0);
 
 // That "z-" identifies which of the six pyramids to render. As always, puzzlecad uses the
 // symbols x-, x+, y-, y+, z-, and z+ to refer to the six orthogonal directions, so that "z-"
@@ -224,23 +262,25 @@ include <puzzlecad.scad>
 // you do this, you MUST enclose the entire "components" clause within a nested pair of braces,
 // as demonstrated by the following example, which renders the z- and x- pyramids side by side:
 
-*burr_piece("x{components={z-,x-}}", $burr_inset = 0);
+*burr_piece("x{components={z-,x-}}", $burr_scale = 20, $burr_inset = 0);
 
 // Now, each of the six square pyramids can be further dissected into four tetrahedra by cutting
 // them along the base diagonals. Those tetrahedra are referenced with a pair of direction
-// symbols, for example, z-y+. You can think of the composite symbol z-y+ as meaning "the
-// tetrahedron on the y+ edge of the z- pyramid". Here's what it looks like:
+// symbols, for example, z-x-. You can think of the composite symbol z-x- as meaning "the
+// tetrahedron on the x- edge of the z- pyramid". Here's what it looks like:
 
-*burr_piece("x{components=z-y+}", $burr_inset = 0);
+*burr_piece("x{components=z-x-}", $burr_scale = 20, $burr_inset = 0);
 
 // The following picture shows all four "z-" tetrahedra, with a gap between them. It's very
 // helpful in visualizing the tetrahedral dissection:
 
 *union() {
-    translate([1, 0, 0]) burr_piece("x{components=z-y-}", $burr_inset = 0);
-    translate([0, 1, 0]) burr_piece("x{components=z-x-}", $burr_inset = 0);
-    translate([1, 2, 0]) burr_piece("x{components=z-y+}", $burr_inset = 0);
-    translate([2, 1, 0]) burr_piece("x{components=z-x+}", $burr_inset = 0);
+    $burr_scale = 20;
+    $burr_inset = 0;
+    translate([2, 0, 0])  burr_piece("x{components=z-y-}");
+    translate([0, 2, 0])  burr_piece("x{components=z-x-}");
+    translate([2, 14, 0]) burr_piece("x{components=z-y+}");
+    translate([14, 2, 0]) burr_piece("x{components=z-x+}");
 }
 
 // Pyramids and rhombic tetrahedra can be combined within a single components block, in any
@@ -252,26 +292,28 @@ include <puzzlecad.scad>
     "x{components=z-y+}|x{components=z-}|x{components=z-y-}"
 ], $burr_scale = 32, $burr_inset = 0);
 
-// Note the larger value of $burr_scale being used here; $burr_scale will always refer to the edge
-// length of the enveloping cube, for consistency with rectilinear models.
+// Note the larger value of $burr_scale being used here. $burr_scale will always refer to the edge
+// length of the enveloping cube, for consistency with rectilinear models, so with default values
+// of $burr_scale, the individual pyramids (and especially tetrahedra) will come out very small.
 
 // Pieces modeled with diagonal geometry will often be laid out in an orientation that is not
-// suited to printing. puzzlecad provides the convenient $post_rotate and $post_translate options
-// to handle this. If they're specified, then after rendering, puzzlecad will apply a rotation of
-// $post_rotate, followed by a translation of $post_translate. (Of course, this could also be
-// done using OpenSCAD primitives; the main advantage of using $post_rotate and $post_translate
-// is that, when rendering an entire burr_plate, puzzlecad will apply the rotation and translation
-// separately to each piece on the plate.)
+// suited to printing. puzzlecad provides the convenient $post_rotate option to copy with this.
+// If $post_rotate is specified, then after rendering, puzzlecad will apply that rotation each piece.
+// (Of course, this could also be done using the OpenSCAD rotate primitive; but if you use
+// $post_rotate, then puzzlecad will take it into account when laying out a burr plate and choose
+// an intelligent layout.)
 
-// Here's the previous piece, rotated and translated into a friendlier orientation:
+// Here's the previous piece, rotated into a friendlier orientation:
 
 *burr_piece([
     "x{components={y+z+,z+y+}}|x{components={z+,y-z+,y+z+}}|x{components={y-z+,z+y-}}",
     "x{components=z-y+}|x{components=z-}|x{components=z-y-}"
-], $burr_scale = 32, $burr_inset = 0, $post_rotate = [0, 45, 0], $post_translate = [-1/2, 0, -1/2]);
+], $burr_scale = 32, $burr_inset = 0, $post_rotate = [0, 45, 0]);
 
-// I find it easiest to model puzzles in their "natural" orientation, then add $post_rotate and
-// $post_translate in at the end, before generating STLs for printing.
+// That [0, 45, 0] is standard OpenSCAD notation for "rotate 45 degrees around the y axis".
+
+// I find it easiest to model puzzles in their "natural" orientation, then add $post_rotate at
+// the end.
 
 // ======================================
 // DIAGONAL JOINTS
@@ -287,22 +329,28 @@ include <puzzlecad.scad>
     "..|x{components=z-}|.."
 ], $burr_scale = 32, $burr_inset = 0);
 
-// And, the corresponding tetrahedral tips:
+// And, a corresponding tetrahedral tip:
 
 *burr_piece([
-    "x{components=z+y+}", "x{components=z-y+,connect=dmz-y+}"
+    "x{components=y+z+}|x{components=y-z+,connect=dmy-z+}"
 ], $burr_scale = 32, $burr_inset = 0);
 
-// If care is taken to orient the pieces, the male connectors will slope at just enough of an
-// upward angle to print sufficiently accurately on most printers:
+// Putting these together gives the components for Stewart Coffin's Sirius puzzle. (Now we're
+// using a nonzero $burr_inset, to get a functional finished form; the rendering will take a little
+// longer, since applying insets to diagonal geometry is relatively slow.)
 
-*burr_piece([
-    "x{components=z+y+}", "x{components=z-y+,connect=dmz-y+}"
-], $burr_scale = 32, $burr_inset = 0, $post_rotate = [90, 45, 0], $post_translate = [-1/2, 1/2, -1/2]);
+*burr_plate([
+    ["x{components=y+z+,connect=dfy+z+}|x{components={z+,y-z+,y+z+}}|x{components=y-z+,connect=dfy-z+}",
+     "..|x{components=z-}|.."],
+    ["x{components=y+z+}|x{components=y-z+,connect=dmy-z+}"],
+    ["x{components=y+z+}|x{components=y-z+,connect=dmy-z+}"]
+], $burr_scale = 32, $burr_inset = 0.11, $burr_bevel = 0.6, $post_rotate = [0, 45, 0]);
 
 // In this particular case, the pieces are printable without snap joints, but printing in multiple
 // components allows for much more creative color arrangements. This is the basis for Stewart
 // Coffin's Sirius puzzle and many of his subsequent designs.
+// If you want to print a copy Sirius, visit the Thingiverse page for instructions:
+// https://www.thingiverse.com/thing:4122252
 
 // Finally, the "clabel" annotation can be used to add identifying marks to the joints, just as in
 // the rectilinear case.
@@ -318,6 +366,7 @@ include <puzzlecad.scad>
 // It's particularly easy to model polyominoes in puzzlecad; just specify $burr_scale as a *vector*
 // rather than a single number. Here's the L-Pentomino as an example. Setting $burr_scale to
 // [16, 16, 5.6] will yield polyominoes out of 16 mm squares, with a 5.6 mm thickness:
+
 *burr_piece("xxxx|x...", $burr_scale = [16, 16, 5.6]);
 
 // Insets and beveling will be applied just as in the three-dimensional case, with all the usual
@@ -327,6 +376,7 @@ include <puzzlecad.scad>
 // beveled_prism, which takes a polygon as input and generates the corresponding prism, with
 // appropriate beveling of the edges. (Make sure the vertices of the polygon wind clockwise, or
 // you'll get an error.)
+
 *beveled_prism([[0, 0], [0, 32], [16, 0]], height = 5.6);
 
 // beveled_prism will honor the $burr_bevel parameter, but you'll need to do the scaling and apply
@@ -335,6 +385,7 @@ include <puzzlecad.scad>
 // To model trays, puzzlecad provides the convenient module packing_tray, which is highly
 // customizable with lots of options. Let's start with an example; this is the actual tray for
 // Stewart Coffin's classic design Four Fit:
+
 *packing_tray(
     opening_width = 13 / sqrt(5),
     opening_depth = 11 / sqrt(5),
