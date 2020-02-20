@@ -1,0 +1,38 @@
+thing-id: 4171807
+name: "Four Corners - Interlocking puzzle by Stewart Coffin (STC #6)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [bases, tips]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'larger', code: '$burr_scale = 32;', targets: ''}
+description: |
+    Assemble the six pieces into an interesting polyhedral shape with color symmetry, as shown in the cover photo.
+    
+    _Four Corners_ is a classic Stewart Coffin design, whose structure forms the basis for several of his later puzzles. Assembling the shape is straightforward; the challenge is to find all the different ways of assembling it with color symmetry. There are four different ways to do so, one of which is shown in the photo - can you discover the other three?
+    
+    Coffin wrote of this puzzle:
+    
+    "The assembled shape is intermediate between the first and second stellation [of the rhombic dodecahedron], and it has the symmetry of a tetrahedron. It serves as the skeleton for many other more complicated puzzles ....
+    
+    "The _Four Corners Puzzle_ is a good example of an interlocking structure with an intriguing geometry and attractive shape but which is trivially simple as an assembly puzzle. To make it also challenging, the concept of color symmetry is introduced.
+    
+    "... [T]o extract one more bit of recreation from this puzzle, discover the 24 ways of assembling it such that the patterns of all four colors are identical but not symmetrical. You may skip the 3,808 ways that do not have either property."
+    
+    ### Printing Instructions
+    
+    Print one copy of `coffin.four-corners.bases.stl` and four copies of `coffin.four-corners.tips.stl`. Ideally, use five different filament colors, with a neutral color (such as white or grey) for the bases.
+    
+    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary.
+    
+    In order to obtain the desired color symmetries, you _must_ attach the joints in the configuration shown in the second photo. To make this easier, the male joints on the bases are labeled with letters "A" through "D". Call the four tip colors "Color A", "Color B", "Color C", and "Color D"; then ensure all of the "Color A" tips attach to base connectors labeled "A", and so on.
+    
+    You may optionally print a two-color version by printing twelve tips all in the same color, in which case you can ignore the labels; but the five-color version is preferred.
+    
+    Also optionally, you may print `coffin.four-corners.bases-larger.stl` and `coffin.four-corners.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
+
+    ${puzzlecad-boilerplate}
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!
