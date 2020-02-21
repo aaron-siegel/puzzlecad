@@ -1101,12 +1101,17 @@ function layer_volume(layer) =
       sum([ for (y = [0:len(layer)-1], x = [0:len(layer[y])-1]) layer[y][x][0] > 0 ? 1 : 0 ]);
     
 function first_uncovered_layer(layers, z = 1) =
-      z >= len(layers) || joint_location_count(layers, z) > 0 ? z
+      z >= len(layers) || overhang_location_count(layers, z) > 0 ? z
     : first_uncovered_layer(layers, z + 1);
+      
+function overhang_location_count(layers, z) =
+    sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+        layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
+    ]);
       
 function joint_location_count(layers, z) =
     sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
-        layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
+        is_joint_location(layers, -1, x, y, z) ? 1 : 0
     ]);
 
 function multi_female_joint_count(layers) =
@@ -1139,7 +1144,7 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
     let (joint_locations =
        [ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
-           if (layers[z][y][x][0] > 0 && layers[z + (type == "f" ? -1 : 1)][y][x][0] > 0)
+           if (is_joint_location(layers, type == "f" ? -1 : 1, x, y, z))
                [x, y]
        ])
     [ for (y = [0:len(layers[z])-1])
@@ -1152,6 +1157,17 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
                     [layers[z][y][x][0], new_aux]
         ]
     ];
+
+// Rules for joint placement: add a joint provided that
+// (1) [x, y] is a contact point between layer z and layer z + offset; and
+// (2) [x, y] is a "contact corner", meaning that both:
+//     (a) At least one of [x, y-1] or [x, y+1] is NOT a contact point; and
+//     (b) At least one of [x-1, y] or [x+1, y] is NOT a contact point.
+
+function is_joint_location(layers, offset, x, y, z) =
+      layers[z][y][x][0] > 0 && layers[z + offset][y][x][0] > 0 &&
+    !(layers[z][y-1][x][0] > 0 && layers[z][y+1][x][0] > 0 && layers[z + offset][y-1][x][0] > 0 && layers[z + offset][y+1][x][0] > 0) &&
+    !(layers[z][y][x-1][0] > 0 && layers[z][y][x+1][0] > 0 && layers[z + offset][y][x-1][0] > 0 && layers[z + offset][y][x+1][0] > 0);
 
 function to_blank_layer(layer) =
     [ for (yslice = layer)
