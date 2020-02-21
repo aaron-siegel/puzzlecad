@@ -244,7 +244,7 @@ def bundle_puzzlecad(version):
 		
 	print('Building jar ...')
 	result = subprocess.run(
-		['jar', 'cfm', '../dist/bt-to-scad.jar', '../../src/main/java/manifest', '.'],
+		['jar', 'cfm', '../dist/bt2scad.jar', '../../src/main/java/manifest', '.'],
 		cwd = '../out/java'
 		)
 	if result.returncode != 0:

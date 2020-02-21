@@ -1030,8 +1030,6 @@ module connector_label(parity, orient, label, explicit_label_orient) {
 
 /******* Auto-layout capabilities *******/
 
-// Returns a structure [result, next_joint_letter]
-
 function auto_layout_plate(burr_infos, next_joint_letter = 0, i = 0, result = []) =
       i >= len(burr_infos) ? result
     : let (
@@ -1040,6 +1038,8 @@ function auto_layout_plate(burr_infos, next_joint_letter = 0, i = 0, result = []
           new_next_joint_letter = piece_layout_info[1]
       )
       auto_layout_plate(burr_infos, new_next_joint_letter, i + 1, concat(result, piece_layout));
+
+// Returns a structure [result, next_joint_letter]
 
 function auto_layout(burr_info, next_joint_letter = 0) =
     let (
@@ -1135,9 +1135,16 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
 function to_blank_layer(layer) =
     [ for (yslice = layer)
         [ for (cell = yslice)
-            [ 0, cell[1] ]
+            len(cell) == 1 ? [0] :
+            let (new_aux = clean_aux(cell[1]))
+            len(new_aux) == 0 ? [0] : [ 0, new_aux ]
         ]
     ];
+
+function clean_aux(aux, i = 0) =
+      i >= len(aux) ? []
+    : aux[i][0] == "connect" || aux[i][0] == "clabel" ? clean_aux(aux, i + 1)
+    : concat([aux[i]], clean_aux(aux, i + 1));
 
 function add_connect_to_aux(aux, connect, clabel) =
     let (
@@ -1165,6 +1172,7 @@ function rotate_burr_info_markup(burr_info, orient) =
     [ for (xslice = burr_info)
         [ for (yslice = xslice)
             [ for (cell = yslice)
+                len(cell) == 1 ? cell :
                 [ cell[0], [ for (kv = cell[1]) rotate_markup_entry(kv, orient) ] ]
             ]
         ]

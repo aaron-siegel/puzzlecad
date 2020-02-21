@@ -46,6 +46,77 @@ for (test = burr_parser_test_cases) {
     }
 }
 
+auto_layout_test_cases = [
+
+    ["Simple piece that lays flat",
+     [".x.", "xxx"],
+     ["xxx|.x."]
+    ],
+
+    ["Simple case that must be dissected",
+     ["x..|xxx|...", "...|..x|..x"],
+     [["x..|xxx{connect=mz+y+,clabel=A}|...", "...|...|..."],
+      ["...|x{connect=fz+y+,clabel=A}..|x..", "...|...|..."]]
+    ],
+
+    ["Piece that must be rotated and dissected",
+     ["x.|xx|..", "..|.x|..", "..|.x|.x"],
+     [["..x|..x{connect=mz+y+,clabel=A}|...", "...|...|..."],
+      ["...|x{connect=fz+y+,clabel=A}xx|..x", "...|...|..."]]
+    ],
+
+    ["Piece with a label that gets split and rotated",
+     ["x..|xxx|...", "...|..x{label_text=Puzzlecad,label_orient=y-z-,label_scale=0.4}|...", "...|..x|..x"],
+     [["x..|xxx|...", "...|..x{label_text=Puzzlecad,label_orient=y-z-,label_scale=0.4,connect=mz+y+,clabel=A}|...", "...|...|..."],
+      ["...|x{connect=fz+y+,clabel=A}..|x..", "...|.{label_text=Puzzlecad,label_orient=y-z+,label_scale=0.4}..|...", "...|...|..."]]
+    ],
+    
+    ["Complex example that cuts into three pieces, with a double connector",
+     [".....|.x.x.|.....|.x.x.|.....",
+      ".x.x.|xxxxx|.x.x.|xxxxx|.x.x.",
+      ".....|.xxx.|.xxx.|.xxx.|.....",
+      ".....|.....|.x...|.....|....."],
+     [[".....|.....|...x{connect=mz+y+,clabel=A}.|.....|.....",
+       ".....|.....|.....|.....|.....",
+       ".....|.....|.....|.....|.....",
+       ".....|.....|.....|.....|....."],
+      [".....|.....|.....|.....|.....",
+       ".....|.x{connect=mz+y+,clabel=J}x{connect=mz+y+,clabel=K}x{connect=mz+y+,clabel=L}.|.x{connect=mz+y+,clabel=M}xx{connect={fz-y+,mz+y+},clabel={A,N}}.|.x{connect=mz+y+,clabel=O}x{connect=mz+y+,clabel=P}x{connect=mz+y+,clabel=Q}.|.....",
+       ".....|.....|.....|.....|.....",
+       ".....|.....|.....|.....|....."],
+      [".....|.....|.....|.....|.....",
+       ".....|.....|.....|.....|.....",
+       ".x.x.|xx{connect=fz-y+,clabel=J}x{connect=fz-y+,clabel=K}x{connect=fz-y+,clabel=L}x|.x{connect=fz-y+,clabel=M}.x{connect=fz-y+,clabel=N}.|xx{connect=fz-y+,clabel=O}x{connect=fz-y+,clabel=P}x{connect=fz-y+,clabel=Q}x|.x.x.",
+       ".....|.x.x.|.....|.x.x.|....."]]
+    ]
+
+];
+
+echo("---- Auto-layout tests");
+
+for (test = auto_layout_test_cases) {
+    
+    echo(test[0]);
+    
+    actual = auto_layout(to_burr_info(test[1]))[0];
+    expected = [ for (spec = test[2]) to_burr_info(spec) ];
+        
+    for (i = [0:len(expected)-1]) {
+        if (actual[i] != expected[i]) {
+            echo(str("EXPECTED:"));
+            echo(expected[i]);
+            echo(str("ACTUAL:"));
+            echo(actual[i]);
+            assert(false, str("Auto-layout burr_info structures differed for component ", i, "."));
+        }
+    }
+    
+    if (len(actual) != len(expected)) {
+        assert(false, "Auto-layout burr_info structures have different numbers of components.");
+    }
+    
+}
+
 burr_piece_test_cases = [
 
     ["Single Voxel",
