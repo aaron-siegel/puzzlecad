@@ -181,9 +181,11 @@ public class XmpuzzleToScad {
 
         out.println("require_puzzlecad_version(\"2.0\");");
         out.println();
-        out.println("$burr_scale = " + defaultScale(pieces) + ";");
         if (gridType == GRID_TYPE_RECTILINEAR) {
+            out.println("$burr_scale = " + defaultScale(pieces) + ";");
             out.println("$auto_layout = true;");
+        } else {
+            out.println("$burr_scale = 27;");
         }
         out.println();
 

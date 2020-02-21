@@ -171,6 +171,10 @@ module burr_piece_base(burr_spec, test_poly = undef) {
     if (diagonal_component_count == 0 && $burr_inset < 0.01 && $burr_bevel > 0) {
         echo("WARNING: $burr_inset is 0 or negative, but $burr_bevel is nonzero. $burr_bevel parameter will be ignored.");
     }
+    
+    if (diagonal_component_count > 0 && $auto_layout) {
+        assert(false, "$auto_layout does not work with diagonal geometry (that is, you may not set $auto_layout = true with diagonal geometry).");
+    }
 
     // Create a list of all the distinct voxel types (i.e., distinct characters that
     // represent different components of the piece)
