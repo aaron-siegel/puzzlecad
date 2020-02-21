@@ -2,6 +2,7 @@ package org.puzzlecad;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,10 +10,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 public class XmpuzzleToScad {
+
+    public final static int GRID_TYPE_RECTILINEAR = 0;
+    public final static int GRID_TYPE_RHOMBIC_TETRAHEDRAL = 3;
 
     File file;
 
@@ -30,22 +36,39 @@ public class XmpuzzleToScad {
 
         int gridType = Integer.parseInt(document.getElementsByTagName("gridType").item(0).getAttributes().getNamedItem("type").getTextContent());
 
-        if (gridType != 0) {
-            throw new UnsupportedOperationException("Unsupported BurrTools grid type (currently only Rectilinear is supported)");
+        if (gridType != GRID_TYPE_RECTILINEAR && gridType != GRID_TYPE_RHOMBIC_TETRAHEDRAL) {
+            throw new UnsupportedOperationException("Unsupported BurrTools grid type (currently only Rectilinear and Rhombic Tetrahedral are supported)");
         }
 
-        Node shapes = document.getElementsByTagName("shapes").item(0);
+        NodeList resultNodes = document.getElementsByTagName("result");
+        Set<Integer> resultIds = new HashSet<Integer>();
+        for (int i = 0; i < resultNodes.getLength(); i++) {
+            String id = resultNodes.item(i).getAttributes().getNamedItem("id").getNodeValue();
+            resultIds.add(Integer.parseInt(id));
+        }
+
+        Node shapesNode = document.getElementsByTagName("shapes").item(0);
         List<int[][][]> pieces = new ArrayList<int[][][]>();
 
-        for (int i = 0; i < shapes.getChildNodes().getLength(); i++) {
-            Node piece = shapes.getChildNodes().item(i);
-            if (piece.getNodeName().equals("voxel")) {
-                int x = Integer.parseInt(piece.getAttributes().getNamedItem("x").getNodeValue());
-                int y = Integer.parseInt(piece.getAttributes().getNamedItem("y").getNodeValue());
-                int z = Integer.parseInt(piece.getAttributes().getNamedItem("z").getNodeValue());
-                int[][][] array = xmpuzzleToArray(x, y, z, piece.getTextContent());
-                if (array.length > 0)
-                    pieces.add(array);
+        int pieceNumber = 0;
+        for (int i = 0; i < shapesNode.getChildNodes().getLength(); i++) {
+            Node node = shapesNode.getChildNodes().item(i);
+            if (node.getNodeName().equals("voxel")) {
+                if (resultIds.contains(pieceNumber)) {
+                    System.out.println("Skipping  shape #" + pieceNumber + ", which is used as a problem result. Re-run with --all if you want to generate it.");
+                } else {
+                    int x = Integer.parseInt(node.getAttributes().getNamedItem("x").getNodeValue());
+                    int y = Integer.parseInt(node.getAttributes().getNamedItem("y").getNodeValue());
+                    int z = Integer.parseInt(node.getAttributes().getNamedItem("z").getNodeValue());
+                    int[][][] array = xmpuzzleToArray(gridType, x, y, z, node.getTextContent());
+                    if (array.length == 0) {
+                        System.out.println("Skipping  shape #" + pieceNumber + " (no voxels).");
+                    } else {
+                        System.out.println("Generated shape #" + pieceNumber + " (" + x + "x" + y + "x" + z + ").");
+                        pieces.add(array);
+                    }
+                }
+                pieceNumber++;
             }
         }
         inputStream.close();
@@ -55,11 +78,13 @@ public class XmpuzzleToScad {
             filename = filename.substring(0, filename.lastIndexOf("."));
         }
         String outputFilename = filename + ".scad";
-        write(new File(outputFilename), pieces);
+        write(new File(outputFilename), gridType, pieces);
 
     }
 
-    public int[][][] xmpuzzleToArray(int x, int y, int z, String xmpuzzlePiece) {
+    public int[][][] xmpuzzleToArray(int gridType, int x, int y, int z, String xmpuzzlePiece) {
+
+        String filteredString = filterXmpuzzleString(xmpuzzlePiece);
 
         int[][][] array = new int[z][y][x];
 
@@ -67,13 +92,30 @@ public class XmpuzzleToScad {
             for (int j = 0; j < y; j++) {
                 for (int i = 0; i < x; i++) {
 
-                    array[k][j][i] = xmpuzzlePiece.charAt(k * x * y + j * x + i) == '#' ? 1 : 0;
+                    array[k][j][i] = filteredString.charAt(k * x * y + j * x + i) == '#' ? 1 : 0;
 
                 }
             }
         }
 
-        return stripArray(array);
+        if (gridType == GRID_TYPE_RECTILINEAR) {
+            return stripArray(array);
+        } else {
+            return array;
+        }
+
+    }
+
+    public String filterXmpuzzleString(String string) {
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            char ch = string.charAt(i);
+            if (ch == '_' || ch == '#') {
+                builder.append(ch);
+            }
+        }
+        return builder.toString();
 
     }
 
@@ -122,7 +164,9 @@ public class XmpuzzleToScad {
 
     }
 
-    public void write(File outputFile, List<int[][][]> pieces) throws Exception {
+    public void write(File outputFile, int gridType, List<int[][][]> pieces) throws Exception {
+
+        System.out.println("Writing " + outputFile.getName() + ".");
 
         PrintWriter out = new PrintWriter(outputFile);
 
@@ -138,13 +182,18 @@ public class XmpuzzleToScad {
         out.println("require_puzzlecad_version(\"2.0\");");
         out.println();
         out.println("$burr_scale = " + defaultScale(pieces) + ";");
-        out.println("$auto_layout = true;");
+        if (gridType == GRID_TYPE_RECTILINEAR) {
+            out.println("$auto_layout = true;");
+        }
         out.println();
-
 
         out.println("burr_plate([");
         for (int i = 0; i < pieces.size(); i++) {
-            out.print(pieceToString(pieces.get(i)));
+            if (gridType == GRID_TYPE_RECTILINEAR) {
+                out.print(rectilinearPieceToString(pieces.get(i)));
+            } else {
+                out.print(rhombicTetrahedralPieceToString(pieces.get(i)));
+            }
             if (i < pieces.size() - 1) {
                 out.print(",");
             }
@@ -175,7 +224,7 @@ public class XmpuzzleToScad {
 
     }
 
-    public String pieceToString(int[][][] array) {
+    public String rectilinearPieceToString(int[][][] array) {
 
         StringBuilder result = new StringBuilder("    [ ");
         for (int k = 0; k < array.length; k++) {
@@ -198,6 +247,59 @@ public class XmpuzzleToScad {
 
     }
 
+    public String rhombicTetrahedralPieceToString(int[][][] array) {
+
+        StringBuilder result = new StringBuilder("    [ ");
+        for (int k = 0; k < array.length; k += 5) {
+            result.append("\"");
+            for (int j = 0; j < array[k].length; j += 5) {
+                for (int i = 0; i < array[k][j].length; i += 5) {
+                    result.append(rhombicTetrahedralVoxelToString(array, i, j, k));
+                }
+                if (j < array[k].length - 5) {
+                    result.append("|");
+                }
+            }
+            result.append("\"");
+            if (k < array.length - 5) {
+                result.append(",\n      ");
+            }
+        }
+        result.append(" ]");
+        return result.toString();
+
+    }
+
+    public String rhombicTetrahedralVoxelToString(int[][][] array, int x, int y, int z) {
+
+        StringBuilder result = new StringBuilder();
+
+        for (int k = 0; k < 5; k++) {
+            for (int j = 0; j < 5; j++) {
+                for (int i = 0; i < 5; i++) {
+
+                    if (array[z + k][y + j][x + i] == 1) {
+                        String componentName = diagonalComponentNames[k][j][i];
+                        if (componentName == null) {
+                            throw new RuntimeException("Invalid .xmpuzzle file: (" + (x + i) + "," + (y + j) + "," + (z + k) + ")");
+                        }
+                        result.append(componentName);
+                        result.append(',');
+                    }
+
+                }
+            }
+        }
+
+        if (result.length() == 0) {
+            return ".";
+        } else {
+            // Remove trailing comma
+            return "x{components={" + result.deleteCharAt(result.length() - 1).toString() + "}}";
+        }
+
+    }
+
     public static void main(String[] args) {
 
         try {
@@ -210,7 +312,44 @@ public class XmpuzzleToScad {
         } catch (Exception exc) {
             System.err.println("BurrTools conversion failed with the following error message:");
             System.err.println(exc.getMessage());
+            exc.printStackTrace();
             System.exit(-1);
+        }
+
+    }
+
+    static String[] directions = new String[] { "z-", "y-", "x-", "x+", "y+", "z+" };
+    static String[][][] diagonalComponentNames = new String[5][5][5];
+
+    static {
+
+        for (String primary : directions) {
+            for (String secondary : directions) {
+                if (primary.charAt(0) != secondary.charAt(0)) {
+                    int x = directionsToCoord(primary, secondary, 'x');
+                    int y = directionsToCoord(primary, secondary, 'y');
+                    int z = directionsToCoord(primary, secondary, 'z');
+                    diagonalComponentNames[z][y][x] = primary + secondary;
+                }
+            }
+        }
+
+    }
+
+    static int directionsToCoord(String primary, String secondary, char axis) {
+
+        if (primary.charAt(0) == axis) {
+            if (primary.charAt(1) == '-')
+                return 0;
+            else
+                return 4;
+        } else if (secondary.charAt(0) == axis) {
+            if (secondary.charAt(1) == '-')
+                return 1;
+            else
+                return 3;
+        } else {
+            return 2;
         }
 
     }

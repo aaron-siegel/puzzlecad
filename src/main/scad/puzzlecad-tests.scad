@@ -88,6 +88,25 @@ auto_layout_test_cases = [
        ".....|.....|.....|.....|.....",
        ".x.x.|xx{connect=fz-y+,clabel=J}x{connect=fz-y+,clabel=K}x{connect=fz-y+,clabel=L}x|.x{connect=fz-y+,clabel=M}.x{connect=fz-y+,clabel=N}.|xx{connect=fz-y+,clabel=O}x{connect=fz-y+,clabel=P}x{connect=fz-y+,clabel=Q}x|.x.x.",
        ".....|.x.x.|.....|.x.x.|....."]]
+    ],
+    
+    ["Tricky piece that needs a thoughtful badness metric to avoid double-female joints",
+     ["x.xxxxxx|xxx....x|x.......|xxx.....",
+      "x......x|x......x|xx......|x.......",
+      ".......x|.......x|........|........",
+      ".......x|......xx|........|........"],
+     [["x.......|xx......|........|........",
+       "x{connect=mz+y+,clabel=A}.......|x{connect=mz+y+,clabel=B}.......|........|........",
+       "........|........|........|........",
+       "........|........|........|........"],
+      ["........|........|........|........",
+       "........|........|........|........",
+       "x{connect={fz-y+,mz+y+},clabel={A,F}}......x{connect=mz+y+,clabel=G}|x{connect={fz-y+,mz+y+},clabel={B,H}}......x{connect=mz+y+,clabel=J}|......xx{connect=mz+y+,clabel=K}|.......x{connect=mz+y+,clabel=L}",
+       "........|........|........|........"],
+      ["x{connect=fz+y+,clabel=G}.xxxxxx{connect=fz+y+,clabel=F}|x{connect=fz+y+,clabel=J}xx....x{connect=fz+y+,clabel=H}|x{connect=fz+y+,clabel=K}.......|x{connect=fz+y+,clabel=L}xx.....",
+       "........|........|........|........",
+       "........|........|........|........",
+       "........|........|........|........"]]
     ]
 
 ];

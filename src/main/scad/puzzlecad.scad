@@ -504,7 +504,7 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
     zlen = max([ for (plane=burr_info, column=plane) len(column)]);
     burr = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
     aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
-        
+    
     ortho_geom = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1])
         let (components_str = lookup_kv(aux[x][y][z], "components"))
         let (components = strtok(components_str, ","))
@@ -1054,7 +1054,8 @@ function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
         rotated_layers = [ for (dir = allowed_rotations) zyx_to_xyz(rotate_burr_info(zyx_to_xyz(layers), dir)) ],
         layout_components = [ for (rl = rotated_layers) dissect_components(rl, next_joint_letter) ],
         badness_scores = [ for (components_info = layout_components) let (components = components_info[0])
-            1e4 * len(components)
+            1e6 * sum([ for (component = components) multi_female_joint_count(component) ])
+                + 1e4 * len(components)
                 + 1e2 * sum([ for (component = components) occupied_layer_count(component) ])
                 + sum([ for (component = components) zminus_connector_count(component) ])
         ],
@@ -1077,7 +1078,6 @@ function dissect_components(layers, next_joint_letter) =
           ])
       first_uncovered_layer >= len(layers) ? [[base_component], next_joint_letter]
       : let (new_next_joint_letter = next_joint_letter + joint_location_count(layers, first_uncovered_layer))
-        assert(new_next_joint_letter <= 50, "$auto_layout failed: more than 50 connectors!")
         let (remainder = first_uncovered_layer >= len(layers) ? [] : [
             for (z = [0:len(layers)-1])
             if (z < first_uncovered_layer)
@@ -1105,14 +1105,35 @@ function first_uncovered_layer(layers, z = 1) =
     : first_uncovered_layer(layers, z + 1);
       
 function joint_location_count(layers, z) =
-      sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
-          layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
-      ]);
-      
-function zminus_connector_count(layers) =
-      sum([ for (layer = layers, yslice = layer, cell = yslice)
+    sum([ for (y = [0:len(layers[z])-1], x = [0:len(layers[z][y])-1])
+        layers[z][y][x][0] > 0 && !(layers[z-1][y][x][0] > 0) ? 1 : 0
+    ]);
+
+function multi_female_joint_count(layers) =
+    sum([ for (layer = layers, yslice = layer, cell = yslice)
           let (connect = lookup_kv(cell[1], "connect"))
-          substr(connect, 0, 3) == "fz-" ? 1 : 0 ]);
+          if (female_joint_count(connect, false) > 1)
+              1
+          else
+              0
+        ]);
+
+function zminus_connector_count(layers) =
+    sum([ for (layer = layers, yslice = layer, cell = yslice)
+          let (connect = lookup_kv(cell[1], "connect"))
+          female_joint_count(connect, true)
+        ]);
+
+function female_joint_count(connect_str, count_zminus_only) =
+    is_undef(connect_str) ? 0 :
+    let (connects = strtok(connect_str, ","))
+    sum([ for (connect = connects)
+          if (count_zminus_only && substr(connect, 0, 3) == "fz-" ||
+              !count_zminus_only && connect[0] == "f")
+              1
+          else
+              0
+        ]);
 
 function auto_layout_joints(layers, next_joint_letter, z, type) =
     type == "f" && z == 0 || type == "m" && z == len(layers)-1 ? layers[z] :
@@ -1127,7 +1148,7 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
                 if (joint_index == -1)
                     layers[z][y][x]
                 else
-                    let (new_aux = add_connect_to_aux(layers[z][y][x][1], type == "f" ? "fz-y+" : "mz+y+", auto_joint_letters[next_joint_letter + joint_index]))
+                    let (new_aux = add_connect_to_aux(layers[z][y][x][1], type == "f" ? "fz-y+" : "mz+y+", auto_joint_letters[(next_joint_letter + joint_index) % 50]))
                     [layers[z][y][x][0], new_aux]
         ]
     ];
