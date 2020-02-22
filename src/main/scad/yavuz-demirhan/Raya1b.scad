@@ -3,11 +3,8 @@ include <puzzlecad.scad>
 box_puzzle_scale = 15;
 box_puzzle_border = 6;
 $burr_inset = 0.125; 
-//Then you can use interior_dim.x, interior_dim.y, and interior_dim.z to refer to the individual coordinate dimensions, if needed.
+
 interior_dim = [4, 3, 2] * box_puzzle_scale;
-//long = box_puzzle_scale * 4; // voxels long
-//wide = box_puzzle_scale * 3; // voxels wide
-//high = box_puzzle_scale * 2; // voxels high
 
 dim = interior_dim + [box_puzzle_border * 2, box_puzzle_border * 2, box_puzzle_border];
 
