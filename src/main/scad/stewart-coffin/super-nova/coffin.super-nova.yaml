@@ -1,17 +1,22 @@
 thing-id: 4130744
 name: "Super Nova - Interlocking puzzle by Stewart Coffin (STC #14)"
 tags: [puzzle, 3D_puzzle]
-images: []
-targets: [color1, color2]
+images: [assembled.jpg, pieces.jpg]
+targets: [tips, bases]
 description: |
-    Assemble the six pieces into the polyhedral shape shown on the cover photo. This is a more difficult version of Coffin's earlier design [Nova](https://www.thingiverse.com/thing:4130743).
+    Assemble the six pieces into the polyhedral shape shown on the cover photo. This is a considerably more difficult variant of Coffin's earlier design [Nova](https://www.thingiverse.com/thing:4130743). Like _Nova_, it is an extension of the basic [Sirius](https://www.thingiverse.com/thing:4122252) geometry. But whereas _Nova_ extends _Sirius_ symmetrically, _Super Nova_ is badly asymmetric, making the assembly much less obvious and more confusing.
 
-    Coffin wrote of this puzzle: "It has the same assembled shape as Nova #8 - the second stellation of the rhombic dodecahedron. With six dissimilar non-symmetrical pieces, now it becomes more of a puzzle. ... But alas, it inherently has two solutions rather than the preferred just one."
+    Coffin wrote of this puzzle: "It has the same assembled shape as Nova #8 - the second stellation of the rhombic dodecahedron. With six dissimilar non-symmetrical pieces, now it becomes more of a puzzle." There are two distinct solutions; see if you can find them both!
     
     ### Printing Instructions
     
+    Print one copy of `coffin.super-nova.bases.stl` and six copies of `coffin.super-nova.tips.stl`. Use one filament color for the bases and one (different) color for the tips. Then snap the tips onto the bases (before attempting to solve the puzzle).
     
-    The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
+    The pieces are assembled using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
+    
+    Note that there are two distinct tip types that are mirror images of each other. In order to ensure proper assembly, the male joints on the tips are marked with the letter "A" or "B", and the corresponding female joints on the bases are similarly marked. Be sure that you only connect joints of matching letters.
+    
+    ${puzzlecad-boilerplate}
 
     ${stewart-coffin-bio}
 

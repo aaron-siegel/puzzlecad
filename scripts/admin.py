@@ -39,7 +39,7 @@ def process_command(args):
 		
 	elif args.command == 'build':
 	
-		build_stls(args.cmdargs[0], load_yaml_file(args.cmdargs[0]))
+		build_stls(args.cmdargs[0])
 		
 	elif args.command == "bundle-puzzlecad":
 	
@@ -89,21 +89,22 @@ def delete_thing(access_token, thing_id):
 
 	thingiverse_delete(f'things/{thing_id}', access_token)
 
-def update_thing(access_token, yaml_file, targets_str):
+def update_thing(access_token, thing_name, targets_str):
 
 	targets = targets_str.split(',')
-
-	contents = load_yaml_file(yaml_file)
+	
+	yaml_path = resolve_thing(thing_name)
+	contents = load_yaml_file(yaml_path)
 	name = contents['name']
 	thing_id = contents['thing-id']
 	description = substitute_globals(contents['description'])
 	
-	print(f'Updating thing "{name}" from file {yaml_file} ...')
+	print(f'Updating thing "{name}" from file {yaml_path} ...')
 		
 	if 'files' in targets:
 	
 		# Build the STLs first before uploading anything
-		build_stls(yaml_file, contents)
+		build_stls(thing_name)
 		
 	split_name = name.split(" - ")
 	description_title = f'## {name}' if len(split_name) <= 1 else f'## {split_name[0]}\n\n### {split_name[1]}'
@@ -120,7 +121,7 @@ def update_thing(access_token, yaml_file, targets_str):
 	
 	thingiverse_patch(f'things/{thing_id}', access_token, attributes)
 	
-	dir = os.path.dirname(yaml_file)
+	dir = os.path.dirname(yaml_path)
 	
 	if 'images' in targets:
 	
@@ -134,7 +135,7 @@ def update_thing(access_token, yaml_file, targets_str):
 	
 		thingiverse_clean(thing_id, 'files')
 	
-		root = os.path.splitext(yaml_file)[0]
+		root = os.path.splitext(yaml_path)[0]
 		scad_path = root + ".scad"
 		abs_scad_path = os.path.abspath(scad_path)
 		scad_file = os.path.basename(scad_path)
@@ -153,7 +154,17 @@ def update_thing(access_token, yaml_file, targets_str):
 				modularized_name = f'{scad_root}{configuration_name}' if stl_target == "--" else f'{scad_root}.{stl_target_dashes}{configuration_name}'
 				stl_target_path = f'{output_dir}/{modularized_name}.stl'
 				thingiverse_post_file(thing_id, stl_target_path)
-			
+				
+def resolve_thing(thing_name):
+
+	print(f'../src/main/scad/**/{thing_name}.yaml')
+	yaml_path = glob(f'../src/main/scad/**/{thing_name}.yaml', recursive = True)
+	
+	if len(yaml_path) == 0:
+		raise Exception(f'Thing not found: {thing_name}')
+		
+	return yaml_path[0];
+
 def load_yaml_file(yaml_file):
 
 	file = open(yaml_file, mode = 'r')
@@ -161,9 +172,11 @@ def load_yaml_file(yaml_file):
 	file.close()
 	return yaml.load(contents, Loader = yaml.FullLoader)
 	
-def build_stls(yaml_file, contents):
+def build_stls(thing_name):
 	
-	root = os.path.splitext(yaml_file)[0]
+	yaml_path = resolve_thing(thing_name)
+	contents = load_yaml_file(yaml_path)
+	root = os.path.splitext(yaml_path)[0]
 	scad_path = root + ".scad"
 	
 	print(f'Building STLs from source {scad_path} ...')
@@ -376,7 +389,7 @@ def thingiverse_clean(thing_id, artifact_type):
 		
 def run_test(access_token):
 
-	thingiverse_patch(f'things/3355035/images/12582819', access_token, {'rank': -1, 'featured': True})
+	thingiverse_delete(f'things/3198014/files/7668891', access_token)
 
 globals = load_yaml_file('../src/main/scad/globals.yaml')
 

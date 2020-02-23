@@ -23,7 +23,7 @@ description: |
     
     Print one copy of `coffin.four-corners.bases.stl` and four copies of `coffin.four-corners.tips.stl`. Ideally, use five different filament colors, with a neutral color (such as white or grey) for the bases.
     
-    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary.
+    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
     
     In order to obtain the desired color symmetries, you _must_ attach the joints in the configuration shown in the second photo. To make this easier, the male joints on the bases are labeled with letters "A" through "D". Call the four tip colors "Color A", "Color B", "Color C", and "Color D"; then ensure all of the "Color A" tips attach to base connectors labeled "A", and so on.
     

@@ -1,24 +1,28 @@
 thing-id: 4130743
 name: "Nova - Interlocking puzzle by Stewart Coffin (STC #8)"
 tags: [puzzle, 3D_puzzle]
-images: []
-targets: [solid, fivecolor_bases, fivecolor_orbit1, fivecolor_orbit2, fivecolor_orbit3, fivecolor_orbit4]
+images: [assembled.jpg, pieces.jpg, one-piece.jpg]
+targets: [solid, fivecolor_bases, fivecolor_tips_1, fivecolor_tips_2, fivecolor_tips_3, fivecolor_tips_4]
 description: |
     Assemble the six pieces into the polyhedral shape shown in the cover photo.
     
     _Nova_ is derived from Coffin's earlier design [Sirius](https://www.thingiverse.com/thing:4122252) by adding additional ornamentation. The essential puzzle mechanism is the same, though _Nova_ has an especially striking appearance: mathematically, the assembled _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, while _Nova_ has the shape of the second stellation. Coffin wrote: "The six identical pieces of _Nova_ assemble easily to form the second stellation of the rhombic dodecahedron. ... [I]t is more of a polyhedral sculpture than a puzzle."
     
-    A polyhedral scuplture, then, and a fine one at that! If printed accurately in five colors (see below), it forms a striking display piece. For a more challenging assembly puzzle in the same shape, you can try printing Coffin's later variant [Super Nova](https://www.thingiverse.com/thing:4130744), though I'd recommend starting with this one if you're unfamiliar with this type of design.
+    A polyhedral scuplture, then, and a fine one at that! If printed accurately in five colors (see below), it forms a striking display piece, with a variety of symmetric arrangements possible. In Coffin's words: "There are several ways of assembling these pieces in color symmetry .... The simplest and most obvious is with each of the eight hexagonal dimples a solid color, with like colors opposite [this is the one shown in the photo]. Another way is with four triangles of a solid color. The most elegant is with four hexagonal rings of solid color intersecting each other around the outside. The other ways are left for the curious reader to discover."
+    
+    For a more challenging assembly puzzle in the same shape, you can try printing Coffin's later variant [Super Nova](https://www.thingiverse.com/thing:4130744).
     
     ### Printing Instructions
     
-    Several variants of this puzzle are provided, with different color arrangements. The "monochrome" version is especially easy to print; just print six copies of `coffin.super-nova.solid.stl`. (You can, of course, print the copies in different colors, and you might get an interesting color pattern out of it; but the colors won't follow the geometry of the puzzle in the way Coffin intended.)
+    Two variants of this puzzle are provided with different color arrangements. The "monochrome" version is especially easy to print; just print six copies of `coffin.nova.solid.stl`. (You can, of course, print the copies in different colors, and you might get an interesting color pattern out of it; but the colors won't follow the geometry of the puzzle in the way Coffin intended.)
     
-    To print the two-color version, print six copies of `coffin.super-nova.twocolor.base.stl` and twelve copies of `coffin.super-nova.twocolor.tip.stl`. The two- and five- color variants use "snap joints" to enable printing in multiple colors, and you will need to connect all the joints before attempting to solve the puzzle. In the two-color version, all the tips and joints are identical; just press the male connector on each tip into an indentation on of the bases. If they end up too loose, they can be reinforced with a drop of superglue (but this is usually not necessary).
+    The five-color version more involved, but it has the most satisfying final appearance. Print one copy of `coffin.nova.fivecolor.bases.stl` and one copy each of `coffin.super-nova.fivecolor.tips-1.stl` through `coffin.super-nova.fivecolor.tips-4.stl`, each in a different color. Ideally, use a neutral color (such as white or grey) for the bases.
     
-    The five-color version is the most involved, but it has the most satisfying final appearance. Print one copy each of `coffin.super-nova.fivecolor.color-1.stl` through `coffin.super-nova.fivecolor.color-5.stl`. Color 1 is used for the bodies of each piece; colors 2 through 5 for each of four different colored tips. Then connect the snap joints as described above. In the five-color version, the joints are labeled "A" through "H" (each of the four colors comes in mirror-image pairs, for a total of eight distinct types of tip).
+    The colored variant uses "snap joints" to enable printing in multiple colors, and you will need to connect all the joints before attempting to solve the puzzle. Press the male connector on each tip into an indentation on one of the bases. If they end up too loose, they can be reinforced with a drop of superglue (but this is usually not necessary). The joints are designed to be printed without supports.
     
-    The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
+    You _must_ connect the joints in the combinations shown in the second photo, or you will not get the intended color arrangement. To help keep things straight, the joints are labeled "A" through "H"; be sure to connect each male joint to a female joint of matching letter. (Each of the four colors comes in mirror-image pairs, for a total of eight distinct types of tip.)
+    
+    ${puzzlecad-boilerplate}
 
     ${stewart-coffin-bio}
 

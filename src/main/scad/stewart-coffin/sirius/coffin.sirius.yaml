@@ -12,7 +12,7 @@ description: |
     
     Print six copies of `coffin.sirius.stl`, two each in three different colors. Then assemble the pieces as shown in the third image: pair each color base with exactly one color tip, so that you wind up with three sets of two _identical_ pieces. You _must_ assemble them this way, or you will not achieve the intended color configuration.
     
-    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue (but this usually isn't necessary).
+    The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue (but this usually isn't necessary). The joints are designed to be printed without supports.
 
     ${puzzlecad-boilerplate}
 
