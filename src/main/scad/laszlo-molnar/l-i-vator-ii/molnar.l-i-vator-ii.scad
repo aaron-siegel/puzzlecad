@@ -49,7 +49,7 @@ module cap() {
     difference() {
         beveled_cube([dim, dim, box_puzzle_border]);
         translate([box_puzzle_border, box_puzzle_border, 
-        -0.01
+        -0.001
         ])
         
         cube([
@@ -61,7 +61,7 @@ module cap() {
         translate([
             box_puzzle_border + $burr_scale - $burr_inset, 
             box_puzzle_border + $burr_scale - $burr_inset,
-           -0.01
+           -0.001
         ])
       
         cube([
