@@ -35,11 +35,10 @@ module box() {
 
 module pieces() {
     burr_plate([
-        ["xx{connect=mz+x+,clabel=C}"],
-        ["x.|x{connect=fz+y-,clabel=B}."],
-        ["x{connect=mz+y-,clabel=B}xx{connect=fy+z+,clabel=C}"],
         ["x.|x{connect=fz+y-,clabel=A}."],
         ["x{connect=mz+y-,clabel=A}xx|..x"],
+        ["xx{connect=mz+x-,clabel=B}"],
+        ["xx|x.","..|x.","..|x{connect=fx-y+,clabel=B}."],
         ["xxx|..x", "x..|..."],
         ["xxx|..x"],
         [".x|xx"],
