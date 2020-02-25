@@ -20,7 +20,7 @@ dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 module box() {
     render(convexity = 2)
      difference() {
-        beveled_cube([dim, dim, dim]);
+        beveled_cube(dim, $burr_bevel = 0.5);
         translate([box_puzzle_border, box_puzzle_border, box_puzzle_border])
         cube([
             $burr_scale * 3 + $burr_inset * 2,
@@ -48,12 +48,12 @@ module box() {
 }
 module pieces() {
     burr_plate([
-        ["xx", "x.", "x."],
+        ["xxx|x.."],
         ["..x|xxx", "...|.x."],
         ["xx|.x", "..|.x"],
         ["x.|xx|.x", "..|..|.x"],
         ["xx|.x", ".x|.."],
-        [".x|xx", "..|.x", "..|.x"]
+        ["xxx|..x", "..x"]
     ], $plate_width = 160);
 }
 
@@ -67,7 +67,7 @@ module cap() {
 
         rotate([0, 0, 90])
         translate([0, 0, dim - 2 * box_puzzle_border])
-        mirror([0,1,1])
+        mirror([0, 1, 1])
         triangle();
     }
 }
@@ -82,4 +82,15 @@ module triangle() {
    cylinder(r = pin_r, h = pin_height, $fn = 32);
     
    beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border);
+}
+
+// This module is used to sanity-check that the dimensions of the box components are correctly modeled.
+// It should not be exported for printing.
+module test_assembly() {
+    box();
+    translate([dim - box_puzzle_border, dim, dim])
+    rotate([180, 0, 0])
+    cap();
+    translate([0, 80, 0])
+    pieces();
 }
