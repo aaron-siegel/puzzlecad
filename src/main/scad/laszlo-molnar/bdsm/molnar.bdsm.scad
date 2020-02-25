@@ -16,22 +16,6 @@ dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 *box();
 *pieces();
 
-module combinedSimulation() {
-    // THIS IS ONLY FOR PREVIEW, SHOULD NOT BE EXPORTED
-    box_piece();
-    translate([box_puzzle_border, dim - box_puzzle_border, dim])
-    rotate([0, -90, 0])
-    rotate([0, 0, 90])
-    box_piece();
-    translate([-dim + box_puzzle_border, dim, box_puzzle_border])
-    rotate([0, 0, -90])
-    rotate([0, 90, 0])
-    box_piece();
-    
-    translate([-120, -80, 0])
-    pieces();
-}
-
 module box () {
     box_piece();
     translate([-30, 50, 0])
@@ -81,7 +65,7 @@ module triangle_large() {
                 [box_puzzle_border, -box_puzzle_border], 
             ],
             height = box_puzzle_border);
-            translate([dim - 2*box_puzzle_border, -box_puzzle_border, box_puzzle_border])
+            translate([dim - 2 * box_puzzle_border, -box_puzzle_border, box_puzzle_border])
             rotate([-90, 0, 0])
             cornor_piece();
         }
@@ -94,7 +78,6 @@ module triangle_large() {
     }
 }
 
-
 module cornor_piece() {
     beveled_prism([
       [0, 0],
@@ -106,7 +89,6 @@ module cornor_piece() {
     height = box_puzzle_border + 0.45);
  }
 
-
 module triangle() {
    translate([box_puzzle_border * 3 / 2, 0, box_puzzle_border / 2])
    rotate([90, 0, 0])
@@ -117,4 +99,21 @@ module triangle() {
    cylinder(r = pin_r, h = pin_height, $fn = 32);
     
    beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border);
+}
+
+// This module is used to sanity-check that the dimensions of the box components are correctly modeled.
+// It should not be exported for printing.
+module test_assembly() {
+    box_piece();
+    translate([box_puzzle_border, dim - box_puzzle_border, dim])
+    rotate([0, -90, 0])
+    rotate([0, 0, 90])
+    box_piece();
+    translate([-dim + box_puzzle_border, dim, box_puzzle_border])
+    rotate([0, 0, -90])
+    rotate([0, 90, 0])
+    box_piece();
+
+    translate([-120, -80, 0])
+    pieces();
 }
