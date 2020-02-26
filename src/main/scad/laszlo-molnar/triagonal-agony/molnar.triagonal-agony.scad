@@ -81,7 +81,7 @@ module triangle() {
    rotate([90, 0, 0])
    cylinder(r = pin_r, h = pin_height, $fn = 32);
     
-   beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border);
+   beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border, $burr_bevel = 0.5);
 }
 
 // This module is used to sanity-check that the dimensions of the box components are correctly modeled.
