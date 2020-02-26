@@ -29,12 +29,12 @@ module box () {
 
 module pieces() {
     burr_plate([
-        ["xx", "x."],
+        ["xx|x"],
         ["..x|xxx", "...|.x."],
         ["xxx|..x", "x.."],
-        ["x.|xx", "x.", "x."],
+        ["xxx|..x", "...|..x"],
         [".xx|xx."],
-        [".x|xx", "..|.x", "..|.x"]
+        ["xxx|..x", "..x"]
     ], $plate_width = 160);
 }
 
@@ -67,7 +67,7 @@ module triangle_large() {
             height = box_puzzle_border);
             translate([dim - 2 * box_puzzle_border, -box_puzzle_border, box_puzzle_border])
             rotate([-90, 0, 0])
-            cornor_piece();
+            corner_piece();
         }
 
         translate([dim - box_puzzle_border * 3 / 2, -box_puzzle_border / 2, 0])
@@ -78,7 +78,7 @@ module triangle_large() {
     }
 }
 
-module cornor_piece() {
+module corner_piece() {
     beveled_prism([
       [0, 0],
       [0, box_puzzle_border],
