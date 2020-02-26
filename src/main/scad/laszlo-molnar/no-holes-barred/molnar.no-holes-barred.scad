@@ -20,7 +20,7 @@ height = $burr_scale * 3 + box_puzzle_border + $burr_inset;
 module box() {
     render(convexity = 2)
     difference() {
-        beveled_cube([dim, dim, height + box_puzzle_top_inset]);
+        beveled_cube([dim, dim, height + box_puzzle_top_inset], $burr_bevel = 0.5);
         translate([box_puzzle_border, box_puzzle_border, box_puzzle_border])
         cube([
             $burr_scale * 3 + $burr_inset * 2,
