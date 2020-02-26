@@ -20,7 +20,7 @@ far = dim - mid;
 module box() {
     render(convexity = 2)
     difference() {
-        beveled_cube([dim, dim, height]);
+        beveled_cube([dim, dim, height], $burr_bevel = 0.5);
         translate([box_puzzle_border, box_puzzle_border, box_puzzle_border])
         cube([
             $burr_scale * 3 + $burr_inset * 2,
@@ -50,7 +50,7 @@ module cap() {
         beveled_cube([dim, dim, box_puzzle_border]);
         translate([box_puzzle_border, box_puzzle_border, 
         -0.001
-        ])
+        ], $burr_bevel = 0.5)
         
         cube([
             $burr_scale * 2 + 2 * $burr_inset,
