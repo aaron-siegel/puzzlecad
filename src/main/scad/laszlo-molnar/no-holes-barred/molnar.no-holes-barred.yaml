@@ -1,0 +1,23 @@
+thing-id: 4183029
+name: "No Holes Barred - Packing puzzle by László Molnár"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [box, pieces, obstruction]
+description: |
+    Pack five pieces into an obstructed box.
+    
+    _No Holes Barred_ is one of a series of challenging packing puzzles by László Molnár. It's perhaps the easiest of the series - four of the five pieces are identical - but that definitely doesn't mean "easy"! It's a very clever design and a solid challenge, with a tricky and surprising solution. Highly recommended to both novice and experienced puzzle solvers.
+
+    Yu Chih Chang contributed models and photographs to this listing.
+
+    ### Printing Instructions
+    
+    Print one copy each of `molnar.no-holes-barred.box.stl`, `molnar.no-holes-barred.pieces.stl`, and `molnar.no-holes-barred.obstruction.stl`. Ideally, print the box in one filament color, and print the pieces and obstruction in a different color.
+    
+    Before attempting to solve the puzzle, you will need to permanently attach the obstruction (the small triangular prism) to the box. The obstruction has three alignment pins attached to it, which are designed to fit into the three indentations on the inside of the box in one way only. Put a few drops of superglue (or other adhesive) on the surface of the obstruction, then glue it onto the inside of the box so that it forms a permanent connection. Once the glue sets, you're ready to enjoy the puzzle!
+    
+    ${puzzlecad-boilerplate}
+
+    ${laszlo-molnar-bio}
+
+    Happy puzzling!

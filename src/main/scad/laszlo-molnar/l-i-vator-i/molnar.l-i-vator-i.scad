@@ -1,21 +1,23 @@
 include <puzzlecad.scad>
 
-box_puzzle_border = 6;
-
 $burr_inset = 0.125;
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
+
+box_puzzle_border = 6;
+
+// Uncomment one of the following lines to render that component.
+
+*box();
+*pieces();
+*cap();
 
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
 height = $burr_scale * 3 + box_puzzle_border + $burr_inset * 2;
 
 mid = box_puzzle_border / 2 + 0.5;
 far = dim - mid;
-    
-*box();
-*pieces();
-*cap();
 
 module box() {
     render(convexity = 2)
