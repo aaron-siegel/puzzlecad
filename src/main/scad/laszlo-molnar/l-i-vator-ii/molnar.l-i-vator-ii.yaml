@@ -1,0 +1,27 @@
+thing-id: 4183224
+name: "L-I-Vator II - Packing puzzle by László Molnár"
+tags: [puzzle, 3D_puzzle]
+images: [pieces.jpg]
+targets: [box, pieces]
+description: |
+  Pack six pieces into an obstructed box.
+
+  _L-I-Vator II_ is one of a series of challenging packing puzzles by László Molnár. This one is of intermediate difficulty by the standards of Molnár's packing puzzles, which by most other standards means "quite hard". If you're up for a challenge, it will be a fun and rewarding print.
+
+  If you like this puzzle, be sure to check out its companion design, [L-I-Vator I](https://www.thingiverse.com/thing:4183212). The two L-I-Vator puzzles use the same box, so you can print just one copy of the box to use with both sets of pieces. (If you do this, I recommend printing the two sets of pieces in different filament colors, to avoid confusion.) Several other Molnár designs are published in our [László Molnár puzzles](https://www.thingiverse.com/asiegel/collections/laszlo-molnar-puzzles) collection.
+
+  Yu Chih Chang contributed models and photographs to this listing.
+
+  ### Printing Instructions
+
+  Print one copy each of `molnar.l-i-vator-ii.box.stl`, `molnar.l-i-vator-ii.cap.stl`, and `molnar.l-i-vator-ii.pieces.stl`. Ideally, print the box in one filament color and the pieces in a different color. The cap may be printed in the same color as the box, or optionally in a third color.
+
+  This print uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ${box-assembly-boilerplate}
+
+  ${puzzlecad-boilerplate}
+
+  ${laszlo-molnar-bio}
+
+  Happy puzzling!
