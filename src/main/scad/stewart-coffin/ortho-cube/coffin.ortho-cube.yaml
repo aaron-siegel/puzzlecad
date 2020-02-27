@@ -1,0 +1,34 @@
+thing-id: 3352735
+name: "Ortho-Cube - Interlocking puzzle by Stewart Coffin (STC #1)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg, solid-assembled.jpg]
+targets: [multi_color_1, multi_color_2, multi_color_3, solid_color_1, solid_color_2, solid_color_3]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'smaller', code: '$burr_scale = 11.5; $burr_bevel = 0.5;', targets: [solid_color_1, solid_color_2, solid_color_3]}
+description: |
+    Assemble the twelve pieces into a 5x5x5 cube with holes on its faces, as shown in the cover photo.
+    
+    This is Stewart Coffin's first published design: STC #1. But don't be fooled! Though it's his first, it's a genuine masterpiece, one of many Coffin would go on to produce. The solution is intricate and surprising, and the assembled puzzle has a striking appearance.
+    
+    Coffin originally created this design in 1970, and over the years it's been published under other names as well, including _The Cube_ and _Wookey Hole_. For the listing title, we use Coffin's original name, _Ortho-Cube_.
+    
+    UPDATED February 2020 with a new design and larger size.
+
+    ### Printing Instructions
+    
+    Two versions are provided, a multi-color version and a solid-color version. The solid-color version can be printed in multiple colors as well (details below); the difference is that in the solid version, each _piece_ will be a single solid color. This makes the solid version easier to print, but the multi-color version has an especially striking appearance.
+    
+    To print the multi-color variant, print four copies each of `coffin.ortho-cube.multi-color-1.stl` through `coffin.ortho-cube.multi-color-3.stl`. Color 1 forms the body of the puzzle (off-white in the photo), color 2 is used for the corner cubes (brown in the photo), and color 3 is used for the edge cubes (red in the photo).
+    
+    To print the solid-color variant, print four copies each of `coffin.ortho-cube.solid-color-1.stl` through `coffin.ortho-cube.solid-color-3.stl`. You can print each in a different color if you like, but you will get a different pattern from the multi-color one. One of the photos shows an example of the solid variant printed in three contrasting colors.
+
+    I've also included a smaller version of the solid variant, `coffin.ortho-cube.solid-color-1-smaller.stl` through `coffin.ortho-cube-solid-color-3-smaller.stl`, which will use around half as much material.
+    
+    Both variants use "snap joints" to enable each piece to be printed without supports. ${snap-joints-boilerplate}
+
+    ${puzzlecad-boilerplate}
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!

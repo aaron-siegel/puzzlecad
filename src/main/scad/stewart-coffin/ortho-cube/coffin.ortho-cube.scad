@@ -1,58 +1,76 @@
 include <puzzlecad.scad>
 
-*solid_colors();
-*color1();
-*color2();
-*color3();
+// Uncomment one of the following lines to render that component.
+
+*multi_color_1();
+*multi_color_2();
+*multi_color_3();
+*solid_color_1();
+*solid_color_2();
+*solid_color_3();
 
 $burr_scale = 14.5;
-$burr_inset = 0.06;
+$burr_inset = 0.07;
 $burr_bevel = 1;
-
-module solid_colors() {
-    
-    burr_plate([
-        ["x..|xxx{connect=mz+,clabel=Ay-}"], ["..x{connect=fz+,clabel=Ay-}|xxx","...|x.."],
-        ["x..|xxx{connect=mz+,clabel=By-}"], ["x{connect=fz-,clabel=By-}..|xxx","...|..x"],
-        ["xxx{connect=mz+,clabel=Cy-}|x.."], ["..x{connect=fz+,clabel=Cy-}|xxx"]
-    ]);
-    
-}
 
 // Main color:
 
-module color1() {
+module multi_color_1() {
     
     burr_plate([
-        ["xxx{connect=fy-,clabel=Az-,ctaper=z+}"],
-        ["xxx{connect=fz+,clabel=By-,ctaper=y+}|x{connect=mz+,clabel=Ay+,ctaper=y-}.."],
-        ["x{connect=fy-,clabel=Ez-,ctaper=z+}xx{connect=fz+,clabel=Cy-,ctaper=y+}"],
-        ["..x{connect=mz+,clabel=Ey+,ctaper=y-}|x{connect=fz+,clabel=Dy-,ctaper=y+}xx"],
-        ["x{connect=fy-,clabel=Gz-,ctaper=z+}xx{connect=fz+,clabel=Fy-,ctaper=y+}"],
-        ["..x{connect=mz+,clabel=Gy+,ctaper=y-}|x{connect=fz-,clabel=Hy-,ctaper=y+}xx"]
+        ["xxx{connect=fy-z+,clabel=A}"],
+        ["xxx{connect=fz+y+,clabel=B}|x{connect=mz+y-,clabel=A}.."],
+        ["x{connect=fy-z+,clabel=E}xx{connect=fz+y+,clabel=C}"],
+        ["..x{connect=mz+y-,clabel=E}|x{connect=fz+y+,clabel=D}xx"],
+        ["x{connect=fy-z+,clabel=G}xx{connect=fz+y+,clabel=F}"],
+        ["..x{connect=mz+y-,clabel=G}|x{connect=fz-y+,clabel=H}xx"]
     ]);
     
 }
 
 // Corner color:
 
-module color2() {
+module multi_color_2() {
     
     burr_plate([
-        ["x{connect=mz+,clabel=By-,ctaper=y+}"],
-        ["x{connect=mz+,clabel=Dy-,ctaper=y+}"]
+        ["x{connect=mz+y+,clabel=B}"],
+        ["x{connect=mz+y+,clabel=D}"]
     ]);
     
 }
 
 // Edge color:
 
-module color3() {
+module multi_color_3() {
     
     burr_plate([
-        ["x{connect=mz+,clabel=Cy-,ctaper=y+}"],
-        ["x{connect=mz+,clabel=Fy-,ctaper=y+}"],
-        ["x{connect=mz+,clabel=Hy-,ctaper=y+}"]
+        ["x{connect=mz+y+,clabel=C}"],
+        ["x{connect=mz+y+,clabel=F}"],
+        ["x{connect=mz+y+,clabel=H}"]
+    ]);
+    
+}
+
+module solid_color_1() {
+    
+    burr_plate([
+        ["x..|xxx{connect=mz+y+,clabel=A}"], ["..x{connect=fz+y+,clabel=A}|xxx","...|x.."]
+    ]);
+    
+}
+
+module solid_color_2() {
+    
+    burr_plate([
+        ["x..|xxx{connect=mz+y+,clabel=B}"], ["x{connect=fz-y+,clabel=B}..|xxx","...|..x"]
+    ]);
+    
+}
+
+module solid_color_3() {
+    
+    burr_plate([
+        ["xxx{connect=mz+y+,clabel=C}|x.."], ["..x{connect=fz+y+,clabel=C}|xxx"]
     ]);
     
 }
