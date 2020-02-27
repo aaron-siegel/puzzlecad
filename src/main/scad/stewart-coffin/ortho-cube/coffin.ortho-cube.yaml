@@ -1,7 +1,7 @@
 thing-id: 3352735
 name: "Ortho-Cube - Interlocking puzzle by Stewart Coffin (STC #1)"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg, solid-assembled.jpg]
+images: [assembled-alt.jpg, pieces.jpg, solid-assembled.jpg]
 targets: [multi_color_1, multi_color_2, multi_color_3, solid_color_1, solid_color_2, solid_color_3]
 configurations:
     - {name: '', code: '', targets: ''}
