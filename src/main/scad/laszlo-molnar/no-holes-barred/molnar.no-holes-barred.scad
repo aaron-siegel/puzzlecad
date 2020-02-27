@@ -1,24 +1,26 @@
 include <puzzlecad.scad>
 
-box_puzzle_border = 6;
-box_puzzle_top_inset = 1;
-
 $burr_inset = 0.125;
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
 
-dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
-height = $burr_scale * 3 + box_puzzle_border + $burr_inset;
+box_puzzle_border = 6;
+box_puzzle_top_inset = 1;
+
+// Uncomment one of the following lines to render that component.
 
 *box();
 *pieces();
-*piece_triangle();
+*obstruction();
+
+dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
+height = $burr_scale * 3 + box_puzzle_border + $burr_inset;
 
 module box() {
     render(convexity = 2)
     difference() {
-        beveled_cube([dim, dim, height + box_puzzle_top_inset]);
+        beveled_cube([dim, dim, height + box_puzzle_top_inset], $burr_bevel = 0.5);
         translate([box_puzzle_border, box_puzzle_border, box_puzzle_border])
         cube([
             $burr_scale * 3 + $burr_inset * 2,
@@ -50,7 +52,7 @@ module pieces() {
     ], $plate_width = 160);
 }
 
-module piece_triangle() {
+module obstruction() {
    burr_plate([
        ["x{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}"]
    ]);
