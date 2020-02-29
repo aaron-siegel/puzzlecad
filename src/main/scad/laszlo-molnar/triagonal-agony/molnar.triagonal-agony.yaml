@@ -4,21 +4,19 @@ tags: [puzzle, 3D_puzzle]
 images: [pieces.jpg]
 targets: [box, pieces]
 description: |
-  Pack six pieces into a box with two curious triangular openings.
+  Pack six pieces into a box with two curiously shaped triangular openings.
 
   _Triagonal Agony_ is one of a series of challenging packing puzzles by László Molnár. This one is quite hard. You have been warned! If you want a gentler introduction to Molnár's puzzles, check out our recommendations in the [László Molnár puzzles](https://www.thingiverse.com/asiegel/collections/laszlo-molnar-puzzles) collection.
 
-  There are actually three _Triagonal Agony_ puzzles that all use the same box. All three are provided here. _Triagonal Agony 2_ is the one that has traditionally been published under the name "Triagonal Agony", and _Triagonal Agony 1_ and _Triagonal Agony 3_ are made available here for the first time! They all use the same box, so if you like, you can print just one copy of the box to use with all three sets of pieces. (If you do this, I recommend printing each set of pieces in a different filament color, to avoid confusion.)
+  There are actually three _Triagonal Agony_ puzzles that all use the same box. All three are included here. _Triagonal Agony 2_ is the one that has traditionally been published under the name "Triagonal Agony", and _Triagonal Agony 1_ and _Triagonal Agony 3_ are made available here for the first time! They all use the same box, so if you like, you can print just one copy of the box to use with all three sets of pieces. (If you do this, I recommend printing each set of pieces in a different filament color, to avoid confusion.) Triagonal Agony 1 is a bit easier than the others, since two of its pieces are non-unique.
 
   Yu Chih Chang contributed models and photographs to this listing.
 
   ### Printing Instructions
 
-  Print one copy each of `molnar.triagonal-agony.box.stl`, `molnar.triagonal-agony.cap.stl`, and `molnar.triagonal-agony.pieces.stl`. Ideally, print the box in one filament color and the pieces in a different color. The cap will look best if printed in the same color as the box.
+  Print one copy each of `molnar.triagonal-agony.box.stl`, `molnar.triagonal-agony.cap.stl`, and `molnar.triagonal-agony.pieces-version-2.stl` (or whichever variant you choose). Ideally, print the box in one filament color and the pieces in a different color. The cap will look best if printed in the same color as the box.
 
-  This print uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
-
-  You will also need to assemble the box before attempting to solve the puzzle. To assemble the box, simply snap the four circular pins on the side of the cap into the indentations on the box frame. The cap should snap securely into place; no glue is required for this assembly.
+  You will need to assemble the box before attempting to solve the puzzle. To assemble the box, simply snap the four circular pins on the side of the cap into the indentations on the box frame. The cap should snap securely into place; no glue is required for this assembly.
 
   ${puzzlecad-boilerplate}
 
