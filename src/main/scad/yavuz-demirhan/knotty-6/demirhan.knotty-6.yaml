@@ -1,0 +1,25 @@
+thing-id: 4191469
+name: "Knotty 6 - Interlocking puzzle by Yavuz Demirhan"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [piece, alternate_piece, inscribed_piece]
+description: |
+    Assemble six identical pieces into the symmetric shape shown in the cover photo.
+
+    _Knotty 6_ is a lovely, elegant design. Six pieces all have the same flat, simple shape, yet they interlock in a surprising way. As a puzzle it's not difficult; it's also extremely easy to print, so I can recommend it to anyone who might be interested, regardless of experience level with puzzles or 3D printing.
+
+    A variant is included (see instructions below) in which one of the pieces is unlike the others. In addition to the basic _Knotty 6_ shape, the variant pieces can form an alternate assembly, as shown in the second photo.
+
+    ### Printing Instructions
+    
+    Print six copies of `demirhan.knotty-6.piece.stl`. To get the color configuration shown, print two copies in each of three colors.
+
+    To print the variant, substitute `demirhan.knotty-6.alternate-piece.stl` for one of the six copies: that is, print five copies of `demirhan.knotty-6.piece.stl` and one copy of `demirhan.knotty-6.alternate-piece.stl`. (If you've already printed the original version, then you can print just the one extra piece and use it interchangeably with five of the originals.)
+    
+    Finally, you may optionally substitute `demirhan.knotty-6.inscribed-piece.stl` for one of the pieces. The difference is purely aesthetic; `inscribed-piece` has the name of the puzzle and designer printed on it, as shown in the photos.
+    
+    ${puzzlecad-boilerplate}
+
+    ${yavuz-demirhan-bio}
+
+    Happy puzzling!
