@@ -7,19 +7,56 @@ $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
 
+// Uncomment one of the following lines to render that component.
+
+*pieces_version_1();
+*pieces_version_2();
+*pieces_version_3();
+*box();
+*cap();
+
 pin_height = 1.0;
 pin_r = 1.6;
 pin_hole_inset = 0.2;
 
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
-    
-*box();
-*pieces();
-*cap();
+
+module pieces_version_1() {
+    burr_plate([
+        ["xxx|..x", "..x"],
+        ["xxx|..x", "..x"],
+        ["..x|xxx", "...|.x."],
+        ["xx|.x", "..|.x"],
+        ["xx|.x", "..|.x"],
+        ["xxx|x.."]
+    ], $plate_width = 160);
+}
+
+module pieces_version_2() {
+    burr_plate([
+        ["xxx|x.."],
+        ["..x|xxx", "...|.x."],
+        ["xx|.x", "..|.x"],
+        ["x.|xx|.x", "..|..|.x"],
+        ["xx|.x", ".x|.."],
+        ["xxx|..x", "..x"]
+    ], $plate_width = 160);
+}
+
+module pieces_version_3() {
+    burr_plate([
+        ["xxx|..x", "..x"],
+        ["x..|xxx", "...|..x"],
+        ["xxx|..x", "...|..x"],
+        ["xxx|.x."],
+        ["xx|.x", ".x|.."],
+        ["xx|x.", "..|x."]
+    ], $plate_width = 160);
+}
 
 module box() {
     render(convexity = 2)
-     difference() {
+    difference() {
         beveled_cube(dim, $burr_bevel = 0.5);
         translate([box_puzzle_border, box_puzzle_border, box_puzzle_border])
         cube([
@@ -44,17 +81,7 @@ module box() {
         translate([dim - box_puzzle_border, dim - box_puzzle_border / 2, 2 * box_puzzle_border])
         rotate([0, 90, 0])
         cylinder(r = pin_r + pin_hole_inset, h = pin_height + pin_hole_inset, $fn = 32); 
-     }
-}
-module pieces() {
-    burr_plate([
-        ["xxx|x.."],
-        ["..x|xxx", "...|.x."],
-        ["xx|.x", "..|.x"],
-        ["x.|xx|.x", "..|..|.x"],
-        ["xx|.x", ".x|.."],
-        ["xxx|..x", "..x"]
-    ], $plate_width = 160);
+    }
 }
 
 module cap() {
@@ -73,15 +100,15 @@ module cap() {
 }
 
 module triangle() {
-   translate([dim - 2 * box_puzzle_border, 0, box_puzzle_border / 2])
-   rotate([90, 0, 0])
-   cylinder(r = pin_r, h = pin_height, $fn = 32);
+    translate([dim - 2 * box_puzzle_border, 0, box_puzzle_border / 2])
+    rotate([90, 0, 0])
+    cylinder(r = pin_r, h = pin_height, $fn = 32);
     
-   translate([box_puzzle_border / 2, 0, box_puzzle_border / 2])
-   rotate([90, 0, 0])
-   cylinder(r = pin_r, h = pin_height, $fn = 32);
+    translate([box_puzzle_border / 2, 0, box_puzzle_border / 2])
+    rotate([90, 0, 0])
+    cylinder(r = pin_r, h = pin_height, $fn = 32);
     
-   beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border, $burr_bevel = 0.5);
+    beveled_prism([[0, 0], [0, dim - 2 * box_puzzle_border], [box_puzzle_border, dim - 2 * box_puzzle_border], [dim - box_puzzle_border, 0]], height = box_puzzle_border, $burr_bevel = 0.5);
 }
 
 // This module is used to sanity-check that the dimensions of the box components are correctly modeled.
