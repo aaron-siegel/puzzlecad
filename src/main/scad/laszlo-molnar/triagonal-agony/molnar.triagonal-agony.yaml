@@ -1,7 +1,7 @@
 thing-id: 4185288
 name: "Triagonal Agony - Packing puzzle by László Molnár"
 tags: [puzzle, 3D_puzzle]
-images: [pieces.jpg]
+images: [assembled.jpg, pieces.jpg]
 targets: [box, pieces]
 description: |
   Pack six pieces into a box with two curiously shaped triangular openings.

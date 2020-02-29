@@ -16,8 +16,6 @@ description: |
 
   Print one copy each of `molnar.l-i-vator-ii.box.stl`, `molnar.l-i-vator-ii.cap.stl`, and `molnar.l-i-vator-ii.pieces.stl`. Ideally, print the box in one filament color and the pieces in a different color. The cap may be printed in the same color as the box, or optionally in a third color.
 
-  This print uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
-
   ${box-assembly-boilerplate}
 
   ${puzzlecad-boilerplate}
