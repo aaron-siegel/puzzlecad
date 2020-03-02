@@ -3,18 +3,23 @@ name: "Triumph - Interlocking puzzle by Stewart Coffin (STC #15)"
 tags: [puzzle, 3D_puzzle]
 images: [assembly-A.jpg, assembly-B.jpg, assembly-C.jpg, pieces.jpg]
 targets: [bases, tips]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'larger', code: '$burr_scale = 32;', targets: ''}
 description: |
-  _Triumph_ is a clever Stewart Coffin design: six pieces in three mirror-image pairs assemble in various ways to form interesting polyhedral structures. In Coffin's words:
+  _Triumph_ is a clever design by Stewart Coffin: six pieces in three mirror-image pairs assemble in various ways to form interesting polyhedral structures. In Coffin's words:
 
   "Wouldn’t it be fun to have an interlocking puzzle that could be assembled different ways to form several different geometric shapes? With some effort and perhaps a little confusion, Triumph can be assembled into any one of three different polyhedral shapes, all having a three-fold axis of symmetry, as well as into many other nondescript shapes."
 
-  Two of those three shapes are shown in the photo, one of them in two different color configurations. I'll leave it to the reader to find the third! If you enjoy _Triumph_, be sure to check out its sequel [Triumph Companion](https://www.thingiverse.com/thing:4195866) as well.
+  Two of those three shapes are shown in the photos (one of them in two distinct color configurations). I'll leave it to the reader to find the third! If you enjoy _Triumph_, be sure to check out its sequel [Triumph Companion](https://www.thingiverse.com/thing:4195866) as well.
 
   ### Printing Instructions
 
   Print three copies each of `coffin.triumph.bases.stl` and `coffin.triumph.tips.stl`. Use one filament color for the bases and a different filament color for the tips.
 
-  This puzzle uses "snap joints" so that it can be printed in multiple colors. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior). If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
+  This puzzle uses "snap joints" so that it can be printed in multiple colors. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, each male connector labeled "A" should connect to a female connector with a matching "A" label on the interior). If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
+
+  Optionally, you may print `coffin.triumph.bases-larger.stl` and `coffin.triumph.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
 
   ${puzzlecad-boilerplate}
 

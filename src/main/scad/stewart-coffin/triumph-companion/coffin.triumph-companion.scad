@@ -3,7 +3,6 @@ include <puzzlecad.scad>
 $burr_scale = 32;
 $burr_inset = 0.13;     // Use 0.11 for a tighter fit
 $burr_bevel = 0.6;
-$plate_width = 120;
 $post_rotate = [0, 45, 0];
 
 *bases();
@@ -12,10 +11,10 @@ $post_rotate = [0, 45, 0];
 module bases() {
 
     burr_plate([
-        ["x{components=y+z+,connect=dmy+z+,clabel=A}.|x{components={z+,y-z+,y+z+}}.|x{components={y-z+,z+y-,z+x+}}.",
-         "..|x{components=z-}.|x{components={z-y-,z-x+,x+z-}}x{components=x-z-}"],
-        ["x{components={y+z+,z+y+,z+x+}}.|x{components={z+,y-z+,y+z+}}.|x{components=y-z+,connect=dmy-z+,clabel=B}.",
-         "x{components={z-y+,z-x+,x+z-}}x{components=x-z-}|x{components=z-}.|.."]
+        [".x{components=y+z+,connect=dmy+z+,clabel=A}.|.x{components={z+,y-z+,y+z+}}.|.x{components={z+,y-z+}}.",
+         "...|.x{components=z-}.|x{components=x+z-}x{components={z-,x-z-,x+z-}}x{components=x-z-}"],
+        [".x{components={z+,y+z+}}.|.x{components={z+,y-z+,y+z+}}.|.x{components=y-z+,connect=dmy-z+,clabel=B}.",
+         "x{components=x+z-}x{components={z-,x-z-,x+z-}}x{components=x-z-}|.x{components=z-}.|..."]
     ]);
     
 }
