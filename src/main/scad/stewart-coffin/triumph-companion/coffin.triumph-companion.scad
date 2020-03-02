@@ -11,10 +11,10 @@ $post_rotate = [0, 45, 0];
 module bases() {
 
     burr_plate([
-        ["x{components=y+z+,connect=dmy+z+,clabel=A}.|x{components={z+,y-z+,y+z+}}.|x{components={y-z+,z+y-,z+x+}}.",
-         "..|x{components=z-}.|x{components={z-y-,z-x+,x+z-}}x{components=x-z-}"],
-        ["x{components={y+z+,z+y+,z+x+}}.|x{components={z+,y-z+,y+z+}}.|x{components=y-z+,connect=dmy-z+,clabel=B}.",
-         "x{components={z-y+,z-x+,x+z-}}x{components=x-z-}|x{components=z-}.|.."]
+        [".x{components=y+z+,connect=dmy+z+,clabel=A}.|.x{components={z+,y-z+,y+z+}}.|.x{components={z+,y-z+}}.",
+         "...|.x{components=z-}.|x{components=x+z-}x{components={z-,x-z-,x+z-}}x{components=x-z-}"],
+        [".x{components={z+,y+z+}}.|.x{components={z+,y-z+,y+z+}}.|.x{components=y-z+,connect=dmy-z+,clabel=B}.",
+         "x{components=x+z-}x{components={z-,x-z-,x+z-}}x{components=x-z-}|.x{components=z-}.|..."]
     ]);
     
 }
