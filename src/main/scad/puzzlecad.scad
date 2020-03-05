@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0b2";
+puzzlecad_version = "2.0b3";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -1664,8 +1664,7 @@ function copies(n, burr) = n == 0 ? [] : concat(copies(n-1, burr), [burr]);
 
 function make_poly(faces) =
     let (merged_faces = merge_coplanar_faces(remove_degeneracies(faces)))
-    let (normalized_faces = [ for (f = merged_faces) remove_face_degeneracies(remove_collinear_points(merged_faces, f)) ])
-    make_poly_2(remove_degeneracies(normalized_faces));
+    make_poly_2(remove_degeneracies(merged_faces));
     
 function make_poly_2(faces) =
     let (points = flatten(faces))
@@ -1675,8 +1674,11 @@ function make_poly_2(faces) =
     remove_unused_vertices(point_index, reordered_faces);
     
 function remove_degeneracies(faces) =
-    let (simplified_faces = [ for (f = faces) remove_face_degeneracies(f) ])
-    [ for (f = simplified_faces) if (len(f) > 0) f ];
+    let (simplified_faces_1 = [ for (f = faces) remove_face_degeneracies(f) ])
+    let (simplified_faces_2 = [ for (f = simplified_faces_1) remove_collinear_points(simplified_faces_1, f) ])
+    let (simplified_faces_3 = [ for (f = simplified_faces_2) if (len(f) > 0) f ])
+      faces == simplified_faces_3 ? faces               // No reductions happened
+    : remove_degeneracies(simplified_faces_3);          // Something changed, so iterate
     
 function remove_face_degeneracies(face) =
     let (reduced_face = remove_face_degeneracies_once(face))
@@ -1725,7 +1727,6 @@ function face_contains_point(face, point, i = 0) =
     : face_contains_point(face, point, i + 1);
     
 function merge_coplanar_faces(faces) =
-//    let (simplified_faces = [ for (f = faces) remove_collinear_points(faces, f) ])
     let (merged_faces = remove_degeneracies(merge_coplanar_faces_once(faces)))
       len(faces) == len(merged_faces) ? merged_faces    // No mergers happened
     : merge_coplanar_faces(merged_faces);               // Something changed, so iterate
