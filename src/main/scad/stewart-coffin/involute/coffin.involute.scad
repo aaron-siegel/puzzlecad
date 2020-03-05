@@ -13,6 +13,7 @@ $burr_bevel = 1.2;
 *color_2();
 *color_3();
 *color_4();
+*tighter_key_piece();
 
 module color_1() {
 
@@ -119,4 +120,8 @@ module piece_8() {
     burr_plate([
         ["aa|.b"] // 2
     ]);
+}
+
+module tighter_key_piece() {
+    piece_8($burr_inset = 0.01);
 }
