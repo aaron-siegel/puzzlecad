@@ -54,17 +54,18 @@ public class XmpuzzleToScad {
         for (int i = 0; i < shapesNode.getChildNodes().getLength(); i++) {
             Node node = shapesNode.getChildNodes().item(i);
             if (node.getNodeName().equals("voxel")) {
+                String shapeName = "S" + (pieceNumber + 1);
                 if (resultIds.contains(pieceNumber)) {
-                    System.out.println("Skipping  shape #" + pieceNumber + ", which is used as a problem result. Re-run with --all if you want to generate it.");
+                    System.out.println(" Skipped  shape " + shapeName + ", which is used as a problem result. Re-run with --all if you want to generate it.");
                 } else {
                     int x = Integer.parseInt(node.getAttributes().getNamedItem("x").getNodeValue());
                     int y = Integer.parseInt(node.getAttributes().getNamedItem("y").getNodeValue());
                     int z = Integer.parseInt(node.getAttributes().getNamedItem("z").getNodeValue());
                     int[][][] array = xmpuzzleToArray(gridType, x, y, z, node.getTextContent());
                     if (array.length == 0) {
-                        System.out.println("Skipping  shape #" + pieceNumber + " (no voxels).");
+                        System.out.println(" Skipped  shape " + shapeName + " (no voxels).");
                     } else {
-                        System.out.println("Generated shape #" + pieceNumber + " (" + x + "x" + y + "x" + z + ").");
+                        System.out.println("Generated shape " + shapeName + " (" + x + "x" + y + "x" + z + ").");
                         pieces.add(array);
                     }
                 }
