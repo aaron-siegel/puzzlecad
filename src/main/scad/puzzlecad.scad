@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0b2";
+puzzlecad_version = "2.0b3";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -1664,19 +1664,23 @@ function copies(n, burr) = n == 0 ? [] : concat(copies(n-1, burr), [burr]);
 
 function make_poly(faces) =
     let (merged_faces = merge_coplanar_faces(remove_degeneracies(faces)))
-    let (normalized_faces = [ for (f = merged_faces) remove_face_degeneracies(remove_collinear_points(merged_faces, f)) ])
-    make_poly_2(remove_degeneracies(normalized_faces));
+    make_poly_2(remove_degeneracies(merged_faces));
     
 function make_poly_2(faces) =
     let (points = flatten(faces))
     let (point_index = make_point_index(quicksort_points(points)))
     let (mapped_faces = [ for (f=faces) [ for (p=f) index_of_point(point_index, p) ] ])
     let (reordered_faces = reorder_faces(mapped_faces))
-    remove_unused_vertices(point_index, reordered_faces);
+    let (result = remove_unused_vertices(point_index, reordered_faces))
+    let (dummy_var = validate_manifold(result[0], result[1]))
+    result;
     
 function remove_degeneracies(faces) =
-    let (simplified_faces = [ for (f = faces) remove_face_degeneracies(f) ])
-    [ for (f = simplified_faces) if (len(f) > 0) f ];
+    let (simplified_faces_1 = [ for (f = faces) remove_face_degeneracies(f) ])
+    let (simplified_faces_2 = [ for (f = simplified_faces_1) remove_collinear_points(simplified_faces_1, f) ])
+    let (simplified_faces_3 = [ for (f = simplified_faces_2) if (len(f) > 0) f ])
+      faces == simplified_faces_3 ? faces               // No reductions happened
+    : remove_degeneracies(simplified_faces_3);          // Something changed, so iterate
     
 function remove_face_degeneracies(face) =
     let (reduced_face = remove_face_degeneracies_once(face))
@@ -1723,41 +1727,87 @@ function face_contains_point(face, point, i = 0) =
       i >= len(face) ? false
     : norm(point - face[i]) < $poly_err_tolerance ? true
     : face_contains_point(face, point, i + 1);
-    
+
+// merge_coplanar_faces: find opportunities to merge adjacent coplanar faces, and iterate
+// until reaching a state where no such opportunities exist.
+
 function merge_coplanar_faces(faces) =
-//    let (simplified_faces = [ for (f = faces) remove_collinear_points(faces, f) ])
     let (merged_faces = remove_degeneracies(merge_coplanar_faces_once(faces)))
       len(faces) == len(merged_faces) ? merged_faces    // No mergers happened
     : merge_coplanar_faces(merged_faces);               // Something changed, so iterate
-    
+
 function merge_coplanar_faces_once(faces, i = 0) =
       i >= len(faces) ? faces
     : ( let (face_normal = polygon_normal(faces[i]))
-        let (coplanar_face_info = first_coplanar_face(faces, i, face_normal, i+1))
-        is_undef(coplanar_face_info) ? merge_coplanar_faces_once(faces, i+1)
-          : let (coplanar_index = coplanar_face_info[0])
+        let (amalgamated_face_info = find_mergeable_face(faces, i, face_normal, i+1))
+        is_undef(amalgamated_face_info) ? merge_coplanar_faces_once(faces, i+1)
+          : // We found a way to merge another face with face i.
+            let (coplanar_index = amalgamated_face_info[0])
             assert(coplanar_index > i)
-            let(amalgamated_face = coplanar_face_info[1])
+            let(amalgamated_face = amalgamated_face_info[1])
+            // Remove face coplanar_index from the list, and replace face i with the amalgamated face.
             merge_coplanar_faces_once(replace_in_list(remove_from_list(faces, coplanar_index), i, amalgamated_face), i)
        );
 
-function first_coplanar_face(faces, face_index, face_normal, j) =
+// find_merageable_face: find an adjacent coplanar face that can be merged with face face_index.
+// If such a face is found, return [j, amalgam], where j is the index of the face to be merged
+// and amalgam is the amalgamated face.
+
+// To determine eligibility of the merge, a complex set of conditions must be evaluated. This is
+// to ensure that the simplified polyhedron continues to meet OpenSCAD's fairly strict manifoldness
+// requirements.
+
+// First, we compute the surface normals and d-values of the two faces. (The d-value is equal to
+// unit_vector(normal) * p, where p is any point on the polygon; two polygons lie on the same plane
+// just if they have the same normal and d-value.)
+
+// Then, two faces are mergeable provided that each of the following conditions holds:
+// 1. *Either* they have the same normal and d-value, *or* one of the faces is degenerate (meaning
+//    all its points are collinear).
+// 2. The faces share at least one edge, but do not share multiple *nonconsecutive* edges. (If they
+//    do, then merging them would yield a non-simply-connected face.)
+// 3. Once the faces are merged, and after removing degeneracies from the amalgam, no vertex
+//    appears in the amalgam more than once. (If a vertex does appear more than once, then the
+//    amalgamated face has an interior cycle, which violates manifoldness.)
+
+function find_mergeable_face(faces, face_index, face_normal, j) =
+
       j >= len(faces) ? undef
+
     : ( let (face1 = faces[face_index],
              face2 = faces[j],
              face2_normal = polygon_normal(faces[j]),
              face1_d = unit_vector(face_normal) * face1[0],
              face2_d = unit_vector(face2_normal) * face2[0])
-        norm(face_normal) >= $poly_err_tolerance && norm(face2_normal) >= $poly_err_tolerance &&
-        (norm(unit_vector(face_normal) - unit_vector(face2_normal)) >= $poly_err_tolerance ||
-         abs(face1_d - face2_d) >= $poly_err_tolerance)
-          ? first_coplanar_face(faces, face_index, face_normal, j+1)
-          : let (indices = edge_pair_indices(face1, face2))
+             
+        // Check condition 1. If either face is degenerate, or if they have the same normal and
+        // d-value, then we can proceed.
+        norm(face_normal) < $poly_err_tolerance || norm(face2_normal) < $poly_err_tolerance ||
+        (norm(unit_vector(face_normal) - unit_vector(face2_normal)) < $poly_err_tolerance &&
+         abs(face1_d - face2_d) < $poly_err_tolerance)
+         
+          ? let (indices = edge_pair_indices(face1, face2))
+          
+            // Check condition 2. If the faces share at least one edge, and all the shared edges
+            // are consecutive along the face-cycle, then we can proceed.
             len(indices) > 0
                 && are_indices_cyclically_consecutive(len(face1), [ for (epi = indices) epi[0] ])
                 && are_indices_cyclically_consecutive(len(face2), [ for (epi = indices) epi[1] ])
-            ? [j, amalgamate_faces(face1, face2, indices[0])]
-            : first_coplanar_face(faces, face_index, face_normal, j+1)
+                    
+            ? let (amalgam = remove_face_degeneracies(amalgamate_faces(face1, face2, indices[0])))
+              let (sorted_vertices = quicksort_points(amalgam))
+              let (duplicate_vertex = find_duplicate(sorted_vertices))
+                
+                // Check condition 3. If there are no duplicate vertices in the amalgamated face,
+                // then we've found a valid merge. Return the amalgam.
+                is_undef(duplicate_vertex) ? [j, amalgam]
+                
+         // If any of the conditions failed, then try the next face.
+                
+                : find_mergeable_face(faces, face_index, face_normal, j + 1)
+            : find_mergeable_face(faces, face_index, face_normal, j + 1)
+          : find_mergeable_face(faces, face_index, face_normal, j + 1)
+
       );
 
 function amalgamate_faces(face1, face2, indices) =
@@ -1833,6 +1883,15 @@ function minarg(list, i=0, current_min=undef, current_minarg=undef) =
     : is_undef(current_min) || list[i] < current_min ? minarg(list, i+1, list[i], i)
     : minarg(list, i+1, current_min, current_minarg);
 
+function quicksort_integers(ints) = len(ints) == 0 ? [] : let(
+    pivot   = ints[floor(len(ints)/2)],
+    lesser  = [ for (y = ints) if (y < pivot) y ],
+    equal   = [ for (y = ints) if (y == pivot) y ],
+    greater = [ for (y = ints) if (y > pivot) y ]
+) concat(
+    quicksort_integers(lesser), equal, quicksort_integers(greater)
+);
+
 function quicksort_points(points) = len(points) == 0 ? [] : let(
     pivot   = points[floor(len(points)/2)],
     lesser  = [ for (y = points) if (compare_points(y, pivot) <= -$poly_err_tolerance) y ],
@@ -1864,36 +1923,47 @@ function compare_scalar_lists(a, b, i=0) =
 
 // TODO This checks for edge-validity, but not corner-validity
     
-function is_manifold(points, faces) =
+non_manifold_surface_err = "Non-manifold surface! This could be a bug in puzzlecad.";
+
+function validate_manifold(points, faces) =
     let (
         all_edges = [ for (f = faces, i = [0:len(f)-1]) [ f[i], f[(i+1) % len(f)] ] ],
         sorted_edges = quicksort_scalar_lists(all_edges),
         reversed_edges = [ for (edge = all_edges) [ edge[1], edge[0] ] ],
         sorted_reversed_edges = quicksort_scalar_lists(reversed_edges)
     )
-    !contains_duplicate(sorted_edges) &&
-        sorted_edges == sorted_reversed_edges &&
-        !contains_degenerate_face(points, faces);
+    let (duplicate_edge = find_duplicate(sorted_edges))
+    assert(is_undef(duplicate_edge), str(non_manifold_surface_err, " Duplicate edge: ", sorted_edges[duplicate_edge]))
+    assert(sorted_edges == sorted_reversed_edges, str(non_manifold_surface_err, " There are unpaired edge(s)."))
+    let (degenerate_face = find_degenerate_face(points, faces))
+    assert(is_undef(degenerate_face), str(non_manifold_surface_err, " Degenerate face: ", degenerate_face))
+    let (cyclic_face = find_cyclic_face(faces))
+    assert(is_undef(cyclic_face), str(non_manifold_surface_err, " Face has an internal cycle: ", cyclic_face));
+ 
+function find_duplicate(sorted_list, i = 0) =
+      i >= len(sorted_list) - 1 ? undef
+    : sorted_list[i] == sorted_list[i+1] ? i
+    : find_duplicate(sorted_list, i + 1);
         
-function contains_duplicate(sorted_list, i = 0) =
-      i >= len(sorted_list)-1 ? false
-    : sorted_list[i] == sorted_list[i+1] ? true
-    : contains_duplicate(sorted_list, i + 1);
-        
-function contains_degenerate_face(points, faces, i = 0) =
-      i >= len(faces) ? false
+function find_degenerate_face(points, faces, i = 0) =
+      i >= len(faces) ? undef
     : let (face_normal = polygon_normal([ for (p = faces[i]) points[p] ]))
-      !(norm(face_normal) >= $poly_err_tolerance) ? true
-    : contains_degenerate_face(points, faces, i + 1);
+      !(norm(face_normal) >= $poly_err_tolerance) ? i
+    : find_degenerate_face(points, faces, i + 1);
+    
+function find_cyclic_face(faces, i = 0) =
+      i >= len(faces) ? undef
+    : let (sorted_vertices = quicksort_integers(faces[i]))
+      let (duplicate_vertex = find_duplicate(sorted_vertices))
+      is_undef(duplicate_vertex) ? find_cyclic_face(faces, i + 1)
+    : i;
 
 /******* Polyhedron Beveling *******/
 
 function make_beveled_poly(faces) =
     !has_beveling() ? make_poly(faces)
     : let (poly = make_poly(merge_coplanar_faces(faces)))
-      assert(is_manifold(poly[0], poly[1]), "Non-manifold surface! This could be a bug in puzzlecad.")
       let (beveled_poly = make_beveled_poly_normalized(poly[0], poly[1]))
-      assert(is_manifold(beveled_poly[0], beveled_poly[1]), "Non-manifold surface! This could be a bug in puzzlecad.")
       beveled_poly;
     
 function has_beveling() =
