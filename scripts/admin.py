@@ -234,12 +234,16 @@ def substitute_globals(description):
 	
 		description = description.replace('${' + key + '}', globals[key])
 
-	return description;
+	return description
 
 def bundle_puzzlecad(version):
 
 	# Rudimentary poor-excuse-for-a-build-script,
 	# but I'm trying to keep things super simple right now
+
+	exit_status = run_puzzlecad_tests()
+	if (exit_status != 0):
+	    return
 	
 	print(f'Bundling puzzlecad version {version} ...')
 	
@@ -280,7 +284,17 @@ def bundle_puzzlecad(version):
 		return
 
 	print('Done!')
-	
+
+def run_puzzlecad_tests():
+
+    print('Running puzzlecad tests ...')
+    exit_status = os.system(f'{openscad_bin} -o ../out/puzzlecad-tests.stl ../src/main/scad/puzzlecad-tests.scad')
+    if exit_status == 0:
+        print('Tests succeeded.')
+    else:
+        print('Tests failed!')
+    return exit_status
+
 def thingiverse_get(endpoint, access_token):
 
 	url = f'https://api.thingiverse.com/{endpoint}'
