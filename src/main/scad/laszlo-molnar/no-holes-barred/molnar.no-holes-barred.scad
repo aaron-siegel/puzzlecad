@@ -48,7 +48,7 @@ module pieces() {
         ["xxx|x..", "...|x.."],
         ["xxx|x..", "...|x.."],
         ["xxx|x..", "...|x.."],
-        ["xxx{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}|x.."]
+        ["xxx{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}|x..", "...|x.."]
     ], $plate_width = 160);
 }
 
