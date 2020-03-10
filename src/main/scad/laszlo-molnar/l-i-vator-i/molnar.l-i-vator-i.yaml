@@ -2,7 +2,7 @@ thing-id: 4183212
 name: "L-I-Vator I - Packing puzzle by László Molnár"
 tags: [puzzle, 3D_puzzle]
 images: [pieces.jpg]
-targets: [box, pieces]
+targets: [box, cap, pieces]
 description: |
   Pack six pieces into an obstructed box.
 
