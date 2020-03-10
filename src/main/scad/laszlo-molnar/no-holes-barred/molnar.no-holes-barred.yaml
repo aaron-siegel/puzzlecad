@@ -1,10 +1,10 @@
 thing-id: 4183029
 name: "No Holes Barred - Packing puzzle by László Molnár"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg]
+images: [cover.jpg, box.jpg, pieces-alt.jpg, partially-assembled.jpg]
 targets: [box, pieces, obstruction]
 description: |
-    Pack five pieces into an obstructed box.
+    Pack five pieces into a box with an unusual obstruction.
     
     _No Holes Barred_ is one of a series of challenging packing puzzles by László Molnár. It's perhaps the easiest of the series - four of the five pieces are identical - but that definitely doesn't mean "easy"! It's a very clever design and a solid challenge, with a tricky and surprising solution. Highly recommended to both novice and experienced puzzle solvers.
 

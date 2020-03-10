@@ -1,6 +1,6 @@
 include <puzzlecad.scad>
 
-$burr_inset = 0.125;
+$burr_inset = 0.15;     // Use 0.125 for a tighter fit.
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
@@ -53,18 +53,27 @@ module pieces() {
 }
 
 module obstruction() {
-   burr_plate([
-       ["x{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}"]
-   ]);
-   translate([$burr_scale * 1 / 4, 0.001, $burr_scale * 1 / 4])
-   rotate(a=90, v=[1, 0, 0])
-   cylinder(r = 2.0, h = 2.0, $fn = 32);
     
-   translate([$burr_scale *1 / 4, 0.001, $burr_scale * 3 / 4])
-   rotate(a=90, v=[1, 0, 0])
-   cylinder(r = 2.0, h = 2.0, $fn = 32);
+    rotate([0, 45, 0])
+    translate([0, 0, $burr_scale])
+    rotate([-90, 0, 0]) {
+        
+        burr_plate([
+            ["x{components={x-,y-,z+y-,z+x-,z-y-,z-x-}}"]
+        ]);
+        
+        translate([$burr_scale * 1 / 4, 0.001, $burr_scale * 1 / 4])
+        rotate(a=90, v=[1, 0, 0])
+        cylinder(r = 2.0, h = 2.0, $fn = 32);
+        
+        translate([$burr_scale *1 / 4, 0.001, $burr_scale * 3 / 4])
+        rotate(a=90, v=[1, 0, 0])
+        cylinder(r = 2.0, h = 2.0, $fn = 32);
+        
+        translate([$burr_scale *3 / 4, 0.001, $burr_scale * 1 / 2])
+        rotate(a=90, v=[1, 0, 0])
+        cylinder(r = 2.0, h = 2.0, $fn = 32);
+        
+    }
     
-   translate([$burr_scale *3 / 4, 0.001, $burr_scale * 1 / 2])
-   rotate(a=90, v=[1, 0, 0])
-   cylinder(r = 2.0, h = 2.0, $fn = 32);
 }
