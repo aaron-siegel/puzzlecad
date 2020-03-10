@@ -1937,6 +1937,8 @@ function validate_manifold(points, faces) =
     assert(sorted_edges == sorted_reversed_edges, str(non_manifold_surface_err, " There are unpaired edge(s)."))
     let (degenerate_face = find_degenerate_face(points, faces))
     assert(is_undef(degenerate_face), str(non_manifold_surface_err, " Degenerate face: ", degenerate_face))
+    let (noncoplanar_face = find_noncoplanar_face(points, faces))
+    assert(is_undef(noncoplanar_face), str(non_manifold_surface_err, " Noncoplanar face: ", noncoplanar_face))
     let (cyclic_face = find_cyclic_face(faces))
     assert(is_undef(cyclic_face), str(non_manifold_surface_err, " Face has an internal cycle: ", cyclic_face));
  
@@ -1957,6 +1959,21 @@ function find_cyclic_face(faces, i = 0) =
       let (duplicate_vertex = find_duplicate(sorted_vertices))
       is_undef(duplicate_vertex) ? find_cyclic_face(faces, i + 1)
     : i;
+    
+function find_noncoplanar_face(points, faces, i = 0) =
+      i >= len(faces) ? undef
+    : !is_coplanar_polygon([ for (p = faces[i]) points[p] ]) ? i
+    : find_noncoplanar_face(points, faces, i + 1);
+    
+function is_coplanar_polygon(poly) =
+    let (polygon_normal = polygon_normal(poly),
+         nonmatching_vertices = [ for (i = [0:len(poly)-1])
+             let (a = poly[i], b = poly[(i+1) % len(poly)], c = poly[(i+2) % len(poly)])
+             let (normal = cross(b - a, c - b))
+             if (norm(normal) >= $poly_err_tolerance && norm(cross(normal, polygon_normal)) >= $poly_err_tolerance)
+             i
+         ])
+    len(nonmatching_vertices) == 0;
 
 /******* Polyhedron Beveling *******/
 
@@ -2349,7 +2366,7 @@ function str_interpolate(str, args, i = 0) =
         ? str(str[i], str_interpolate(str, args, i + 1))
         : str(args[arg_index], str_interpolate(str, args, i + 2));
         
-function mkstring(list, sep, i = 0) =
+function mkstring(list, sep = "", i = 0) =
       i >= len(list) ? ""
     : i == len(list) - 1 ? list[i]
     : str(list[i], sep, mkstring(list, sep, i + 1));
