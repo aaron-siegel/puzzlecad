@@ -1937,8 +1937,8 @@ function validate_manifold(points, faces) =
     assert(sorted_edges == sorted_reversed_edges, str(non_manifold_surface_err, " There are unpaired edge(s)."))
     let (degenerate_face = find_degenerate_face(points, faces))
     assert(is_undef(degenerate_face), str(non_manifold_surface_err, " Degenerate face: ", degenerate_face))
-    let (noncoplanar_face = find_noncoplanar_face(points, faces))
-    assert(is_undef(noncoplanar_face), str(non_manifold_surface_err, " Noncoplanar face: ", noncoplanar_face))
+    //let (noncoplanar_face = find_noncoplanar_face(points, faces))
+    //assert(is_undef(noncoplanar_face), str(non_manifold_surface_err, " Noncoplanar face: ", noncoplanar_face))
     let (cyclic_face = find_cyclic_face(faces))
     assert(is_undef(cyclic_face), str(non_manifold_surface_err, " Face has an internal cycle: ", cyclic_face));
  
