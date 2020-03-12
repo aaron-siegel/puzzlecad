@@ -2,7 +2,7 @@ include <puzzlecad.scad>
 
 box_puzzle_border = 6;
 
-$burr_inset = 0.125;
+$burr_inset = 0.15;     // Use 0.125 for a tighter fit
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
