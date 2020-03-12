@@ -16,7 +16,7 @@ description: |
     
     Two variants of this puzzle are provided with different color arrangements. The "monochrome" version is especially easy to print; just print six copies of `coffin.nova.solid.stl`. (You can, of course, print the copies in different colors, and you might get an interesting color pattern out of it; but the colors won't follow the geometry of the puzzle in the way Coffin intended.)
     
-    The five-color version more involved, but it has the most satisfying final appearance. Print one copy of `coffin.nova.fivecolor.bases.stl` and one copy each of `coffin.super-nova.fivecolor.tips-1.stl` through `coffin.super-nova.fivecolor.tips-4.stl`, each in a different color. Ideally, use a neutral color (such as white or grey) for the bases.
+    The five-color version more involved, but it has the most satisfying final appearance. Print one copy of `coffin.nova.fivecolor-bases.stl` and one copy each of `coffin.nova.fivecolor-tips-1.stl` through `coffin.nova.fivecolor-tips-4.stl`, each in a different color. Ideally, use a neutral color (such as white or grey) for the bases.
     
     The colored variant uses "snap joints" to enable printing in multiple colors, and you will need to connect all the joints before attempting to solve the puzzle. Press the male connector on each tip into an indentation on one of the bases. If they end up too loose, they can be reinforced with a drop of superglue (but this is usually not necessary). The joints are designed to be printed without supports.
     

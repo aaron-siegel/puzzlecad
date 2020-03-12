@@ -2,8 +2,8 @@ include <puzzlecad.scad>
 
 require_puzzlecad_version("2.0");
 
-$burr_scale = 27;
-$burr_inset = 0.14;     // Use 0.12 for a tighter fit
+$burr_scale = 32;
+$burr_inset = 0.12;     // Use 0.12 for a tighter fit
 $burr_bevel = 0.6;
 $post_rotate = [0, 45, 0];
 
@@ -101,11 +101,9 @@ function base(labels) = [
 ];
 
 function tip1(label) = [
-    "x{components=z+x+}.",
-    str_interpolate("x{components={z-x+,x+z-}}x{components=x-z-,connect=dmy+x-~,clabel=$0}", label)
+    str_interpolate("x{components={y+x-,y+z+},connect=dmy+x-,clabel=$0}|x{components={y-x-,y-z+}}", label)
 ];
 
 function tip2(label) = [
-    "x{components=z+x+}.",
-    str_interpolate("x{components={z-x+,x+z-}}x{components=x-z-,connect=dmy+z+~,clabel=$0}", label)
+    str_interpolate("x{components={y+x-,y+z+},connect=dmy+z+,clabel=$0}|x{components={y-x-,y-z+}}", label)
 ];
