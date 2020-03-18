@@ -1,0 +1,31 @@
+thing-id: 4220026
+name: "Superstar / Third Stellation - Interlocking puzzle by Stewart Coffin (STC #50)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg, one-piece.jpg]
+targets: [solid, fivecolor_bases, fivecolor_tips_1, fivecolor_tips_2, fivecolor_tips_3, fivecolor_tips_4]
+description: |
+  Assemble the six pieces into the polyhedral shape shown in the cover photo. If properly assembled with colors aligned as shown, _Superstar_ creates the appearance of triangular sticks running continuously through the length of the puzzle, although this is an illusion: the individual pieces are formed entirely from half-stick segments.
+
+  _Superstar_ is related to Coffin's earlier designs [Sirius](https://www.thingiverse.com/thing:4122252) and [Nova](https://www.thingiverse.com/thing:4130743). All three use the same essential assembly mechanism, but with increasingly rich ornamentation: mathematically, _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, _Nova_ the second stellation, and _Superstar_ the third.
+
+  If you've already done _Sirius_ or _Nova_, don't expect a radically new solving experience out of this one, but it does make for a striking polyhedral sculpture that completes the "trilogy" in a satisfying way. Coffin wrote:
+
+  "The six identical pieces mesh together easily in two identical subassemblies to form what is known by geometers as the third and final stellation of the rhombic dodecahedron. It is really more of a polyhedral sculpture than a puzzle, but it does create the interesting illusion of 12 triangular sticks, even though they are discontinuous .... To convert _Superstar_ into more of a puzzle, I proposed making it in four contrasting woods which must then be matched so that the sticks will not appear 'broken,' and I published that scheme in my book _Geometric Puzzle Design_. I must have then wandered off to other projects, for evidently I never actually made one."
+
+  Coffin published the multi-color design under the alternate name _Third Stellation_, STC #50-B. Other woodworkers subsequently realized his vision and crafted copies of it, but it remains very rare. I hope this printable model enables many more people to enjoy this striking and beautiful design. Models are included for both the original, one-color _Superstar_, as well as the multi-color _Third Stellation_.
+
+  ### Printing Instructions
+
+  Two variants of this puzzle are provided with different color arrangements. The "monochrome" version is especially easy to print; just print six copies of `coffin.superstar.solid.stl`. (You can, of course, print the copies in different colors, and you might get an interesting color pattern out of it; but the colors won't follow the geometry of the puzzle in the way Coffin intended.)
+
+  The five-color version (aka _Third Stellation_) is more involved, but it has the most satisfying final appearance. Print one copy of `coffin.superstar.fivecolor-bases.stl` and one copy each of `coffin.superstar.fivecolor-tips-1.stl` through `coffin.superstar.fivecolor-tips-4.stl`, each in a different color. Ideally, use a neutral color (such as white or grey) for the bases.
+
+  The colored variant uses "snap joints" to enable printing in multiple colors, and you will need to connect all the joints before attempting to solve the puzzle. Press the male connector on each tip into an indentation on one of the bases. If they end up too loose, they can be reinforced with a drop of superglue (but this is usually not necessary). The joints are designed to be printed without supports.
+
+  You _must_ connect the joints in the combinations shown in the second photo, or you will not get the intended color arrangement. To help keep things straight, the joints are labeled "A" through "H"; be sure to connect each male joint to a female joint of matching letter. (Each of the four colors comes in mirror-image pairs, for a total of eight distinct types of tip.)
+
+  ${puzzlecad-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
