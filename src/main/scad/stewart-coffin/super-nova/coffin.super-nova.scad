@@ -1,9 +1,13 @@
 include <puzzlecad.scad>
 
+require_puzzlecad_version("2.0");
+
 $burr_scale = 27;
 $burr_inset = 0.14;      // Use 0.12 for a tighter fit
 $burr_bevel = 0.6;
 $post_rotate = [0, 45, 0];
+
+// Uncomment one of the following lines to render that module.
 
 *bases();
 *tips();
@@ -92,6 +96,6 @@ module solid() {
     "x{components=x+z-}x{components={z-y+,z-x-,x-z-,z-x+,x+z-}}x{components=x-z-}|.x{components=z-}.|x{components=x+z-}x{components={z-x-,x-z-,z-y-,x+z-,z-x+}}x{components=x-z-}"
         ],
         
-    ], $post_translate = [0, 0, sqrt(1/8)]);
+    ]);
     
 }

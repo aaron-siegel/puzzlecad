@@ -1,13 +1,20 @@
+ppp-boilerplate: |
+    ### The Printable Puzzle Project
+
+    The [Printable Puzzle Project](https://www.puzzlehub.org/ppp) aims to make available high-quality open-source models of many puzzle designs. All of our models are posted with the generous permission of their designers and are licensed for __non-commercial use only__. Anyone may print copies for their own personal use, but selling or otherwise monetizing them is not permitted, and puzzle designers retain all rights as copyright holders of their work.
+
+    Our puzzles are modeled using the open-source [puzzlecad](https://www.thingiverse.com/thing:3198014) library. The `.scad` file is included with this model in case you want to modify any of its design parameters; more information on how to do this can be found in the PPP [Puzzle Modeling tutorial](https://www.puzzlehub.org/tutorials/puzzle-modeling).
+
 puzzlecad-boilerplate: |
     The puzzle is modeled using [puzzlecad](https://www.thingiverse.com/thing:3198014), and I have included the .scad file in case you want to remix it.
 
 snap-joints-boilerplate: |
     After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior).
 
-    The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. If they come out too loose, a drop of superglue will make them more solid (in most cases this shouldn't be necessary, but unfortunately tolerances vary across printers and filaments). The snap joint concept is discussed further in this blog post: [Adventures in 3D Puzzle Printing](https://normalplay.blogspot.com/2019/01/adventures-in-3d-puzzle-printing.html).
+    The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. If they come out too loose, a drop of superglue will make them more solid (in most cases this shouldn't be necessary, but unfortunately tolerances vary across printers and filaments). The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
     
 snap-joints-short-boilerplate: |
-    The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. If they come out too loose, a drop of superglue will make them more solid (in most cases this shouldn't be necessary, but unfortunately tolerances vary across printers and filaments). The snap joint concept is discussed further in this blog post: [Adventures in 3D Puzzle Printing](https://normalplay.blogspot.com/2019/01/adventures-in-3d-puzzle-printing.html).
+    The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. If they come out too loose, a drop of superglue will make them more solid (in most cases this shouldn't be necessary, but unfortunately tolerances vary across printers and filaments). The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
 
 box-assembly-boilerplate: |
     The cap and box are modeled separately so that the puzzle can be printed without supports. After printing, first attach the cap to the box before attempting to solve the puzzle. To attach the cap, put a drop of glue into each of the four guide holes on the cap, and fit the four raised cylinders on the box into them. ([Ordinary superglue](https://www.amazon.com/gp/product/B000LGPD64) works great with PLA filament.) Once the glue is dry, you're ready to go!
@@ -15,7 +22,7 @@ box-assembly-boilerplate: |
 stewart-coffin-bio: |
     ### About the Designer
 
-    Stewart Coffin has been called "the most outstanding designer and maker of interlocking puzzles that the world has ever seen". He is credited with over four hundred designs, has pioneered numerous ingenious puzzle forms, and has written extensively about puzzle design and manufacture. More information on Coffin, and a variety of other printable models of his designs, are available in the [Stewart Coffin Puzzles](https://www.thingiverse.com/asiegel/collections/stewart-coffin-puzzles) collection.
+    Stewart Coffin has been called "the most outstanding designer and maker of interlocking puzzles that the world has ever seen". He is credited with over four hundred designs, has pioneered numerous ingenious puzzle forms, and has written extensively about puzzle design and craftsmanship. More information on Coffin, along with many other printable models of his designs, can be found on the [Stewart Coffin Puzzles](https://www.puzzlehub.org/puzzles/stewart-coffin) overview page.
 
 yavuz-demirhan-bio: |
     ### About the Designer
