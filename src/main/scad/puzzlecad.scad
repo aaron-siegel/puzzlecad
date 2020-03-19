@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0b3";
+puzzlecad_version = "2.0";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -870,10 +870,10 @@ module male_diag_snap_connector(orient, label, twist = false) {
                  [-1/2 + sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale],
                  [1/2 - sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale]]             * $diag_joint_scale,
                 (joint_length * 2 + 1) / $burr_scale,
-                $burr_bevel = 0.75 / $burr_scale,
+                $burr_bevel = 1.5 / $burr_scale,
                 $burr_outer_x_bevel = undef,
                 $burr_outer_y_bevel = undef,
-                $burr_outer_z_bevel = 1.5 / $burr_scale
+                $burr_outer_z_bevel = undef
             );
             
             if (label) {
