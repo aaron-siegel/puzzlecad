@@ -11,7 +11,7 @@ description: |
     
     _Involution_ is the second of Stewart Coffin's classic trilogy of interlocking cube puzzles. According to Coffin, it is "a slightly revised version" of his earlier design [Convolution](https://www.thingiverse.com/thing:3351526), and it "later underwent further revision to become listed as [Involute](https://www.thingiverse.com/thing:3351486)". Perhaps because it is sandwiched between those two masterpieces, Involution has become something of a "forgotten stepchild", produced and recognized less often than the others. Nonetheless, it's a great design, and fans of Coffin's other puzzles will surely want to print a copy.
     
-    UPDATED February 2020 with a new design and larger size.
+    UPDATED March 2020 with a new design and larger size.
 
     ### Printing Instructions
     
@@ -19,11 +19,13 @@ description: |
     
     To print the four-color version, print `coffin.involution.color-1.stl` through `coffin.involution.color-4.stl` each in a different filament color; colors 1 through 3 will appear on the "windmill" patterns on the cube faces, and color 4 will appear on the corners. You can also print a two-color version by using the same color for `color-1` through `color-3`.
     
+    You will need to print `color-3` with supports, since it has one connector that sticks out horizontally. Print with supports on build plate only; then the supports are needed only for the one horizontal connector and will not leave scars on the puzzle.
+    
     To print the single-color version, print `coffin.involution.single-color.stl`. There is also a smaller variant provided, `coffin.involution.single-color-smaller.stl`, which will use around half as much material.
 
     ${snap-joints-boilerplate}
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 

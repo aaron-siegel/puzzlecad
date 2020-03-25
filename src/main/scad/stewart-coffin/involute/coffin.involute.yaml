@@ -1,7 +1,7 @@
 thing-id: 3351486
 name: "Involute - Interlocking puzzle by Stewart Coffin (STC #214)"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg, closeup.jpg]
+images: [assembled.jpg, pieces.jpg]
 targets: [color_1, color_2, color_3, color_4, single_color]
 configurations:
     - {name: '', code: '', targets: ''}
@@ -9,11 +9,9 @@ configurations:
 description: |
     Assemble the eight pieces into a 4x4x4 cube.
     
-    _Involute_ is the third and final entry in Stewart Coffin's classic trilogy of interlocking cube puzzles. It is a refinement of his earlier designs, [Convolution](https://www.thingiverse.com/thing:3351526) and [Involution](https://www.thingiverse.com/thing:3360935).
+    _Involute_ is the third and final entry in Stewart Coffin's classic trilogy of interlocking cube puzzles. It is a refinement of his earlier designs, [Convolution](https://www.thingiverse.com/thing:3351526) and [Involution](https://www.thingiverse.com/thing:3360935). A masterpiece of design ingenuity, _Involute_ (along with _Involution_) involves "coordinate motion of a most baffling kind" (Coffin's words) that, as far as I know, remains unique.
     
-    4x4x4 cube puzzles are a highly successful genre, with hundreds of notable designs now published by dozens of puzzle designers. Nonetheless, _Involute_ still stands as a masterpiece: unrivaled in elegance of design; and involving "coordinate motion of a most baffling kind" (Coffin's words) that, as far as I know, remains unique. No enthusiast of mechanical puzzles will want to be without a copy.
-    
-    UPDATED February 2020 with a new design and larger size.
+    UPDATED March 2020 with a new design and larger size.
 
     ### Printing Instructions
     
@@ -25,7 +23,7 @@ description: |
 
     ${snap-joints-boilerplate}
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 
