@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0";
+puzzlecad_version = "2.1";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -40,6 +40,7 @@ $burr_outer_z_bevel = undef;
 $poly_err_tolerance = 1e-10;
 $unit_test_tolerance = 1e-10;
 $puzzlecad_debug = false;
+$use_alternate_diag_inset_hack = false;
 
 /* Main module for rendering a burr piece.
  * "burr_spec" can be any of the following:
@@ -610,9 +611,13 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
                     cell = [x, y, z];
                     if (lookup3(burr, cell) != component_id) {
                         translate(cw(cell, scale_vec)) {
-                            cube(scale_vec + [2 * $burr_inset, 0, 0], center = true);
-                            cube(scale_vec + [0, 2 * $burr_inset, 0], center = true);
-                            cube(scale_vec + [0, 0, 2 * $burr_inset], center = true);
+                            if ($use_alternate_diag_inset_hack) {
+                                cube(scale_vec + iota_vec * 10 + vectorize(2 * $burr_inset), center = true);
+                            } else {
+                                cube(scale_vec + iota_vec * 10 + [2 * $burr_inset, 0, 0], center = true);
+                                cube(scale_vec + iota_vec * 10 + [0, 2 * $burr_inset, 0], center = true);
+                                cube(scale_vec + iota_vec * 10 + [0, 0, 2 * $burr_inset], center = true);
+                            }
                         }
                     } else {
                         ortho = lookup3(ortho_geom, cell);
