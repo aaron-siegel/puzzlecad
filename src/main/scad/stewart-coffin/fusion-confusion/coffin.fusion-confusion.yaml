@@ -2,7 +2,7 @@ thing-id: 4195886
 name: "Fusion-Confusion - Interlocking puzzle by Stewart Coffin (STC #15-A)"
 tags: [puzzle, 3D_puzzle]
 images: [assembly-A.jpg, assembly-B.jpg, pieces.jpg]
-targets: [bases, tips]
+targets: [bases, tip]
 configurations:
   - {name: '', code: '', targets: ''}
   - {name: 'larger', code: '$burr_scale = 32;', targets: ''}
@@ -15,11 +15,11 @@ description: |
 
   ### Printing Instructions
 
-  Print one copy each of `coffin.fusion-confusion.bases.stl` and `coffin.fusion-confusion.tips.stl`. Use one filament color for the bases and a different filament color for the tips.
+  Print one copy of `coffin.fusion-confusion.bases.stl` and six copies of `coffin.fusion-confusion.tip.stl`. Use one filament color for the bases and a different filament color for the tips.
 
   This puzzle uses "snap joints" so that it can be printed in multiple colors. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, each male connector labeled "A" should connect to a female connector with a matching "A" label on the interior). If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
 
-  Optionally, you may print `coffin.fusion-confusion.bases-larger.stl` and `coffin.fusion-confusion.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
+  Optionally, you may print `coffin.fusion-confusion.bases-larger.stl` and `coffin.fusion-confusion.tip-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
 
   ${ppp-boilerplate}
 

@@ -2,7 +2,7 @@ thing-id: 4229746
 name: "Twelve Point - Interlocking puzzle by Stewart Coffin (STC #33)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
-targets: [base, tip]
+targets: [bases, tip]
 description: |
   Assemble six unusually shaped pieces into the polyhedral shape shown in the cover photo.
 
