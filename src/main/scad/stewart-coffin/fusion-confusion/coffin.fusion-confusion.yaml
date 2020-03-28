@@ -13,6 +13,8 @@ description: |
 
   "In a rare flash of lucky inspiration, I created _Fusion-Confusion_ by joining two pairs of _Triumph_ pieces together in a particular way, resulting in only four pieces but ever so much more potential for recreation. For a start, three of the four axes of assembly are eliminated, leaving only one confusing diagonal axis. The object is to assemble into any one of three shapes having a three-fold axis of symmetry (or four solutions if you count mirror images). There are in addition 12 assemblies that produce nondescript shapes."
 
+  Coffin regarded _Fusion-Confusion_ as an improvement of _Triumph_, but I think they're both great. With a 3D printer, you don't have to choose: print 'em both!
+
   ### Printing Instructions
 
   Print one copy of `coffin.fusion-confusion.bases.stl` and six copies of `coffin.fusion-confusion.tip.stl`. Use one filament color for the bases and a different filament color for the tips.

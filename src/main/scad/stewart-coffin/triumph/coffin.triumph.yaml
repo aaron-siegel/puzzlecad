@@ -11,7 +11,7 @@ description: |
 
   "Wouldn’t it be fun to have an interlocking puzzle that could be assembled different ways to form several different geometric shapes? With some effort and perhaps a little confusion, Triumph can be assembled into any one of three different polyhedral shapes, all having a three-fold axis of symmetry, as well as into many other nondescript shapes."
 
-  Two of those three shapes are shown in the photos (one of them in two distinct color configurations). I'll leave it to the reader to find the third! If you enjoy _Triumph_, be sure to check out its sequel [Triumph Companion](https://www.thingiverse.com/thing:4195866) as well.
+  Two of those three shapes are shown in the photos (one of them in two distinct color configurations). I'll leave it to the reader to find the third! If you enjoy _Triumph_, be sure to check out two related puzzles as well. [Triumph Companion](https://www.thingiverse.com/thing:4195866) is a sort of sequel to _Triumph_, with six new pieces that also form numerous polyhedral constructions and can be combined with _Triumph_ for even greater variety. [Fusion-Confusion](https://www.thingiverse.com/thing:4195886) is a modification of _Triumph_ that converts it from a polyhedral recreation into more of a bona fide puzzle.
 
   ### Printing Instructions
 
@@ -21,7 +21,7 @@ description: |
 
   Optionally, you may print `coffin.triumph.bases-larger.stl` and `coffin.triumph.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
 
-  ${puzzlecad-boilerplate}
+  ${ppp-boilerplate}
 
   ${stewart-coffin-bio}
 

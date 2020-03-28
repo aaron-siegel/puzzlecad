@@ -21,7 +21,7 @@ description: |
 
   Optionally, you may print `coffin.triumph-companion.bases-larger.stl` and `coffin.triumph-companion.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
 
-  ${puzzlecad-boilerplate}
+  ${ppp-boilerplate}
 
   ${stewart-coffin-bio}
 
