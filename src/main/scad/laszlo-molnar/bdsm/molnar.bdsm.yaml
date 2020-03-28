@@ -1,0 +1,23 @@
+thing-id: 4185289
+name: "BDSM - Packing puzzle by László Molnár"
+tags: [puzzle, 3D_puzzle]
+images: [pieces.jpg]
+targets: [box, pieces]
+description: |
+  Pack six pieces into a box with two curiously shaped triangular openings.
+
+  _BDSM_ is one of a series of challenging packing puzzles by László Molnár. This one is quite hard. You have been warned! If you want a gentler introduction to Molnár's puzzles, check out our recommendations in the [László Molnár puzzles](https://www.thingiverse.com/asiegel/collections/laszlo-molnar-puzzles) collection.
+
+  Yu Chih Chang contributed models and photographs to this listing.
+
+  ### Printing Instructions
+
+  Print one copy each of `molnar.bdsm.box.stl` and `molnar.bdsm.pieces.stl`. Ideally, print the box in one filament color and the pieces in a different color.
+
+  You will need to assemble the box before attempting to solve the puzzle. To assemble the box, simply snap the three box frame components together by inserting the circular pins on one component into the indentations on the next, as shown in the photo. The frame components should snap securely into place; no glue is required for this assembly.
+
+  ${ppp-boilerplate}
+
+  ${laszlo-molnar-bio}
+
+  Happy puzzling!
