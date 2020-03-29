@@ -2,19 +2,21 @@ include <puzzlecad.scad>
 
 box_puzzle_border = 6;
 
-$burr_inset = 0.125;
+$burr_inset = 0.15;     // Use 0.125 for a tighter fit
 $burr_bevel = 1;
 $unit_beveled = true;
 $burr_scale = 17;
+
+// Uncomment one of the following lines to render that component.
+
+*box();
+*pieces();
 
 pin_height = 1.5;
 pin_r = 1.6;
 pin_hole_inset = 0.2;
 
 dim = $burr_scale * 3 + box_puzzle_border * 2 + $burr_inset * 2;
-
-*box();
-*pieces();
 
 module box () {
     box_piece();
