@@ -1589,6 +1589,38 @@ function board_num_to_burr_info(id) = [
         [1, 1, 1-bit_of(id, 10), 1-bit_of(id, 11), 1, 1]]
     ];
 
+// Creates a burr string for a generalized Altekruse piece.
+
+function generalized_altekruse(signature, outer_width = 1) =
+    let (outer_str = mkstring(repeat(outer_width, "x")))
+    [ str(
+        outer_str,
+        generalized_altekruse_row(signature, "df"),
+        outer_str,
+        "|",
+        outer_str,
+        generalized_altekruse_row(signature, "db"),
+        outer_str
+      ),
+      str(
+        outer_str,
+        generalized_altekruse_row(signature, "uf"),
+        outer_str,
+        "|",
+        outer_str,
+        generalized_altekruse_row(signature, "ub"),
+        outer_str
+      )
+    ];
+
+function generalized_altekruse_row(signature, row_spec) =
+    mkstring([ for (n = [0:len(signature)-1])
+        if (signature[n] == row_spec[0] || signature[n] == row_spec[1])
+            "xx"
+        else
+            ".."
+    ]);
+
 // Now the logic for parsing string arrays into burr_info structs:
 
 function strings_to_burr_info(strings) =
