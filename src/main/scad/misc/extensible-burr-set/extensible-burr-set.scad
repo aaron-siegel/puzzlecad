@@ -1,5 +1,7 @@
 include <puzzlecad.scad>
 
+require_puzzlecad_version("2.0");
+
 // These four parameters control the output.
 
 stick_length = 6;
@@ -45,7 +47,7 @@ obscure_millables_ids = [160, 88, 118, 192, 224, 399, 536, 416, 672, 431, 600, 4
 
 example_ids = [1, 256, 824, 928, 975, 1024];
 
-ids = set[0][0][0] == undef ? set   // Cheap way of checking whether it's a string
+ids = !is_string(set) ? set
     : set == "notchable" ? notchable_ids
     : set == "ultimate" ? ultimate_ids
     : set == "level5" ? level5_ids
@@ -63,11 +65,11 @@ if (ids != undef) {
 module burr_set(ids, first_index, last_index) {
     
     page = [ for (n = [first_index:last_index])
-        [ids[n], opt_split(burr_stick(ids[n], stick_length), letter(n - first_index))]
+        [ids[n], opt_split(add_kaenel_number(burr_stick(ids[n], stick_length), ids[n]), auto_joint_letters[n - first_index])]
     ];
     labels = [for (pieces = page, n = [0:len(pieces[1])-1]) n == 0 ? str(pieces[0]) : undef];
     sticks = [for (pieces = page, piece = pieces[1]) piece];
-    burr_plate(sticks, labels, $burr_inset = inset, $burr_bevel = 0.5, $burr_outer_y_bevel = 1.75, $burr_outer_z_bevel = 1.75);
+    burr_plate(sticks, $burr_inset = inset, $burr_bevel = 0.5, $burr_outer_x_bevel = 1.75);
     
 }
 
@@ -79,11 +81,16 @@ function is_simply_connected(stick, x = 0, y = 0) =
     x == len(stick) ? is_simply_connected(stick, 0, y + 1) :
     (stick[x][y][1][0] == 0 || stick[x][y][0][0] > 0) && is_simply_connected(stick, x + 1, y);
 
+function add_kaenel_number(stick, kaenel_number) =
+    replace_in_list(stick, 0, replace_in_list(stick[0], 0, replace_in_list(stick[0][0], 0,
+        [1, [["label_text", str(kaenel_number)], ["label_orient", "x-y-"], ["label_hoffset", "-0.5"], ["label_voffset", "0.5"], ["label_scale", "0.538"]]]
+    )));
+
 function lower_split(stick, label_char) =
     [ for (x = [0:len(stick)-1])
         [ for (y = [0:1])
             [ for (z = [0:1])
-                z == 0 ? (stick[x][y][z][0] == 1 && stick[x][y][1][0] == 1 ? [1, [["connect", "mz+"], ["clabel", str(label_char, "y-")]]] : stick[x][y][z]) :
+                z == 0 && x > 0 && x < len(stick) - 1 ? (stick[x][y][z][0] == 1 && stick[x][y][1][0] == 1 ? [1, [["connect", "mz+y+"], ["clabel", label_char]]] : stick[x][y][z]) :
                 x >= (stick_length - 4) / 2 && x < (stick_length + 4) / 2 ? 0 : stick[x][y][z]
             ]
         ]
@@ -93,7 +100,7 @@ function upper_split(stick, label_char) =
     [ for (x = [0:len(stick)-1])
         [ for (y = [0:1])
             x >= (stick_length - 4) / 2 && x < (stick_length + 4) / 2 ?
-                (stick[x][y][0][0] == 1 && stick[x][y][1][0] == 1 ? [[1, [["connect", "fz-"], ["clabel", str(label_char, "y-")]]]] :
+                (stick[x][y][0][0] == 1 && stick[x][y][1][0] == 1 ? [[1, [["connect", "fz-y+"], ["clabel", label_char]]]] :
                         [stick[x][y][1]])
             : [[0]]
         ]
