@@ -1,14 +1,14 @@
-thing-id: 4195865
+thing-id: -1
 name: "Square Knot / Plus 2 - Interlocking puzzles by Stewart Coffin (STC #9 & 57)"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: []
 targets: [piece, left_handed_piece, right_handed_piece, altekruse_piece]
 description: |
-  Assemble twelve identical pieces into the interlocking configuration shown in the cover photo.
+  Assemble 12 identical pieces into the interlocking configuration shown in the cover photo (_Square Knot_). For added challenge, assemble 14 such pieces into the separate configuration shown in the second photo (_Plus 2_). Additional challenges are discussed below.
 
-  _Square Knot_ is Coffin's take on a classic puzzle. The basic idea appeared in an 1890 patent by the Austrian designer William Altekruse, and so became popularly known as the _Altekruse Puzzle_. _Square Knot_ is identical to the Altekruse Puzzle, except that the tips of the pieces have been elongated, making the assembly somewhat more challenging. If printed in three colors, there is the added challenging of discovering two distinct assemblies with different color symmetries.
+  _Square Knot_ is Coffin's take on a the classic _Altekruse Puzzle_. The basic idea appeared in an 1890 patent by the Austrian designer William Altekruse, and _Square Knot_ is almost identical to that design: the only difference is that the ends of the pieces are slightly elongated in _Square Knot_, making the assembly somewhat more challenging. If printed in three colors, there is the added challenge of discovering two distinct assemblies with different color symmetries.
 
-  Amazingly, an enlarged set of fourteen pieces admits a different, larger assembly. Coffin published the 14-piece version under the name _Plus 2_ (STC #57). He later described its discovery: "Once when exhibiting at a craft show, I watched with considerable interest as a bright young girl named Marjorie Hoffman was amusing herself at my booth by trying to put one together in a strange new configuration. I later completed it and found to my surprise that it required fourteen pieces rather than twelve."
+  Amazingly, an enlarged set of fourteen of the same identical pieces admits a different, larger assembly. Coffin published the 14-piece variant under the name _Plus 2_ (STC #57). He later described its discovery: "Once when exhibiting at a craft show, I watched with considerable interest as a bright young girl named Marjorie Hoffman was amusing herself at my booth by trying to put [_Square Knot_] together in a strange new configuration. I later completed it and found to my surprise that it required fourteen pieces rather than twelve."
 
   Over the years Coffin continued to experiment with further variations on the Altekruse puzzle, proposing two additional types of Altekruse piece, the _left-handed reverse_ and _right-handed reverse_ pieces. Coffin wrote:
 
@@ -18,15 +18,15 @@ description: |
 
   Well then! Print yourself a set of 20 pieces as described below, and you can enjoy _Square Knot_, _Plus 2_, and all the variants described by Coffin. I've also included a model of the classical Altekruse piece (with standard-length tips), in case anyone should want to print it - but honestly, if you print _Square Knot_ there isn't much purpose.
 
-  But wait, there's more! .....
+  But wait, there's more! Coffin also experimented with larger and smaller Altekruse variants, with 6, 24, 36, and 38 pieces, and hinted at others that are still larger. You can read about these variants in the entries for [Sixticks](https://www.thingiverse.com/thing:-1) and [Extended Square Knot](https://www.thingiverse.com/thing:-1). Pieces for the larger and smaller variants are all printable to compatible scales, so can be combined with this set to form a variety of intermediate rectangular shapes as well, with seemingly endless opportunities for experimentation.
 
   ### Printing Instructions
 
-  Print three copies each of `coffin.triumph.bases.stl` and `coffin.triumph.tips.stl`. Use one filament color for the bases and a different filament color for the tips.
+  To make the basic _Square Knot_ puzzle, print twelve copies of `coffin.square-knot.piece.stl`. To make _Plus 2_ as well, print fourteen copies instead. For the intended color configuration, print four copies in each of three colors (or 5/5/4 for the expanded _Plus 2_ set).
 
-  This puzzle uses "snap joints" so that it can be printed in multiple colors. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, each male connector labeled "A" should connect to a female connector with a matching "A" label on the interior). If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
+  For a full set of 20 pieces that can also make Coffin's "reverse piece" variants (as described above), print fourteen copies of `coffin.square-knot.piece.stl`, five copies of `coffin.square-knot.left-handed-reverse-piece.stl`, and one copy of `coffin.square-knot.right-handed-reverse-piece.stl`. [COLORS?]
 
-  Optionally, you may print `coffin.triumph.bases-larger.stl` and `coffin.triumph.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
+  Finally, if you wish to print the classical Altekruse puzzle, print twelve copies of `coffin.square-knot.classical-altekruse-piece.stl`. (As mentioned above, though, it doesn't have much to offer if you've already printed _Square Knot_.)
 
   ${ppp-boilerplate}
 
