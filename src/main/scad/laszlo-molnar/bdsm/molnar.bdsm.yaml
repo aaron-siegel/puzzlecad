@@ -14,7 +14,7 @@ description: |
 
   Print one copy each of `molnar.bdsm.box.stl` and `molnar.bdsm.pieces.stl`. Ideally, print the box in one filament color and the pieces in a different color.
 
-  You will need to assemble the box before attempting to solve the puzzle. To assemble the box, simply snap the three box frame components together by inserting the circular pins on one component into the indentations on the next, as shown in the photo. The frame components should snap securely into place; no glue is required for this assembly.
+  You will need to assemble the box before attempting to solve the puzzle. To assemble the box, attach the three box frame components together by inserting the circular pins on one component into the indentations on the next, as shown in the photo. To ensure they remain securely together, put a drop of superglue into each indentation before attaching them.
 
   ${ppp-boilerplate}
 
