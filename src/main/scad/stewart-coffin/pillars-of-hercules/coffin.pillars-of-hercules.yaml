@@ -1,0 +1,28 @@
+thing-id: 4208015
+name: "Pillars of Hercules - Assembly puzzle by Stewart Coffin (STC #78)"
+tags: [puzzle, 3D_puzzle]
+images: [cover.jpg, pieces.jpg, box.jpg]
+targets: [pieces, box]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 17;', targets: ''}
+description: |
+  Assemble the seven pieces into a 3x3x3 cube.
+
+  _Pillars of Hercules_ is one of Coffin's lesser-known designs. It's an unusual twist on the venerable 3x3x3 cube assembly puzzle, with several of its pieces dissected into half-cubes in a curious way.
+
+  Coffin himself was a bit dismissive of this design, writing "for all that extra trouble to make, hardly worth it," perhaps contributing to its relative obscurity. Yet while it is indeed quite difficult to produce using traditional woodworking techniques, it is an extremely easy print! In my opinion, printing a copy is certainly worthwhile, and hopefully 3D printing can help many others enjoy this rare and creative design.
+
+  Other Coffin designs that use the same concept include [Pieces-of-Eight](https://www.thingiverse.com/thing:4208010), [Triple Cross](https://www.thingiverse.com/thing:4230238), and [Design No. 78-A](https://www.thingiverse.com/thing:4208016) (the latter a sort of sequel to this one).
+
+  ### Printing Instructions
+
+  Just print one copy of `coffin.pillars-of-hercules.pieces.stl`. That's it! You may optionally print `coffin.pillars-of-hercules.box.stl`, a display box that can hold the assembled puzzle in place, as shown in the cover photo.
+
+  I've also included a smaller version, `coffin.pillars-of-hercules.pieces-smaller.stl`, that uses around 1/3 less material.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

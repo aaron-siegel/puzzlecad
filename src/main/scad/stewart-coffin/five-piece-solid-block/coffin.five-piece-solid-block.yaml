@@ -1,0 +1,28 @@
+thing-id: 4246783
+name: "Five-Piece Solid Block - Assembly puzzle by Stewart Coffin (STC #78-C)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg, box.jpg]
+targets: [pieces, box]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 17;', targets: ''}
+description: |
+  Assemble the five pieces into a 3x3x3 cube.
+
+  _Five-Piece Solid Block_ is among Coffin's more obscure 3x3x3 cube assembly puzzles. It can be viewed as intermediate between [Half-Hour](https://www.thingiverse.com/thing:3355035) (which has six pieces) and [Coffin's Quartet](https://www.thingiverse.com/thing:3351549) (which has four), and it is surely the least well-known of the three.
+
+  Coffin made several attempts to find a five-piece interlocking 3x3x3 cube, and _Five-Piece Solid Block_ is his best effort. Whereas _Coffin's Quartet_ is fully (indeed serially) interlocking, and _Half-Hour_ does not interlock at all, _Five-Piece Solid Block_, in Coffin's words, "is not quite interlocking but nearly so."
+
+  This design will likely be of interest primarily to Coffin completists or those who are interested in his explorations of interlocking 3x3x3 cubes. If you're new to Coffin's designs, I'd recommend _Half-Hour_ or _Coffin's Quartet_ instead (or see the _Printable Puzzle Project_ section, below, for links to many other recommendations).
+
+  ### Printing Instructions
+
+  Print one copy of `coffin.five-piece-solid-block.pieces.stl`. That's it (this is an extremely easy print)! You may optionally print `coffin.five-piece-solid-block.box.stl`, a display box that can hold the assembled puzzle in place, as shown in the cover photo.
+
+  I've also included a smaller version, `coffin.five-piece-solid-block.pieces-smaller.stl`, that uses around 1/3 less material.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

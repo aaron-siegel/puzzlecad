@@ -2500,6 +2500,8 @@ function list_contains(list, element, k = 0) =
 function index_of(list, element, k = 0) =
     k >= len(list) ? -1 : list[k] == element ? k : index_of(list, element, k + 1);
 
+function add_to_list(list, element) = concat(list, [element]);
+
 function remove_from_list(list, index) = [ for (k=indices(list)) if (k != index) list[k] ];
            
 function replace_in_list(list, index, replacement) = [ for (k=indices(list)) k == index ? replacement : list[k] ];
