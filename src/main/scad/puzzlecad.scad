@@ -1424,7 +1424,7 @@ module packing_tray_lid(lid_cavity_dim, lid_border_dim, title, subtitles, finger
         
         // Remove the cavity
 
-        translate(lid_border_dim_vec)
+        translate(lid_border_dim_vec + [0, 0, iota])
         cube(lid_cavity_dim_vec);
         
         // Remove the labels
