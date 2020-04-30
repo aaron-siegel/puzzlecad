@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0";
+puzzlecad_version = "2.0.1";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -1854,7 +1854,7 @@ function make_point_index(points) = [
 function index_of_point(index, p) = index_of_point_rec(index, p, 0, len(index));
 
 function index_of_point_rec(index, p, lower, upper) =
-    assert(lower < upper)
+    assert(lower < upper + $poly_err_tolerance)
     let (mid = floor((upper + lower) / 2))
     let (cmp = compare_points(p, index[mid]))
       cmp < -$poly_err_tolerance ? index_of_point_rec(index, p, lower, mid)
@@ -1979,7 +1979,7 @@ function is_coplanar_polygon(poly) =
 
 function make_beveled_poly(faces) =
     !has_beveling() ? make_poly(faces)
-    : let (poly = make_poly(merge_coplanar_faces(faces)))
+    : let (poly = make_poly(faces))
       let (beveled_poly = make_beveled_poly_normalized(poly[0], poly[1]))
       beveled_poly;
     
@@ -2105,20 +2105,21 @@ function make_beveled_poly_normalized(vertices, faces) = let(
                inedge_bevel = lookup_kv_unordered(edge_bevelings, [prev_vertex, vertex])  /* * sqrt(1/2) / sin(inedge_convexity[1] / 2) */,
                outedge_bevel = lookup_kv_unordered(edge_bevelings, [vertex, next_vertex]) /* * sqrt(1/2) / sin(outedge_convexity[1] / 2) */
           )
-
-          if (inedge_convexity[0] < -0.001 && outedge_convexity[0] < -0.001)
-              // Two concave edges: no beveling; vertex retains its original location.
+          
+          if (inedge_convexity[0] < 0.001 && outedge_convexity[0] < 0.001)
+              // Two concave (and/or flat) edges: no beveling; vertex retains its original location.
               vertices[vertex]
           
           else if (inedge_convexity[0] < -0.001)
-              // Only the inedge is concave.
+              // The inedge is concave, but the outedge is convex.
               vertices[vertex] - unit_vector(inedge) * outedge_bevel / sqrt(2) / sin(vertex_angle)
           
           else if (outedge_convexity[0] < -0.001)
-              // Only the outedge is concave.
+              // The outedge is concave, but the inedge is convex.
               vertices[vertex] + unit_vector(outedge) * inedge_bevel / sqrt(2) / sin(vertex_angle)
           
           else
+              // Two convex edges (one of which might be flat, but at least one of which is strictly convex).
               vertices[vertex] +
                   (inedge_setback_dir * inedge_bevel + outedge_setback_dir * outedge_bevel) / sqrt(2) /
                   (1 + inedge_setback_dir * outedge_setback_dir)
