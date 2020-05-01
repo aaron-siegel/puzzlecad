@@ -1,0 +1,23 @@
+thing-id: 4229746
+name: "Twelve Point - Interlocking puzzle by Stewart Coffin (STC #33)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [bases, tip]
+description: |
+  Assemble six unusually shaped pieces into the polyhedral shape shown in the cover photo.
+
+  _Twelve Point_ is a lovely interlocking design by Stewart Coffin. It has the same assembled shape as his related design [Vega](https://www.thingiverse.com/thing:4178068), but the assembly is substantially more difficult: the six pieces of _Twelve Point_ are all distinct, and they assemble in one way only. This one has an intricate mathematical structure that is a joy to discover. Highly recommended to fans of Coffin's polyhedral puzzles.
+
+  ### Printing Instructions
+
+  Print one copy of `coffin.twelve-point.bases.stl` and twelve copies of `coffin.twelve-point.tip.stl`. Use one filament color for the bases and one (different) color for the tips. Then snap the tips onto the bases (before attempting to solve the puzzle).
+
+  The pieces are assembled using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue, but this usually isn't necessary. The joints are designed to be printed without supports.
+
+  One of the bases is printed in two parts that also snap together; this is the only way to make it printable without supports. The smaller base part has the same shape as the tips, but is included in `coffin.twelve-point.bases.stl` and should be printed in the base color. To help keep things straight, the joint on the base part is labeled with the letter "A", and the joints on the tips (in `coffin.twelve-point.tip.stl`) are labeled with the letter "B". The sockets (female joints) are labeled with a corresponding letter on their interior surfaces, so that there is one "A" socket and twelve "B" sockets.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

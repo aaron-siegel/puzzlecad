@@ -13,14 +13,14 @@ $burr_bevel = 1.3;
 
 module pieces() {
     burr_plate([
-        ["xxx|.x.", "...|.x."],
-        [".xx|xx.", "...|.x."],
-        [".x.|xxx", "...|x.."],
-        [".x.|xxx"],
-        ["x..|xxx"],
-        ["x.|xx", "..|.x"]
+        ["xx.|.xx", "...|.x."],
+        ["x..|xxx", "...|.x."],
+        ["..x|xxx", "...|.x."],
+        ["..x|xxx", "..x|x.."],
+        ["x.x|xxx", "..x|..."]
     ], $unit_beveled = true);
 }
+
 
 module box() {
     
@@ -33,11 +33,11 @@ module box() {
         linear_extrude(1)
         union() {
             translate([0, 0.4 * $burr_scale, 0])
-            text("Half-Hour", halign = "center", valign = "center", size = 0.25 * $burr_scale);
+            text("Five-Piece Solid Block", halign = "center", valign = "center", size = 0.2 * $burr_scale);
             translate([0, -0.05 * $burr_scale, 0])
             text("Stewart Coffin", halign = "center", valign = "center", size = 0.2 * $burr_scale);
             translate([0, -0.4 * $burr_scale, 0])
-            text("STC #29", halign = "center", valign = "center", size = 0.2 * $burr_scale);
+            text("STC #78-C", halign = "center", valign = "center", size = 0.2 * $burr_scale);
         }
         
     }

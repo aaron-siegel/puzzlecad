@@ -1,10 +1,9 @@
 include <puzzlecad.scad>
 
-require_puzzlecad_version("2.0");
-
 $burr_scale = 20;
-$burr_inset = 0.07;     // This can be 0.06 for a tighter fit
+$burr_inset = 0.11;
 $burr_bevel = 1.3;
+$unit_beveled = true;
 
 // Uncomment one of the following lines to render the appropriate component.
 
@@ -12,14 +11,17 @@ $burr_bevel = 1.3;
 *box();
 
 module pieces() {
+
     burr_plate([
-        ["xxx|.x.", "...|.x."],
-        [".xx|xx.", "...|.x."],
+        ["xx.|.xx", "...|.x."],
+        [".x.|xxx", "...|..x"],
         [".x.|xxx", "...|x.."],
-        [".x.|xxx"],
-        ["x..|xxx"],
-        ["x.|xx", "..|.x"]
-    ], $unit_beveled = true);
+        ["x|x", ".|x{components={x-,z-,x+}}"],
+        ["x|x", ".|x{components={y-,z-,y+}}"],
+        ["x.|xx", "..|.x{components={x-,z-,x+}}"],
+        [".x|xx", "..|x{components={x-,z-,x+}}."]
+    ], $plate_width = 150);
+
 }
 
 module box() {
@@ -33,11 +35,11 @@ module box() {
         linear_extrude(1)
         union() {
             translate([0, 0.4 * $burr_scale, 0])
-            text("Half-Hour", halign = "center", valign = "center", size = 0.25 * $burr_scale);
+            text("Pillars of Hercules", halign = "center", valign = "center", size = 0.25 * $burr_scale);
             translate([0, -0.05 * $burr_scale, 0])
             text("Stewart Coffin", halign = "center", valign = "center", size = 0.2 * $burr_scale);
             translate([0, -0.4 * $burr_scale, 0])
-            text("STC #29", halign = "center", valign = "center", size = 0.2 * $burr_scale);
+            text("STC #78", halign = "center", valign = "center", size = 0.2 * $burr_scale);
         }
         
     }

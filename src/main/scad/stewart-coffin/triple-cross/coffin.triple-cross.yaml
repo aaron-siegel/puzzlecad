@@ -1,0 +1,30 @@
+thing-id: 4230238
+name: "Triple Cross / HO HO - Interlocking puzzle by Stewart Coffin (STC #79)"
+tags: [puzzle, 3D_puzzle]
+images: [triple-cross-assembled.jpg, ho-ho-assembled.jpg, pieces.jpg, one-piece.jpg]
+targets: [piece, piece_length_4, piece_length_5]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 16;', targets: ''}
+description: |
+  Assemble 12 identical pieces into the cross shape shown in the cover photo (_Triple Cross_). For added challenge, assemble 14 such pieces into the box shape in the second photo (_HO HO_).
+
+  _Triple Cross_ is a relatively neglected design by Stewart Coffin. Consisting of twelve identical pieces (or fourteen for the _HO HO_ variant), the figures are more difficult to assemble than one might expect. Coffin wrote:
+
+  "The 12 identical pieces of _Triple Cross_ or 14 pieces of _HO HO_ assemble in the familiar _Square Knot #9_ and _Plus 2 #57_ configurations but with a completely different type of joint. I made one model in 1973 as a prototype for manufacture in plastic, but of course that never happened .... It is probably impractical to make these in wood, which is unfortunate because I think this scheme might have much potential as a set of puzzles, a pastime, a construction kit, or an educational toy. Longer pieces with more notches could add to the possibilities. Can you see how the 14-piece version got the name _HO HO_?"
+
+  _Triple Cross_ is also notable for being the subject of one of the few (perhaps only?) references to 3D printing in Coffin's writings: a copy was sent to him "by Steve Nicholls and printed by [Nicholls] in ABS plastic. It fits with a degree of precision that I can’t imagine achieving in wood."
+
+  Well, I'm pleased to make this model available, so that anyone can print their own copy to a similar degree of precision. (There's no need to follow Nicholls and print in ABS, as PLA works just as well.) In case you want to experiment with "longer pieces with more notches," as suggested by Coffin, I've included some variant pieces as well. Moreover, the puzzle is modeled with OpenSCAD, and you can use the .scad file to generate pieces of any length. As far as I know, such possibilities have never really been investigated, so there is perhaps much to discover here.
+
+  ### Printing Instructions
+
+  Print 12 copies of `coffin.triple-cross.piece.stl`, or 14 if you also want to be able to construct _HO HO_. To get the color scheme shown in the photo, print 4 copies in each of three filament colors (or 4, 4, and 6 for _HO HO_). You will need to print with "supports on build plate only" enabled. For best results, set the support overhang to something less than 45 degrees; supports are needed only to span a roughly 1 mm gap along the base, and aren't necessary along the upward slopes of the pieces.
+
+  `coffin.triple-cross.piece-length-4.stl` and `coffin.triple-cross.piece-length-5.stl` offer pieces of length 4 and 5, respectively. Since those pieces are quite a bit larger, and many of them are needed to experiment with larger assemblies, I've also included smaller versions of each piece size (16 mm unit size versus 20 mm).
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

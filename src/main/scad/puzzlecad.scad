@@ -9,7 +9,7 @@
 
 // Version ID for version check.
 
-puzzlecad_version = "2.0.1";
+puzzlecad_version = "2.1";
 
 // Default values for scale, inset, bevel, etc.:
 
@@ -40,6 +40,7 @@ $burr_outer_z_bevel = undef;
 $poly_err_tolerance = 1e-10;
 $unit_test_tolerance = 1e-10;
 $puzzlecad_debug = false;
+$use_alternate_diag_inset_hack = false;
 
 /* Main module for rendering a burr piece.
  * "burr_spec" can be any of the following:
@@ -610,9 +611,13 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
                     cell = [x, y, z];
                     if (lookup3(burr, cell) != component_id) {
                         translate(cw(cell, scale_vec)) {
-                            cube(scale_vec + [2 * $burr_inset, 0, 0], center = true);
-                            cube(scale_vec + [0, 2 * $burr_inset, 0], center = true);
-                            cube(scale_vec + [0, 0, 2 * $burr_inset], center = true);
+                            if ($use_alternate_diag_inset_hack) {
+                                cube(scale_vec + iota_vec * 10 + vectorize(2 * $burr_inset), center = true);
+                            } else {
+                                cube(scale_vec + iota_vec * 10 + [2 * $burr_inset, 0, 0], center = true);
+                                cube(scale_vec + iota_vec * 10 + [0, 2 * $burr_inset, 0], center = true);
+                                cube(scale_vec + iota_vec * 10 + [0, 0, 2 * $burr_inset], center = true);
+                            }
                         }
                     } else {
                         ortho = lookup3(ortho_geom, cell);
@@ -1419,7 +1424,7 @@ module packing_tray_lid(lid_cavity_dim, lid_border_dim, title, subtitles, finger
         
         // Remove the cavity
 
-        translate(lid_border_dim_vec)
+        translate(lid_border_dim_vec + [0, 0, iota])
         cube(lid_cavity_dim_vec);
         
         // Remove the labels
@@ -1583,6 +1588,38 @@ function board_num_to_burr_info(id) = [
         [1, 1-bit_of(id, 4), 1-bit_of(id, 5), 1-bit_of(id, 6), 1-bit_of(id, 7), 1],
         [1, 1, 1-bit_of(id, 10), 1-bit_of(id, 11), 1, 1]]
     ];
+
+// Creates a burr string for a generalized Altekruse piece.
+
+function generalized_altekruse(signature, outer_width = 1) =
+    let (outer_str = mkstring(repeat(outer_width, "x")))
+    [ str(
+        outer_str,
+        generalized_altekruse_row(signature, "df"),
+        outer_str,
+        "|",
+        outer_str,
+        generalized_altekruse_row(signature, "db"),
+        outer_str
+      ),
+      str(
+        outer_str,
+        generalized_altekruse_row(signature, "uf"),
+        outer_str,
+        "|",
+        outer_str,
+        generalized_altekruse_row(signature, "ub"),
+        outer_str
+      )
+    ];
+
+function generalized_altekruse_row(signature, row_spec) =
+    mkstring([ for (n = [0:len(signature)-1])
+        if (signature[n] == row_spec[0] || signature[n] == row_spec[1])
+            "xx"
+        else
+            ".."
+    ]);
 
 // Now the logic for parsing string arrays into burr_info structs:
 
@@ -2463,6 +2500,8 @@ function list_contains(list, element, k = 0) =
 
 function index_of(list, element, k = 0) =
     k >= len(list) ? -1 : list[k] == element ? k : index_of(list, element, k + 1);
+
+function add_to_list(list, element) = concat(list, [element]);
 
 function remove_from_list(list, index) = [ for (k=indices(list)) if (k != index) list[k] ];
            

@@ -3,7 +3,7 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 16;
-$plate_width = 120;
+$plate_width = 180;
 $burr_inset = 0.07;     // This can be 0.06 for a tighter fit
 $burr_bevel = 1.2;
 
@@ -13,6 +13,7 @@ $burr_bevel = 1.2;
 *color_2();
 *color_3();
 *color_4();
+*single_color();
 *tighter_key_piece();
 
 module color_1() {
@@ -59,6 +60,21 @@ module color_4() {
     
     burr_plate(repeat(8, ["x{connect=mz+y+,clabel=X}"]), $plate_width = ($burr_scale + $plate_sep) * 3);
     
+}
+
+module single_color() {
+
+    burr_plate([
+        ["x{connect=mz+,clabel=Ay-}xxx|.xx.", "....|..x."], ["x|x|x{connect=fz+,clabel=Ay-}"],
+        ["x{connect=mz+,clabel=By-}x.|.xx", "...|..x"], ["x|x|x{connect=fz+,clabel=By-}", "x|.|."],
+        ["x..|xx.|.x.|.xx{connect=mz+,clabel=Cy-}"], ["xx", ".x{connect=fz+,clabel=Cy-}"],
+        ["..x|x{connect=mz+,clabel=Dy-}xx|..x", "...|...|..x"], ["xx|x{connect=fz+,clabel=Dy-}."],
+        ["xx{connect=fz-,clabel=Ey-}x.|x.xx", "....|x..x"], ["x{connect=mz+,clabel=Ey-}"],
+        [".x|xx|x{connect=mz+,clabel=Fy-}.", ".x|..|.."], [".x{connect=fz+,clabel=Fy-}|xx"],
+        ["xxx|x{connect=mz+,clabel=Gy-}.x"], ["x{connect=fz+,clabel=Gy-}x"],
+        ["x.|xx"]
+    ]);
+
 }
 
 // The same components as above, but organized by piece rather than color:

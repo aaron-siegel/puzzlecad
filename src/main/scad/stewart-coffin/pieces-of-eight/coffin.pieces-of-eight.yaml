@@ -1,0 +1,33 @@
+thing-id: 4208010
+name: "Pieces-of-Eight - Assembly puzzle by Stewart Coffin (STC #77)"
+tags: [puzzle, 3D_puzzle]
+images: [in-tray.jpg, pieces.jpg, tray.jpg, one-piece.jpg, other-shapes.png]
+targets: [pieces, tray, extra_half_pieces]
+description: |
+  Assemble the eight pieces to form a 2x2x2 cube or one of several other shapes. This is a fun and creative design whose pieces are based on an unusual dissection of the cube. Coffin wrote of this puzzle:
+
+  "The eight dissimilar pieces of _Pieces-of-Eight_ plug into each other to construct a cube and many other shapes. One need not be a puzzle expert to enjoy this one. The pieces are fun to just play around with, and I thought they might have educational potential as well."
+
+  An optional tray is included (per Coffin's specifications) that can hold all the pieces in a flat 1x3x3 configuration, as shown in the cover photo. If you choose to print the tray, you may also print the two extra half-pieces, making an expanded set that fully packs the 1x3x3 tray. Fitting them all in the tray is a puzzle in itself! You might enjoy experimenting to find other shapes that are constructible with the expanded set.
+
+  This puzzle is notoriously difficult to make in wood. Eric Fuller, the renowned puzzle craftsman, wrote: "When I first started collecting, I was not a woodworker and had no way to make myself a copy. I never could find a copy of the 'Pieces of Eight' puzzle for sale, and now I know why. It's *really* difficult and time consuming to make. ... I am never making these again!"
+
+  It's not _quite_ a walk in the park to print, either, but it's a lot easier than crafting one out of wood. Hopefully this model will enable anyone with a 3D printer to enjoy a serviceable copy!
+
+  ### Printing Instructions
+
+  Print one copy of `coffin.pieces-of-eight.pieces.stl`. Optionally, also print one copy each of `coffin.pieces-of-eight.tray.stl` and `coffin.pieces-of-eight.extra-half-pieces.stl`.
+
+  The unusual shape of the pieces makes them moderately challenging to print. I obtained best results by printing them directly as oriented in the STL files, with the following settings:
+
+  - Brim
+  - Supports on build plate only
+  - Support angle less than 45 degrees (supports are required to span a roughly 1 mm gap along the base of a few of the pieces, but shouldn't be needed for the self-supporting 45-degree up-slopes).
+
+  It is possible to rotate some of the pieces so that they stand upright and are printable without supports or a brim. On my printer, however (Prusa i3 MK3), I obtained better results in the given orientations, which mostly avoid "downward-facing" half-cubes.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
