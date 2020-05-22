@@ -31,13 +31,19 @@ module expansion() {
 
 module stamped_burr_plate(piece_ids) {
     
-    pieces = [
+    split_pieces = [
         for (i = [0:len(piece_ids)-1])
         let (stick = burr_stick(piece_ids[i], add_stamp = true))
-        for (piece = opt_split_burr_stick(stick, joint_label = auto_joint_letters[i]))
-        piece
+        opt_split_burr_stick(stick, joint_label = auto_joint_letters[i])
     ];
 
-    burr_plate(pieces);
+    lower_pieces = [ for (split_piece = split_pieces) split_piece[0] ];
+    
+    upper_pieces = [ for (split_piece = split_pieces) if (len(split_piece) > 1) split_piece[1] ];
+
+    burr_plate(lower_pieces);
+    
+    translate([0, ceil(len(lower_pieces) / 2) * ($burr_scale * 2 + $plate_sep), 0])
+    burr_plate(upper_pieces, $burr_outer_x_bevel = $burr_bevel);
     
 }

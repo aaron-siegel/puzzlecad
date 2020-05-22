@@ -60,21 +60,28 @@ function is_simply_printable(stick, x = 0, y = 0) =
     (stick[x][y][1][0] == 0 || stick[x][y][0][0] > 0) && is_simply_printable(stick, x + 1, y);
 
 function lower_split(stick, joint_label) =
+    let (xmin = len(stick) / 2 - 2, xmax = len(stick) / 2 + 2)
     [ for (x = [0:len(stick)-1])
-        [ for (y = [0:1])
-            [ for (z = [0:1])
-                z == 0 && x > 0 && x < len(stick) - 1 ? (stick[x][y][z][0] == 1 && stick[x][y][1][0] == 1 ? [1, [["connect", "mz+y+"], ["clabel", joint_label]]] : stick[x][y][z]) :
-                x >= (len(stick) - 4) / 2 && x < (len(stick) + 4) / 2 ? 0 : stick[x][y][z]
-            ]
-        ]
-    ];
+    [ for (y = [0:1])
+    [ for (z = [0:1])
+          x >= xmin && x < xmax && burr_stick_is_connected_to_overhang(stick, x, y)
+        ? (z == 0 && stick[x][y][z][0] == 1 ? [1, [["connect", "mz+y+"], ["clabel", joint_label]]] : [0])
+        : stick[x][y][z]
+    ]]];
             
 function upper_split(stick, joint_label) =
-    [ for (x = [0:len(stick)-1])
-        [ for (y = [0:1])
-            x >= (len(stick) - 4) / 2 && x < (len(stick) + 4) / 2 ?
-                (stick[x][y][0][0] == 1 && stick[x][y][1][0] == 1 ? [[1, [["connect", "fz-y+"], ["clabel", joint_label]]]] :
-                        [stick[x][y][1]])
-            : [[0]]
-        ]
-    ];
+    let (xmin = len(stick) / 2 - 2, xmax = len(stick) / 2 + 2)
+    [ for (x = [xmin:xmax-1])
+    [ for (y = [0:1])
+          burr_stick_is_connected_to_overhang(stick, x, y)
+        ? (stick[x][y][0][0] == 1 ? [[1, [["connect", "fz-y+"], ["clabel", joint_label]]]] : [[1]])
+        : [[0]]
+    ]];
+
+function burr_stick_is_connected_to_overhang(stick, x, y, visited = []) =
+      list_contains(visited, [x, y]) || x < len(stick) / 2 - 2 || x > len(stick) / 2 + 2 || y < 0 || y > 1 || stick[x][y][1][0] == 0 ? false
+    : stick[x][y][0][0] == 0 ? true
+    : let (updated_visited = add_to_list(visited, [x, y]))
+         burr_stick_is_connected_to_overhang(stick, x - 1, y, updated_visited)
+      || burr_stick_is_connected_to_overhang(stick, x + 1, y, updated_visited)
+      || burr_stick_is_connected_to_overhang(stick, x, 1 - y, updated_visited);
