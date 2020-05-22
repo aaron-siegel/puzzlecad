@@ -2,85 +2,113 @@ include <puzzlecad.scad>
 
 require_puzzlecad_version("2.1");
 
-// These four parameters control the output.
+// This is the Extensible Burr Set, version 2.1. It uses the puzzlecad library, and this
+// documentation assumes you're familiar with puzzlecad and its usage. Details can be
+// found in the Puzzle Modeling Tutorial here:
+// https://www.puzzlehub.org/ppp
 
-set = undef;
-stick_length = 6;
-first_index = 0;
-last_index = 11;
+////// Usage
+
+// The burr_set module takes as input a list of Kaenel numbers and
+// generates the corresponding burr pieces. For example:
+*burr_set([1, 256, 824, 928, 975, 1024]);
+
+// There are various predefined sets, described below; instead of explicit Kaenel
+// numbers, you can give it one of the predefined sets:
+*burr_set(notchables);
+
+// If a set contains more than 12 elements, only the first "page" of 12 burr pieces will
+// be generated. You can generate the second page as follows:
+*burr_set(notchables, page_number = 2);
+
+// Finally, by default, all the sticks will be generated with length 6. Burr sets made
+// with length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally be
+// desired as well. You can set it to any (even) number:
+*burr_set(notchables, page_number = 2, stick_length = 8);
+
+////// Parameters
+
+// The following parameter controls the page size; it is 12 by default.
+
+page_size = 12;
+
+// These four parameters are the usual puzzlecad parameters. For details, refer to the
+// Puzzle Modeling Tutorial at: https://www.puzzlehub.org/ppp
 
 $burr_scale = 11.15;
 $burr_inset = 0.06;
 $burr_bevel = 0.5;
 $burr_outer_x_bevel = 1.75;
 
-// stick_length adjusts the length of the pieces; 6 is the usual setting, but burr sets
-// made with length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally
-// be desired as well.
+////// Predefined burr sets
 
-// set can be either an array of Kaenel numbers (to produce a customized set of pieces)
-// or a string representing one of the "standard sets". Examples:
-// set = [52, 615, 792, 960, 975, 992];
-// set = "notchable";
+// The standard 42-piece notchable set (the minimal set that can make every notchable,
+// solid burr)
 
-// The allowable strings that represent "standard sets" are:
-// "notchable" - The standard 42 piece notchable burr set
-// "ultimate" - The 27 piece Ultimate Burr Set
-// "level5" - The 42 piece Level 5 Burr Set
-// "extras" - A selection of extra pieces that are significant
-// "comprehensive" - A set that includes all of the above (125 pieces)
-// "even_more" - 27 *more* pieces, as an expansion to the comprehensive set!
-// "obscure_notchables" - All notchable pieces not in any of the above sets
-// "obscure_millables" - All millable pieces not in any of the above sets
-// "example" - An example set of 6 pieces for testing print settings
+notchables = [1, 18, 18, 35, 52, 52, 86, 103, 120, 154, 188, 188, 256, 256, 256, 359, 615, 792, 792, 824, 824, 856, 871, 871, 888, 888, 911, 911, 928, 928, 943, 960, 960, 975, 975, 992, 992, 1007, 1007, 1024, 1024, 1024];
 
-// For large sets, first_index and last_index can be used to paginate.
+// The 27-piece Ultimate Burr Set
 
-notchable_ids = [1, 18, 18, 35, 52, 52, 86, 103, 120, 154, 188, 188, 256, 256, 256, 359, 615, 792, 792, 824, 824, 856, 871, 871, 888, 888, 911, 911, 928, 928, 943, 960, 960, 975, 975, 992, 992, 1007, 1007, 1024, 1024, 1024];
+ultimate = [1, 60, 64, 124, 128, 188, 192, 224, 256, 410, 412, 414, 416, 442, 444, 448, 474, 476, 478, 480, 506, 508, 512, 928, 960, 992, 1024];
 
-ultimate_ids = [1, 60, 64, 124, 128, 188, 192, 224, 256, 410, 412, 414, 416, 442, 444, 448, 474, 476, 478, 480, 506, 508, 512, 928, 960, 992, 1024];
+// The 42-piece Level 5 Burr Set, which can make lots of level-5 burrs
 
-level5_ids = [103, 120, 154, 188, 256, 256, 327, 344, 344, 376, 412, 444, 463, 480, 480, 480, 495, 512, 551, 568, 632, 670, 687, 704, 704, 734, 751, 768, 824, 856, 888, 928, 943, 960, 960, 975, 992, 992, 1007, 1024, 1933, 2836];
+level5 = [103, 120, 154, 188, 256, 256, 327, 344, 344, 376, 412, 444, 463, 480, 480, 480, 495, 512, 551, 568, 632, 670, 687, 704, 704, 734, 751, 768, 824, 856, 888, 928, 943, 960, 960, 975, 992, 992, 1007, 1024, 1933, 2836];
 
-additional_ids = [20, 56, 72, 88, 94, 109, 112, 126, 156, 160, 216, 240, 464, 499, 511, 564, 576, 624, 702, 736, 757, 760, 800, 820, 832, 880, 883, 896, 909, 922, 926, 927, 956, 976, 984, 990, 996, 1008, 1008, 1015, 1016, 1021, 1023];
+// A selection of additional pieces that are not part of the above sets
+// and that are identified as signficant in Rob Stegmann's catalog
 
-comprehensive_ids = union_of_number_lists(notchable_ids, union_of_number_lists(ultimate_ids, union_of_number_lists(level5_ids, additional_ids)));
+additional = [20, 56, 72, 88, 94, 109, 112, 126, 156, 160, 216, 240, 464, 499, 511, 564, 576, 624, 702, 736, 757, 760, 800, 820, 832, 880, 883, 896, 909, 922, 926, 927, 956, 976, 984, 990, 996, 1008, 1008, 1015, 1016, 1021, 1023];
 
-even_more_ids = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 672, 743, 766, 768, 788, 848, 863, 869, 895, 924, 944, 957, 983, 989, 1012, 1013];
+// Comprehensive Burr Set: The minimal set containing all of the above (125 pieces)
 
-obscure_notchables_ids = [276, 291, 308, 395, 427, 534, 598, 653, 717, 1417, 1419, 1449, 1935, 2840];
+comprehensive = union_of_number_lists(notchables, union_of_number_lists(ultimate, union_of_number_lists(level5, additional)));
 
-obscure_millables_ids = [88, 118, 160, 192, 224, 399, 416, 431, 448, 491, 508, 536, 600, 630, 672, 736, 766, 1423, 1513];
+// Even More Burr Set: 27 pieces that expand the Comprehensive Burr Set still further!
 
-example_ids = [1, 256, 824, 928, 975, 1024];
+even_more = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 672, 743, 766, 768, 788, 848, 863, 869, 895, 924, 944, 957, 983, 989, 1012, 1013];
 
-ids = !is_string(set) ? set
-    : set == "notchable" ? notchable_ids
-    : set == "ultimate" ? ultimate_ids
-    : set == "level5" ? level5_ids
-    : set == "extras" ? additional_ids
-    : set == "comprehensive" ? comprehensive_ids
-    : set == "even_more" ? even_more_ids
-    : set == "obscure_notchables" ? obscure_notchables_ids
-    : set == "obscure_millables" ? obscure_millables_ids
-    : set == "example" ? example_ids
-    : undef;
+// Rob Stegmann's "obscure notchables" and "obscure millables" - rarely used pieces of
+// the corresponding type. There is some overlap between these and the above sets.
+
+obscure_notchables = [276, 291, 308, 395, 427, 534, 598, 653, 717, 1417, 1419, 1449, 1935, 2840];
+
+obscure_millables = [88, 118, 160, 192, 224, 399, 416, 431, 448, 491, 508, 536, 600, 630, 672, 736, 766, 1423, 1513];
     
-if (!is_undef(ids)) {
+if (!is_undef(pieces)) {
 
-    burr_set(ids, first_index, min(last_index, len(ids)-1));
+    stamped_burr_plate(pieces);
 
 }
 
-module burr_set(ids, first_index, last_index) {
-    
-    pieces = [
-        for (i = [first_index:last_index])
-        let (stick = burr_stick(ids[i], stick_length, add_stamp = true))
-        for (piece = opt_split_burr_stick(stick, joint_label = auto_joint_letters[i - first_index]))
-        piece
-    ];
+module burr_set(pieces, page_number = 1, stick_length = 6) {
+
+    if (len(pieces) > page_size * (page_number - 1)) {
+
+        first_index = page_size * (page_number - 1);
+        last_index = min(page_size * page_number, len(pieces)) - 1;
+        page = [ for (i = [first_index:last_index]) pieces[i] ];
+        stamped_burr_plate(page);
         
-    burr_plate(pieces);
+    }
+
+}
+
+module stamped_burr_plate(piece_ids) {
+    
+    split_pieces = [
+        for (i = [0:len(piece_ids)-1])
+        let (stick = burr_stick(piece_ids[i], add_stamp = true))
+        opt_split_burr_stick(stick, joint_label = auto_joint_letters[i])
+    ];
+
+    lower_pieces = [ for (split_piece = split_pieces) split_piece[0] ];
+    
+    upper_pieces = [ for (split_piece = split_pieces) if (len(split_piece) > 1) split_piece[1] ];
+
+    burr_plate(lower_pieces);
+    
+    translate([0, ceil(len(lower_pieces) / 2) * ($burr_scale * 2 + $plate_sep), 0])
+    burr_plate(upper_pieces, $burr_outer_x_bevel = $burr_bevel);
     
 }
