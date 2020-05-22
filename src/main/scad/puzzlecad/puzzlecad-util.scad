@@ -162,6 +162,11 @@ function add_to_list(list, element) = concat(list, [element]);
 function remove_from_list(list, index) = [ for (k=indices(list)) if (k != index) list[k] ];
            
 function replace_in_list(list, index, replacement) = [ for (k=indices(list)) k == index ? replacement : list[k] ];
+    
+function replace_in_array(array, coords, replacement, i = 0) =
+      i == len(coords) - 1
+    ? replace_in_list(array, coords[i], replacement)
+    : replace_in_list(array, coords[i], replace_in_array(array[coords[i]], coords, replacement, i + 1));
 
 function sublist(list, i, j) = i >= j ? [] : [ for (k=[i:j-1]) list[k] ];
 
@@ -177,7 +182,22 @@ function sum(list, k = 0) = k >= len(list) ? undef : k + 1 == len(list) ? list[k
 function reverse_list(list, reverse = true) =
     reverse ? [ for (i = [len(list)-1:-1:0]) list[i] ] : list;
         
-function repeat(n, item) = [ for (i = [1:n]) item ];
+function repeat(n, item) = n <= 0 ? [] : [ for (i = [1:n]) item ];
+
+// This function computes the union of two lists of numbers. The "union" of a list is the
+// list of elements that appear in at least one of the underlying lists. Multiplicity is handled
+// as follows: if an element appears m times in list1 and n times in list2, then it will
+// appear max(m, n) times in the union.
+// The lists are assumed to be sorted ascending. If they are not, the behavior is undefined.
+
+function union_of_number_lists(list1, list2, i = 0, j = 0) =
+    assert(is_list(list1) && is_list(list2))
+      i >= len(list1) && j >= len(list2) ? []
+    : i >= len(list1) ? sublist(list2, j, len(list2))
+    : j >= len(list2) ? sublist(list1, i, len(list1))
+    : list1[i] == list2[j] ? concat([list1[i]], union_of_number_lists(list1, list2, i + 1, j + 1))
+    : list1[i] < list2[j] ? concat([list1[i]], union_of_number_lists(list1, list2, i + 1, j))
+    : concat([list2[j]], union_of_number_lists(list1, list2, i, j + 1));
 
 /***** Misc *****/
 

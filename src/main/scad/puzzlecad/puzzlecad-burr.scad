@@ -1014,7 +1014,8 @@ function piece_bounding_box(burr_info) =
 function bounding_box_of_points(points, i = 0, box = undef) =
       i >= len(points) ? box
     : is_undef(box) ? bounding_box_of_points(points, i + 1, [points[i], points[i]])
-    : let (
+    : assert(is_3_vector(points[i]), points[i])
+      let (
         new_min = [min(box[0].x, points[i].x), min(box[0].y, points[i].y), min(box[0].z, points[i].z)],
         new_max = [max(box[1].x, points[i].x), max(box[1].y, points[i].y), max(box[1].z, points[i].z)]
       )

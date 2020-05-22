@@ -43,7 +43,7 @@ function burr_stick(kaenel_number, length=6) = wrap(zyx_to_xyz(
             concat(copies((length-6) / 2, 1), wedge, copies((length-6) / 2, 1))
         ]
     ]));
-        
+
 // Converts a numeric burr id to a burr info vector; here "id" is one less than the burr id.
 
 function num_to_burr_info(id) = [
