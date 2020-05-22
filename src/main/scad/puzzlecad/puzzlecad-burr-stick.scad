@@ -64,7 +64,7 @@ function lower_split(stick, joint_label) =
         [ for (y = [0:1])
             [ for (z = [0:1])
                 z == 0 && x > 0 && x < len(stick) - 1 ? (stick[x][y][z][0] == 1 && stick[x][y][1][0] == 1 ? [1, [["connect", "mz+y+"], ["clabel", joint_label]]] : stick[x][y][z]) :
-                x >= (stick_length - 4) / 2 && x < (stick_length + 4) / 2 ? 0 : stick[x][y][z]
+                x >= (len(stick) - 4) / 2 && x < (len(stick) + 4) / 2 ? 0 : stick[x][y][z]
             ]
         ]
     ];
@@ -72,7 +72,7 @@ function lower_split(stick, joint_label) =
 function upper_split(stick, joint_label) =
     [ for (x = [0:len(stick)-1])
         [ for (y = [0:1])
-            x >= (stick_length - 4) / 2 && x < (stick_length + 4) / 2 ?
+            x >= (len(stick) - 4) / 2 && x < (len(stick) + 4) / 2 ?
                 (stick[x][y][0][0] == 1 && stick[x][y][1][0] == 1 ? [[1, [["connect", "fz-y+"], ["clabel", joint_label]]]] :
                         [stick[x][y][1]])
             : [[0]]

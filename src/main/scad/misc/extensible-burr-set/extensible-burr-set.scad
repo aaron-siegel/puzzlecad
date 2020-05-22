@@ -44,13 +44,13 @@ level5_ids = [103, 120, 154, 188, 256, 256, 327, 344, 344, 376, 412, 444, 463, 4
 
 additional_ids = [20, 56, 72, 88, 94, 109, 112, 126, 156, 160, 216, 240, 464, 499, 511, 564, 576, 624, 702, 736, 757, 760, 800, 820, 832, 880, 883, 896, 909, 922, 926, 927, 956, 976, 984, 990, 996, 1008, 1008, 1015, 1016, 1021, 1023];
 
-even_more_ids = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 672, 743, 766, 768, 788, 848, 863, 869, 895, 924, 944, 957, 983, 989, 1012, 1013];
-
 comprehensive_ids = union_of_number_lists(notchable_ids, union_of_number_lists(ultimate_ids, union_of_number_lists(level5_ids, additional_ids)));
 
-obscure_notchables_ids = [276, 653, 291, 308, 717, 395, 534, 427, 598, 1417, 1419, 1449, 1935, 2840];
+even_more_ids = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 672, 743, 766, 768, 788, 848, 863, 869, 895, 924, 944, 957, 983, 989, 1012, 1013];
 
-obscure_millables_ids = [160, 88, 118, 192, 224, 399, 536, 416, 672, 431, 600, 448, 736, 491, 630, 508, 766, 1423, 1513];
+obscure_notchables_ids = [276, 291, 308, 395, 427, 534, 598, 653, 717, 1417, 1419, 1449, 1935, 2840];
+
+obscure_millables_ids = [88, 118, 160, 192, 224, 399, 416, 431, 448, 491, 508, 536, 600, 630, 672, 736, 766, 1423, 1513];
 
 example_ids = [1, 256, 824, 928, 975, 1024];
 
@@ -75,9 +75,9 @@ if (!is_undef(ids)) {
 module burr_set(ids, first_index, last_index) {
     
     pieces = [
-        for (n = [first_index:last_index])
-        let (stick = burr_stick(ids[n], stick_length, add_stamp = true))
-        for (piece = opt_split_burr_stick(stick, joint_label = auto_joint_letters[n - first_index]))
+        for (i = [first_index:last_index])
+        let (stick = burr_stick(ids[i], stick_length, add_stamp = true))
+        for (piece = opt_split_burr_stick(stick, joint_label = auto_joint_letters[i - first_index]))
         piece
     ];
         
