@@ -24,7 +24,7 @@ require_puzzlecad_version("2.1");
 // Finally, by default, all the sticks will be generated with length 6. Burr sets made
 // with length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally be
 // desired as well. You can set it to any (even) number:
-burr_set(notchables, page_number = 2, stick_length = 8);
+*burr_set(notchables, page_number = 2, stick_length = 8);
 
 ////// Parameters
 
