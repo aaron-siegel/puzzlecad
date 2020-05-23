@@ -24,7 +24,7 @@ require_puzzlecad_version("2.1");
 // Finally, by default, all the sticks will be generated with length 6. Burr sets made
 // with length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally be
 // desired as well. You can set it to any (even) number:
-*burr_set(notchables, page_number = 2, stick_length = 8);
+burr_set(notchables, page_number = 2, stick_length = 8);
 
 ////// Parameters
 
@@ -88,17 +88,17 @@ module burr_set(pieces, page_number = 1, stick_length = 6) {
         first_index = page_size * (page_number - 1);
         last_index = min(page_size * page_number, len(pieces)) - 1;
         page = [ for (i = [first_index:last_index]) pieces[i] ];
-        stamped_burr_plate(page);
+        stamped_burr_plate(page, stick_length);
         
     }
 
 }
 
-module stamped_burr_plate(piece_ids) {
+module stamped_burr_plate(piece_ids, stick_length = 8) {
     
     split_pieces = [
         for (i = [0:len(piece_ids)-1])
-        let (stick = burr_stick(piece_ids[i], add_stamp = true))
+        let (stick = burr_stick(piece_ids[i], stick_length, add_stamp = true))
         opt_split_burr_stick(stick, joint_label = auto_joint_letters[i])
     ];
 
