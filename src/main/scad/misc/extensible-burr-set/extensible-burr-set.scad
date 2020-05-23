@@ -66,7 +66,10 @@ comprehensive = union_of_number_lists(notchables, union_of_number_lists(ultimate
 
 // Even More Burr Set: 27 pieces that expand the Comprehensive Burr Set still further!
 
-even_more = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 672, 743, 766, 768, 788, 848, 863, 869, 895, 924, 944, 957, 983, 989, 1012, 1013];
+// CHECK: Brian Young's Mega Six (incorrect on Stegmann's site?)
+// CHECK: "Big Burr" (incorrect on Stegmann's site?)
+
+even_more = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 743, 766, 768, 788, 863, 895, 924, 957, 989, 1012, 1013];
 
 // Rob Stegmann's "obscure notchables" and "obscure millables" - rarely used pieces of
 // the corresponding type. There is some overlap between these and the above sets.

@@ -6,7 +6,7 @@ targets: [part_1, part_2, expansion]
 configurations:
   - {name: 'inset-60', code: '$burr_inset = 0.06;', targets: ''}
   - {name: 'inset-75', code: '$burr_inset = 0.075;', targets: ''}
-  - {name: 'inset-90', code: '$burr_inset = 0.9', targets: ''}
+  - {name: 'inset-90', code: '$burr_inset = 0.9;', targets: ''}
 description: |
   The _Starter Burr Set_ is a puzzle set that enables you to make dozens of six-piece burr puzzles. Six-piece burrs are one of the oldest mechanical puzzle forms, dating to at least the 18th century, and it's easy to see why their appeal has endured. The goal looks simple, and it's always the same: assemble six puzzles pieces into the interlocking configuration shown in the second photo. But the challenges vary widely in difficulty, from fairly easy to quite hard, depending on which set of six pieces is selected. Burr sets provide a lot of entertainment in a compact package!
 
