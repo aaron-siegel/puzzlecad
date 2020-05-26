@@ -1,5 +1,7 @@
 package org.puzzlecad;
 
+import static org.puzzlecad.XmpuzzleFile.*;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -17,173 +19,51 @@ import java.util.zip.GZIPInputStream;
 
 public class XmpuzzleToScad {
 
-    public final static int GRID_TYPE_RECTILINEAR = 0;
-    public final static int GRID_TYPE_RHOMBIC_TETRAHEDRAL = 3;
+    Arguments arguments;
+    String filename;
+    XmpuzzleFile file;
 
-    File file;
+    public XmpuzzleToScad(Arguments arguments) throws Exception {
 
-    public XmpuzzleToScad(String filename) {
-
-        this.file = new File(filename);
+        this.arguments = arguments;
+        this.filename = arguments.filename;
+        this.file = new XmpuzzleFile(filename);
 
     }
 
     public void convert() throws Exception {
 
-        GZIPInputStream inputStream = new GZIPInputStream(new FileInputStream(file));
-        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = db.parse(inputStream);
-
-        int gridType = Integer.parseInt(document.getElementsByTagName("gridType").item(0).getAttributes().getNamedItem("type").getTextContent());
-
-        if (gridType != GRID_TYPE_RECTILINEAR && gridType != GRID_TYPE_RHOMBIC_TETRAHEDRAL) {
-            throw new UnsupportedOperationException("Unsupported BurrTools grid type (currently only Rectilinear and Rhombic Tetrahedral are supported)");
-        }
-
-        NodeList resultNodes = document.getElementsByTagName("result");
-        Set<Integer> resultIds = new HashSet<Integer>();
-        for (int i = 0; i < resultNodes.getLength(); i++) {
-            String id = resultNodes.item(i).getAttributes().getNamedItem("id").getNodeValue();
-            resultIds.add(Integer.parseInt(id));
-        }
-
-        Node shapesNode = document.getElementsByTagName("shapes").item(0);
-        List<int[][][]> pieces = new ArrayList<int[][][]>();
-
-        int pieceNumber = 0;
-        for (int i = 0; i < shapesNode.getChildNodes().getLength(); i++) {
-            Node node = shapesNode.getChildNodes().item(i);
-            if (node.getNodeName().equals("voxel")) {
-                String shapeName = "S" + (pieceNumber + 1);
-                if (resultIds.contains(pieceNumber)) {
-                    System.out.println(" Skipped  shape " + shapeName + ", which is used as a problem result. Re-run with --all if you want to generate it.");
-                } else {
-                    int x = Integer.parseInt(node.getAttributes().getNamedItem("x").getNodeValue());
-                    int y = Integer.parseInt(node.getAttributes().getNamedItem("y").getNodeValue());
-                    int z = Integer.parseInt(node.getAttributes().getNamedItem("z").getNodeValue());
-                    int[][][] array = xmpuzzleToArray(gridType, x, y, z, node.getTextContent());
-                    if (array.length == 0) {
-                        System.out.println(" Skipped  shape " + shapeName + " (no voxels).");
-                    } else {
-                        System.out.println("Generated shape " + shapeName + " (" + x + "x" + y + "x" + z + ").");
-                        pieces.add(array);
-                    }
-                }
-                pieceNumber++;
-            }
-        }
-        inputStream.close();
-
-        String filename = file.getName();
         if (filename.endsWith(".xmpuzzle")) {
             filename = filename.substring(0, filename.lastIndexOf("."));
         }
-        String outputFilename = filename + ".scad";
-        write(new File(outputFilename), gridType, pieces);
-
-    }
-
-    public int[][][] xmpuzzleToArray(int gridType, int x, int y, int z, String xmpuzzlePiece) {
-
-        String filteredString = filterXmpuzzleString(xmpuzzlePiece);
-
-        int[][][] array = new int[z][y][x];
-
-        for (int k = 0; k < z; k++) {
-            for (int j = 0; j < y; j++) {
-                for (int i = 0; i < x; i++) {
-
-                    array[k][j][i] = filteredString.charAt(k * x * y + j * x + i) == '#' ? 1 : 0;
-
-                }
-            }
-        }
-
-        if (gridType == GRID_TYPE_RECTILINEAR) {
-            return stripArray(array);
+        PrintWriter writer;
+        if (arguments.stdout) {
+            writer = new PrintWriter(System.out);
         } else {
-            return array;
+            String outputFilename = new File(filename).getName() + ".scad";
+            File outputFile = new File(outputFilename);
+            System.out.println("Writing " + outputFile.getName() + ".");
+            writer = new PrintWriter(outputFile);
         }
+        write(writer);
 
     }
 
-    public String filterXmpuzzleString(String string) {
-
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < string.length(); i++) {
-            char ch = string.charAt(i);
-            if (ch == '_' || ch == '#') {
-                builder.append(ch);
-            }
-        }
-        return builder.toString();
-
-    }
-
-    public int[][][] stripArray(int[][][] array) {
-
-        int xmin = Integer.MAX_VALUE;
-        int xmax = Integer.MIN_VALUE;
-        int ymin = Integer.MAX_VALUE;
-        int ymax = Integer.MIN_VALUE;
-        int zmin = Integer.MAX_VALUE;
-        int zmax = Integer.MIN_VALUE;
-
-        for (int k = 0; k < array.length; k++) {
-            for (int j = 0; j < array[k].length; j++) {
-                for (int i = 0; i < array[k][j].length; i++) {
-
-                    if (array[k][j][i] != 0) {
-                        xmin = Math.min(xmin, i);
-                        xmax = Math.max(xmax, i);
-                        ymin = Math.min(ymin, j);
-                        ymax = Math.max(ymax, j);
-                        zmin = Math.min(zmin, k);
-                        zmax = Math.max(zmax, k);
-                    }
-
-                }
-            }
-        }
-
-        if (xmin == Integer.MAX_VALUE)
-            return new int[0][0][0];
-
-        int[][][] newArray = new int[zmax - zmin + 1][ymax - ymin + 1][xmax - xmin + 1];
-
-        for (int k = zmin; k <= zmax; k++) {
-            for (int j = ymin; j <= ymax; j++) {
-                for (int i = xmin; i <= xmax; i++) {
-
-                    newArray[k - zmin][j - ymin][i - xmin] = array[k][j][i];
-
-                }
-            }
-        }
-
-        return newArray;
-
-    }
-
-    public void write(File outputFile, int gridType, List<int[][][]> pieces) throws Exception {
-
-        System.out.println("Writing " + outputFile.getName() + ".");
-
-        PrintWriter out = new PrintWriter(outputFile);
+    public void write(PrintWriter out) throws Exception {
 
         out.println("include <puzzlecad.scad>");
         out.println();
 
         out.println("// This model was generated by puzzlecad's bt2scad tool from the BurrTools file:");
-        out.println("// " + file.getName());
+        out.println("// " + new File(filename).getName());
         out.println();
         out.println("// You can freely edit this file to make changes to the model structure or parameters.");
         out.println();
 
         out.println("require_puzzlecad_version(\"2.0\");");
         out.println();
-        if (gridType == GRID_TYPE_RECTILINEAR) {
-            out.println("$burr_scale = " + defaultScale(pieces) + ";");
+        if (file.gridType == GRID_TYPE_RECTILINEAR) {
+            out.println("$burr_scale = " + defaultScale() + ";");
             out.println("$auto_layout = true;");
         } else {
             out.println("$burr_scale = 27;");
@@ -191,29 +71,45 @@ public class XmpuzzleToScad {
         out.println();
 
         out.println("burr_plate([");
-        for (int i = 0; i < pieces.size(); i++) {
-            if (gridType == GRID_TYPE_RECTILINEAR) {
-                out.print(rectilinearPieceToString(pieces.get(i)));
-            } else {
-                out.print(rhombicTetrahedralPieceToString(pieces.get(i)));
+
+        for (int i = 0; i < file.pieces.length; i++) {
+
+            boolean writeThisPiece = true;
+
+            if (arguments.filterByColor != null) {
+                writeThisPiece = false;
+                for (XmpuzzleVoxel voxel : file.pieces[i].voxels) {
+                    for (int color : arguments.filterByColor) {
+                        if (voxel.color == color) {
+                            writeThisPiece = true;
+                        }
+                    }
+                }
             }
-            if (i < pieces.size() - 1) {
+
+            if (writeThisPiece) {
+                if (file.gridType == GRID_TYPE_RECTILINEAR) {
+                    out.print(rectilinearPieceToString(file.pieces[i]));
+                } else {
+                    out.print(rhombicTetrahedralPieceToString(file.pieces[i]));
+                }
                 out.print(",");
+                out.println();
             }
-            out.println();
+
         }
         out.println("]);");
         out.close();
 
     }
 
-    public String defaultScale(List<int[][][]> pieces) {
+    public String defaultScale() {
 
         int maxdim = 0;
-        for (int[][][] piece : pieces) {
-            maxdim = Math.max(maxdim, piece.length);
-            maxdim = Math.max(maxdim, piece[0].length);
-            maxdim = Math.max(maxdim, piece[0][0].length);
+        for (XmpuzzlePiece piece : file.pieces) {
+            maxdim = Math.max(maxdim, piece.array.length);
+            maxdim = Math.max(maxdim, piece.array[0].length);
+            maxdim = Math.max(maxdim, piece.array[0][0].length);
         }
 
         if (maxdim <= 3)
@@ -227,14 +123,15 @@ public class XmpuzzleToScad {
 
     }
 
-    public String rectilinearPieceToString(int[][][] array) {
+    public String rectilinearPieceToString(XmpuzzlePiece piece) {
 
         StringBuilder result = new StringBuilder("    [ ");
+        XmpuzzleVoxel[][][] array = piece.array;
         for (int k = 0; k < array.length; k++) {
             result.append("\"");
             for (int j = 0; j < array[k].length; j++) {
                 for (int i = 0; i < array[k][j].length; i++) {
-                    result.append(array[k][j][i] == 1 ? 'x' : '.');
+                    result.append(array[k][j][i].isFilled ? 'x' : '.');
                 }
                 if (j < array[k].length - 1) {
                     result.append("|");
@@ -250,10 +147,11 @@ public class XmpuzzleToScad {
 
     }
 
-    public String rhombicTetrahedralPieceToString(int[][][] array) {
+    public String rhombicTetrahedralPieceToString(XmpuzzlePiece piece) {
 
         StringBuilder result = new StringBuilder("    [ ");
-        for (int k = 0; k < array.length; k += 5) {
+        XmpuzzleVoxel[][][] array = piece.array;
+        for (int k = 0; k < piece.array.length; k += 5) {
             result.append("\"");
             for (int j = 0; j < array[k].length; j += 5) {
                 for (int i = 0; i < array[k][j].length; i += 5) {
@@ -273,7 +171,7 @@ public class XmpuzzleToScad {
 
     }
 
-    public String rhombicTetrahedralVoxelToString(int[][][] array, int x, int y, int z) {
+    public String rhombicTetrahedralVoxelToString(XmpuzzleVoxel[][][] array, int x, int y, int z) {
 
         StringBuilder result = new StringBuilder();
 
@@ -281,7 +179,7 @@ public class XmpuzzleToScad {
             for (int j = 0; j < 5; j++) {
                 for (int i = 0; i < 5; i++) {
 
-                    if (array[z + k][y + j][x + i] == 1) {
+                    if (array[z + k][y + j][x + i].isFilled) {
                         String componentName = diagonalComponentNames[k][j][i];
                         if (componentName == null) {
                             throw new RuntimeException("Invalid .xmpuzzle file: (" + (x + i) + "," + (y + j) + "," + (z + k) + ")");
@@ -305,13 +203,21 @@ public class XmpuzzleToScad {
 
     public static void main(String[] args) {
 
+        Arguments arguments = null;
+
         try {
-        	if (args.length < 1) {
-        		System.out.println("Usage: java -jar bt-to-scad.jar [btfile]");
-        		System.out.println("  where [btfile] is an .xmpuzzle file");
-        	} else {
-	            new XmpuzzleToScad(args[0]).convert();
-	        }
+            arguments = new Arguments(args);
+        } catch (Exception exc) {
+        }
+
+        if (arguments == null || arguments.filename == null) {
+            System.out.println("Usage: java -jar bt-to-scad.jar [btfile]");
+            System.out.println("  where [btfile] is an .xmpuzzle file");
+            return;
+        }
+
+        try {
+            new XmpuzzleToScad(arguments).convert();
         } catch (Exception exc) {
             System.err.println("BurrTools conversion failed with the following error message:");
             System.err.println(exc.getMessage());
