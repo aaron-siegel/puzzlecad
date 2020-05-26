@@ -1,0 +1,27 @@
+thing-id: 3363882
+name: "Three-Piece Block - Assembly puzzle by Stewart Coffin (STC #38)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: --
+description: |
+  Assemble the three pieces into the pyramid shape shown in the photo.
+  
+  _Three-Piece Block_ is one of Coffin's most recognizable designs. It's surprisingly difficult despite having only three pieces, due to the unusual shape of the assembly. I can recommend it highly to anyone with an interest in interlocking mechanical puzzles.
+
+  Coffin tells the interesting story of the origins of this puzzle:
+  
+  "I dashed off the design of this simple puzzle in response to a request from a New York advertising agency, whose client, Citibank, wanted hundreds of them for use in some sort of sales promotion scheme. The base of it presumably resembles Citibank’s corporate logo. I also made some for general sales. What a surprise it was when friends started reporting it was one of their favorite puzzles, much more confusing than I had at first assumed."
+  
+  UPDATED June 2020 with a new design. The new design is functionally identical to the old one, but its appearance is considerably more faithful to Coffin's intentions.
+  
+  ### Printing Instructions
+
+  Print one copy of `coffin.three-piece-block.stl`. I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
+  
+  ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

@@ -1,0 +1,30 @@
+thing-id: 3435733
+name: "Patio Block - Interlocking puzzle by Stewart Coffin (STC #82)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [--]
+configurations:
+    - {name: '', code: '', targets: ''}
+    - {name: 'smaller', code: '$burr_scale = 12.75; $burr_bevel = 1;', targets: ''}
+description: |
+    Assemble the eight pieces into a 4x4x4 cube.
+
+    _Patio Block_ is classic Stewart Coffin: a simple, elegant idea gives rise to an unexpectedly challenging assembly puzzle. Coffin described the genesis of its design:
+    
+    "Start by joining 1x2x2 blocks all ten possible ways. Now put aside the two that are rectangular solids. Try fitting the other eight into a 4x4x4 box until you become convinced that it is impossible. Try eliminating one and duplicating another until they not only fit but do so with interesting symmetry."
+    
+    If you enjoy this puzzle, you might also try Coffin's related design [Cube 16](https://www.thingiverse.com/thing:3480298), an interlocking puzzle based on the same idea of joining 1x2x2 blocks.
+    
+    UPDATED June 2020 with a new design and larger size.
+
+    ### Printing Instructions
+    
+    Print either `coffin.patio-block.stl` _or_ `coffin.patio-block-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material.
+    
+    ${snap-joints-boilerplate}
+
+    ${puzzlecad-boilerplate}
+
+    ${stewart-coffin-bio}
+
+    Happy puzzling!

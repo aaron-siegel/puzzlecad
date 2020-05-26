@@ -1,7 +1,8 @@
 include <puzzlecad.scad>
 
-$burr_scale = 14;
-$burr_bevel = 1;
+$burr_scale = 14.5;
+$burr_inset = 0.07;
+$burr_bevel = 1.2;
 
 *pieces();
 *box();
