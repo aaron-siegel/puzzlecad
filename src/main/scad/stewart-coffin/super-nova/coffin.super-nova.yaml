@@ -16,7 +16,7 @@ description: |
     
     Note that there are two distinct tip types that are mirror images of each other. In order to ensure proper assembly, the male joints on the tips are marked with the letter "A" or "B", and the corresponding female joints on the bases are similarly marked. Be sure that you only connect joints of matching letters.
     
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 

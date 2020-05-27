@@ -14,7 +14,7 @@ description: |
     
     The pieces are assembled from multiple colors using "snap joints": simply snap the male and female connectors into place. If they come out too loose, they can be reinforced with a few drops of superglue (but this usually isn't necessary). The joints are designed to be printed without supports.
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 

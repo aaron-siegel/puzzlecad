@@ -31,7 +31,7 @@ description: |
     
     Also optionally, you may print `coffin.four-corners.bases-larger.stl` and `coffin.four-corners.tips-larger.stl` for a grander version of the puzzle, which will use around 50% more material.
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 
