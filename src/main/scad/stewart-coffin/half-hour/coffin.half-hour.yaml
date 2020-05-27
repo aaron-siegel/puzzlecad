@@ -21,7 +21,7 @@ description: |
     
     Print either `coffin.half-hour.pieces.stl` _or_ `coffin.half-hour.pieces-smaller.stl`. I prefer the larger version, but the smaller one will use around 1/3 less material. Optionally, you may also print a box to hold the pieces in place in their solved state when not in use (as shown in the cover photo) - be sure to use the box model whose size matches the pieces you print.
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 

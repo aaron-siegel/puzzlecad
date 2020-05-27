@@ -23,7 +23,7 @@ description: |
 
     ${snap-joints-boilerplate}
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 

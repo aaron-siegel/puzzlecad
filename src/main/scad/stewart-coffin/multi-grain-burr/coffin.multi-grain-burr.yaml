@@ -12,7 +12,7 @@ description: |
   
   ### Printing Instructions
 
-  Print one copy of `coffin.multi-grain-burr.stl`. I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
+  Print one copy of `coffin.multi-grain-burr.stl`. This model uses snap joints so that the pieces can be printed without supports; for this particular puzzle, I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
   
   ${snap-joints-boilerplate}
 

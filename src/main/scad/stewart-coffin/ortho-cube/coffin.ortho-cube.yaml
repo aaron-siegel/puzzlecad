@@ -27,7 +27,7 @@ description: |
     
     Both variants use "snap joints" to enable each piece to be printed without supports. ${snap-joints-boilerplate}
 
-    ${puzzlecad-boilerplate}
+    ${ppp-boilerplate}
 
     ${stewart-coffin-bio}
 
