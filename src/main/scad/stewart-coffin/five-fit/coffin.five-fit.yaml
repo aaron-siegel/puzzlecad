@@ -1,0 +1,21 @@
+thing-id: 3433358
+name: "Five Fit - Tray-packing puzzle by Stewart Coffin (STC #177-A)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Fit all five pieces into the square opening.
+  
+  _Five Woods_ ${stewart-coffin-tray-packing}
+  
+  Coffin named this puzzle _Five Woods_, because his original production used a different hardwood species for each of the five pieces. That original name is a bit of a misnomer for a 3D printed puzzle. "Five Plastics" has less of a ring to it... I prefer the name _Five Fit_ used by various other puzzle makers.
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

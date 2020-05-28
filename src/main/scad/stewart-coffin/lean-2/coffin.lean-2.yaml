@@ -1,0 +1,25 @@
+thing-id: 3650120
+name: "Lean-2 - Tray-packing puzzle by Stewart Coffin (STC #255)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Two puzzles in one: fit all four pieces into each of the two trapezoidal openings.
+
+  _Lean-2_ ${stewart-coffin-tray-packing} If you're unfamiliar with Coffin's tray-packing puzzles, I'd recommend starting with one of the others first; the linked collection page has some recommendations.
+  
+  _Lean-2_ was originally presented for exchange at the International Puzzle Party 30 in Japan in 2010. Coffin revised it in 2014, slightly reducing the size of the opening on the right, and his revisions are incorporated into the model. Introducing his 2014 revisions, Coffin wrote:
+
+  "Bob Finn, who is very sharp at discovering unintended solutions, not only found one but his will fit into a slightly smaller tray. Thus an improved design with that redesigned tray. I do not list it as a separate design because I have never made one and it exists here only as my creation using Photoshop."
+
+  Well, now it exists outside of Photoshop. Enjoy!
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

@@ -1,0 +1,21 @@
+thing-id: 3433378
+name: "Octet in F - Tray-packing puzzle by Stewart Coffin (STC #258)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Fit all eight pieces into the parallelogram-shaped opening.
+
+  _Octet in F_ ${stewart-coffin-tray-packing}
+  
+  _Octet in F_ is a sequel of sorts to Coffin's earlier design ${link:coffin.quintet-in-f}. It's one of the more difficult puzzles in the series; if you're not familiar with this type of puzzle, I'd recommend starting with one of the others instead; the linked collection page has some recommendations.
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

@@ -1,0 +1,19 @@
+thing-id: 3648216
+name: "Housing Project - Tray-packing puzzle by Stewart Coffin (STC #181-C)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Two puzzles in one: it all five pieces into each of the two house-shaped openings. They look similar, but the solutions are quite different!
+
+  _Housing Project_ is one of a series of tray-packing puzzles by Stewart Coffin. (The other puzzles in the series can be found on the [Stewart Coffin Puzzles](https://www.puzzlehub.org/puzzles/stewart-coffin) collection page.) It was originally presented for exchange at the International Puzzle Party 23 in 2003. If you're unfamiliar with Coffin's tray-packing puzzles, I'd recommend starting with one of the others first; the linked collection page has some recommendations.
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

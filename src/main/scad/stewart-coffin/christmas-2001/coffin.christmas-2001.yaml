@@ -1,0 +1,29 @@
+thing-id: 3648986
+name: "Christmas 2001 - Tray-packing puzzle by Stewart Coffin (STC #182)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  UPDATED 12/15/19: The original version of this model incorporated Coffin's 2018 revisions to this design. I've switched the model to use Coffin's original 2001 design; see below for details.
+
+  Fit all five pieces into the rectangular opening.
+  
+  _Christmas 2001_ ${stewart-coffin-tray-packing}
+  
+  Coffin describes this one as among his more difficult puzzles in this genre, and he wrote: "I made just a few of these during one holiday season (hence the name) as gifts to puzzle experts." If you're unfamiliar with his tray-packing puzzles, I'd recommend starting with one of the others first; the linked collection page has some recommendations.
+  
+  ### Original version vs. 2018 Revision
+  
+  In 2018, Coffin published a revised version of _Christmas 2001_ with a different set of pieces. Thingiverse user Player879 recently discovered that the 2018 version has an unwanted alternate solution! Therefore, this model uses Coffin's original 2001 design. The 2001 and 2018 versions differ in only two of their pieces.
+
+  Player879 has also released another variant here, as his own design: https://www.thingiverse.com/thing:4032485
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

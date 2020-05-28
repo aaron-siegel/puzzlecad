@@ -1,0 +1,23 @@
+thing-id: 3433365
+name: "Penta-Pentomino - Tray-packing puzzle by Stewart Coffin (STC #176-A)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Fit all five pieces into the square opening.
+  
+  _Penta-Pentomino_ ${stewart-coffin-tray-packing}.
+  
+  This is an easily overlooked entrant in the series. Coffin himself didn't think especially highly of it: it's omitted from his canonical reference work _AP-ART_, and in his other writings it does not receive a name, appearing only as _No Name, No. 176-A_.
+  
+  I think it certainly merits more attention! It's easier than most of his other puzzles in this series, making it an excellent "warm-up" before tackling the harder ones; and it has a pleasing structure, fitting five pentominoes - polyominoes with area five - into a perfect square. The name _Penta-Pentomino_ has been used on the few occasions when this design was previously produced, and I certainly prefer it to _No Name, No. 176-A_.
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

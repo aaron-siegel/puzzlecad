@@ -1,0 +1,21 @@
+thing-id: 3649096
+name: "Four Sleazy Pieces - Tray-packing puzzle by Stewart Coffin (STC #169-A)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Fit all four pieces into the rectangular opening.
+
+  _Four Sleazy Pieces_ ${stewart-coffin-tray-packing}
+  
+  This is perhaps one of Coffin's lesser-known puzzles in this genre. If you're unfamiliar with his tray-packing puzzles, I'd recommend starting with one of the others first; the linked collection page has some recommendations.
+  
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. Optionally, you may print `${name}.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

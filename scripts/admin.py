@@ -3,6 +3,7 @@ import configparser
 import requests
 import argparse
 import json
+import re
 import yaml
 import os
 import subprocess
@@ -44,6 +45,10 @@ def process_command(args):
 	elif args.command == "bundle-puzzlecad":
 	
 		bundle_puzzlecad(args.cmdargs[0])
+
+	elif args.command == 'print-thing-description':
+	
+		print_thing_description(args.cmdargs[0])
 		
 	elif args.command == 'update-thing':
 	
@@ -85,10 +90,17 @@ def get_access_token():
 	print('Put this line in ~/.puzzlecad:')
 	print(f'AccessToken = {access_token}')
 	
+def print_thing_description(thing_name):
+
+	yaml_path = resolve_thing(thing_name)
+	contents = load_yaml_file(yaml_path)
+	description = substitute_globals(contents['description'], thing_name)
+	print(description)
+	
 def delete_thing(access_token, thing_id):
 
 	thingiverse_delete(f'things/{thing_id}', access_token)
-
+	
 def update_thing(access_token, thing_name, targets_str):
 
 	targets = targets_str.split(',')
@@ -97,7 +109,7 @@ def update_thing(access_token, thing_name, targets_str):
 	contents = load_yaml_file(yaml_path)
 	name = contents['name']
 	thing_id = contents['thing-id']
-	description = substitute_globals(contents['description'])
+	description = substitute_globals(contents['description'], thing_name)
 	
 	print(f'Updating thing "{name}" from file {yaml_path} ...')
 		
@@ -226,13 +238,27 @@ def build_stl(scad_path, stl_target, configuration):
 		if exit_status != 0:
 			raise Exception(f'Failed on target {modularized_name}.')
 
-def substitute_globals(description):
+def substitute_globals(description, thing_name):
 
-	# This is super-inefficient but should be fine at small scale.
-
-	for key in globals:
+	# This is somewhat inefficient but should be fine at small scale.
 	
-		description = description.replace('${' + key + '}', globals[key])
+	mentioned_globals = re.findall('\$\{(.*?)\}', description)
+	for key in mentioned_globals:
+		if key == 'name':
+			replacement = thing_name
+		elif key.startswith('link:'):
+			link_name = key[5:]
+			link_yaml_path = resolve_thing(link_name)
+			link_contents = load_yaml_file(link_yaml_path)
+			link_thing_id = link_contents['thing-id']
+			link_title = link_contents['name']
+			link_split_title = link_title.split(" - ")
+			replacement = f'[{link_split_title[0]}](https://www.thingiverse.com/thing:{link_thing_id})'
+		elif key in globals:
+			replacement = globals[key]
+		else:
+			raise Exception('Unknown global: ${' + key + '}')
+		description = description.replace('${' + key + '}', replacement)
 
 	return description
 
