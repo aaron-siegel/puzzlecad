@@ -25,7 +25,7 @@ module part_2() {
 
 module expansion() {
     
-    stamped_burr_plate([359, 369, 760, 871, 895, 943, 990, 996, 1007]);
+    stamped_burr_plate([359, 369, 760, 871, 943, 956, 996, 1000, 1007]);
     
 }
 
