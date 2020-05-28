@@ -58,18 +58,15 @@ level5 = [103, 120, 154, 188, 256, 256, 327, 344, 344, 376, 412, 444, 463, 480, 
 // A selection of additional pieces that are not part of the above sets
 // and that are identified as signficant in Rob Stegmann's catalog
 
-additional = [20, 56, 72, 88, 94, 109, 112, 126, 156, 160, 216, 240, 464, 499, 511, 564, 576, 624, 702, 736, 757, 760, 800, 820, 832, 880, 883, 896, 909, 922, 926, 927, 956, 976, 984, 990, 996, 1008, 1008, 1015, 1016, 1021, 1023];
+additional = [20, 55, 56, 72, 88, 94, 112, 126, 156, 160, 216, 240, 464, 499, 511, 564, 576, 624, 702, 736, 757, 760, 800, 820, 832, 880, 883, 896, 909, 922, 926, 927, 956, 976, 984, 990, 996, 1008, 1008, 1015, 1016, 1021, 1023];
 
 // Comprehensive Burr Set: The minimal set containing all of the above (125 pieces)
 
 comprehensive = union_of_number_lists(notchables, union_of_number_lists(ultimate, union_of_number_lists(level5, additional)));
 
-// Even More Burr Set: 27 pieces that expand the Comprehensive Burr Set still further!
+// Even More Burr Set: Even more pieces that further expand the Comprehensive Burr Set!
 
-// CHECK: Brian Young's Mega Six (incorrect on Stegmann's site?)
-// CHECK: "Big Burr" (incorrect on Stegmann's site?)
-
-even_more = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 743, 766, 768, 788, 863, 895, 924, 957, 989, 1012, 1013];
+even_more = [63, 144, 154, 256, 256, 276, 311, 368, 369, 508, 622, 672, 743, 766, 768, 788, 863, 924, 957, 983, 989, 1000, 1012, 1013];
 
 // Rob Stegmann's "obscure notchables" and "obscure millables" - rarely used pieces of
 // the corresponding type. There is some overlap between these and the above sets.
@@ -77,7 +74,12 @@ even_more = [55, 63, 144, 154, 256, 256, 276, 311, 369, 508, 622, 743, 766, 768,
 obscure_notchables = [276, 291, 308, 395, 427, 534, 598, 653, 717, 1417, 1419, 1449, 1935, 2840];
 
 obscure_millables = [88, 118, 160, 192, 224, 399, 416, 431, 448, 491, 508, 536, 600, 630, 672, 736, 766, 1423, 1513];
-    
+
+// The Length 8 Set: be sure to print this with stick_length = 8! With it you can make
+// several notable burrs that require length 8 pieces in order to work.
+
+length_8 = [216, 412, 476, 624, 512, 702, 751, 757, 768, 883, 896, 944, 956, 960, 1015, 1021, 1024];
+
 if (!is_undef(pieces)) {
 
     stamped_burr_plate(pieces);
