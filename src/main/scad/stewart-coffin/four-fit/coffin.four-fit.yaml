@@ -1,0 +1,21 @@
+thing-id: -1
+name: "Four Fit - Tray-packing puzzle by Stewart Coffin (STC #217)"
+tags: [puzzle]
+images: [tray.jpg, tray-with-lid.jpg]
+targets: [pieces, tray, lid]
+description: |
+  Fit all four pieces into the rectangular opening.
+
+  _Four Fit_ is a classic packing puzzle. It seems impossible at first, but it isn't... if it seems like the pieces just won't fit the way you expect, or the tray size is just a little bit off... don't worry! There's nothing wrong with the model or your printer. Keep trying.
+  
+  _Four Fit_ is one of a series of tray-packing puzzles, and Coffin regards it as one of his best. (The others in the series can be found via the links below.) [Martin Gardner](https://en.wikipedia.org/wiki/Martin_Gardner), the renowned popularizer of mathematics, remarked in a letter to Coffin: "It’s the finest dissection puzzle of all time. It looks easy but is fiendishly difficult. I wasted a week trying vainly to solve it." Gardner's frustrations with this puzzle earned it the nickname _Martin's Menace_.
+
+  ### Printing Instructions
+
+  Print one copy each of `coffin.four-fit.pieces.stl` and `coffin.four-fit.tray.stl`. Optionally, you may print `coffin.four-fit.lid.stl` as well, which is a lid that fits over the tray for easy storage.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
