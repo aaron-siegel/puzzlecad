@@ -1,9 +1,9 @@
 include <puzzlecad.scad>
 
-// The effective scale is 17 mm, but we use 8.5 because we need to be able
+// The effective scale is 20 mm, but we use 10 because we need to be able
 // to join along half- and quarter-faces.
-$burr_scale = 8.5;
-$burr_bevel = 1.2;
+$burr_scale = 10;
+$burr_bevel = 1.3;
 
 burr_plate([
     ["..bb|aabb{connect=fx+z+,clabel=A}|aa..", "..bb|aabb|aa.."],

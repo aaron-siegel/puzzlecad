@@ -301,7 +301,25 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     dim = cw(2 * (inset_vec + iota_vec), directions[face])
                         + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face]);
                     translate(cw(scale_vec, face_center))
-                    cube(dim, center=true);
+                    cube(dim, center = true);
+                    
+                    // Now add any edge space-filler adjacent to this face, taking care (as before) to avoid
+                    // duplicates.
+                    if (face < 5)
+                    for (other_face=[face+1:5]) {
+                        if (lookup3(burr, cell + directions[other_face]) > 0 &&
+                            lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) &&
+                            lookup3(burr, facing_cell + directions[other_face]) > 0 &&
+                            lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)) {
+                            
+                            edge_center = face_center + 0.5 * directions[other_face];
+                            dim = cw(2 * (inset_vec + iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
+                                + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
+                            translate(cw(scale_vec, edge_center))
+                            cube(dim, center = true);
+                            
+                        }
+                    }
                     
                 }
                 

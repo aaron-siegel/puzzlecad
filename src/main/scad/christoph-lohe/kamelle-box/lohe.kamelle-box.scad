@@ -2,7 +2,7 @@ include <puzzlecad.scad>
 
 $burr_scale = 17;
 $burr_inset = 0.15;
-$burr_bevel = 1.2;
+$burr_bevel = 1;
 $unit_beveled = true;
 box_puzzle_border = 6;
 
@@ -16,7 +16,7 @@ module pieces() {
         ["xx.|xxx", "x..|..x"],
         ["x..|xxx"],
         [".x.|xxx"]
-    ]);
+    ], $plate_width = 150);
     
 }
 
