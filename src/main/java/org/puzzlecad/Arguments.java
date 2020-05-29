@@ -17,8 +17,8 @@
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
-  For details of this license, please refer to the license-mit.txt
-  file distributed with puzzlecad, or visit:
+  For details of this license, please refer to the LICENSE-MIT file
+  distributed with puzzlecad, or visit:
   https://opensource.org/licenses/MIT
 
   NOTE THAT WHILE THE PUZZLECAD LIBRARY IS RELEASED UNDER THE MIT
