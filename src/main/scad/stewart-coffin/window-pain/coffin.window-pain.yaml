@@ -1,0 +1,20 @@
+thing-id: 3650959
+name: "Window Pain - Tray-packing puzzle by Stewart Coffin (STC #186)"
+tags: [puzzle]
+images: [cover.jpg, instructions.jpg, tray-with-lid-and-instructions.jpg, tray-before-assembly.jpg, tray.jpg, pieces.jpg]
+aux_files: [coffin.window-pain.instructions.pdf]
+targets: [pieces, tray, tray_cap, lid]
+description: |
+  _Window Pain_ is several puzzles in one! Each challenge involves packing the same six pieces into an obstructed tray, but with a different set of constraints. I particularly like this design because there are multiple challenges of progressive difficulty, adding up to lots of entertainment in a small package. An instruction sheet (shown in one of the photos and included as a pdf) describes the various challenges. It's a very interesting and approachable puzzle.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl`, `${name}.tray.stl`, and `${name}.tray-cap.stl`. After printing, you will first need to assemble the tray before attempting to solve the puzzle. The tray has four glue holes, one in each corner, and the tray cap has four pegs that fit into the glue holes (the fourth photo shows the tray and cap side by side, just after printing and prior to assembly). Put a few drops of super glue into each glue hole, mount the tray cap securely onto the tray, and wait for the glue to dry. Then you're ready to attempt the puzzle! (The fifth photo shows the fully assembled tray.)
+
+  Optionally, you may also print `${name}.lid.stl`, which is a lid that neatly fits over the entire puzzle, holding everything securely in place. Finally, `${name}.instructions.pdf` is an instruction sheet that can be optionally (2D) printed and cut and folded to fit in the lid as well (see photos).
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
