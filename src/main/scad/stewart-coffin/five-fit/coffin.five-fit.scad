@@ -18,9 +18,9 @@
 
 include <puzzlecad.scad>
 
-$tray_scale = 16;
-
 require_puzzlecad_version("2.0");
+
+$tray_scale = 16;
 
 // Uncomment one of the following three lines to render that component.
 
