@@ -1,20 +1,27 @@
 thing-id: 3369687
 name: "Multi-Grain Burr - Assembly puzzle by Stewart Coffin (STC #275-A)"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg]
-targets: --
+images: [assembled.jpg, assembled-back.jpg, pieces.jpg]
+targets: [pieces, tighter_key_piece]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 8.5; $burr_bevel = 1.2;', targets: ''}
 description: |
-  Assemble the three pieces into the pyramid shape shown in the photo.
+  Assemble the four pieces into the unusual shape shown in the photo.
   
   _Multi-Grain Burr_ is surprisingly difficult despite having only four pieces, due to the unusual shape of the assembly. It is a larger variant of Coffin's [Three-Piece Block](https://www.thingiverse.com/thing:3363882); if you're unfamiliar with this type of puzzle, I'd recommend starting with _Three-Piece Block_ instead.
-  
+
   UPDATED June 2020 with a new design. The new design is functionally identical to the old one, but its appearance is considerably more faithful to Coffin's intentions.
   
   ### Printing Instructions
 
-  Print one copy of `coffin.multi-grain-burr.stl`. This model uses snap joints so that the pieces can be printed without supports; for this particular puzzle, I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
-  
+  Print one copy of `coffin.${name}.pieces.stl`. This model uses snap joints so that the pieces can be printed without supports; for this particular puzzle, I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
+
+  Coffin specified that the "key piece" (the piece made from just two cubes) be made tight, so that it is less obvious how to _disassemble_ the puzzle once it's assembled. If you find that the key piece does not hold firmly in place, you can try printing `coffin.${name}.tighter-key-piece.stl` as a replacement. (I didn't want to make the tighter version the default, because printer tolerances vary.)
+
   ${snap-joints-boilerplate}
+
+  For a slightly smaller version that uses less material, you can print `coffin.${name}.pieces-smaller.stl` instead (and, optionally, `coffin.${name}.tighter-key-piece-smaller`.
 
   ${ppp-boilerplate}
 

@@ -314,7 +314,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
         
     // Add space-fillers ("bridges" between components). This ensures that the entire
     // piece remains connected in the final rendering.
-    // TODO: Add edge and corner space-fillers
+    // TODO: Add corner space-fillers?
     
     for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
         cell = [x,y,z];
@@ -322,11 +322,12 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             for (face=[3:5]) {      // Just the positive-directional faces (so we check each face pair just once)
                 
                 facing_cell = cell + directions[face];
+                face_center = cell + 0.5 * directions[face];
+                
                 // If the facing cell *is* defined but is from a different component, then
                 // we need to render a space-filler.
                 if (lookup3(burr, facing_cell) > 0 && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
                     
-                    face_center = cell + 0.5 * directions[face];
                     // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
                     // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
                     // on each face.
@@ -335,24 +336,27 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     translate(cw(scale_vec, face_center))
                     cube(dim, center = true);
                     
-                    // Now add any edge space-filler adjacent to this face, taking care (as before) to avoid
-                    // duplicates.
-                    if (face < 5)
-                    for (other_face=[face+1:5]) {
-                        if (lookup3(burr, cell + directions[other_face]) > 0 &&
-                            lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) &&
-                            lookup3(burr, facing_cell + directions[other_face]) > 0 &&
-                            lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)) {
-                            
-                            edge_center = face_center + 0.5 * directions[other_face];
-                            dim = cw(2 * (inset_vec + iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
-                                + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
-                            translate(cw(scale_vec, edge_center))
-                            cube(dim, center = true);
-                            
-                        }
-                    }
+                }
                     
+                // Now add any edge space-filler adjacent to this face, taking care (as before) to avoid
+                // duplicates.
+                if (face < 5)
+                for (other_face=[face+1:5]) {
+                    if (lookup3(burr, facing_cell) > 0 &&
+                        lookup3(burr, cell + directions[other_face]) > 0 &&
+                        lookup3(burr, facing_cell + directions[other_face]) > 0 &&
+                        ( lookup3(burr, facing_cell) != lookup3(burr, cell) ||
+                          lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) ||
+                          lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)
+                        )) {
+                        
+                        edge_center = face_center + 0.5 * directions[other_face];
+                        dim = cw(2 * (inset_vec + iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
+                            + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
+                        translate(cw(scale_vec, edge_center))
+                        cube(dim, center = true);
+                        
+                    }
                 }
                 
             }
