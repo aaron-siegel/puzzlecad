@@ -1,8 +1,11 @@
 thing-id: 3363882
 name: "Three-Piece Block - Assembly puzzle by Stewart Coffin (STC #38)"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg]
-targets: --
+images: [assembled.jpg, assembled-back.jpg, pieces.jpg]
+targets: [--]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 8.5; $burr_bevel = 1.2;', targets: ''}
 description: |
   Assemble the three pieces into the pyramid shape shown in the photo.
   
@@ -17,8 +20,10 @@ description: |
   ### Printing Instructions
 
   Print one copy of `coffin.three-piece-block.stl`. This model uses snap joints so that the pieces can be printed without supports; for this particular puzzle, I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
-  
+
   ${snap-joints-boilerplate}
+
+  For a slightly smaller version that uses less material, you can print `coffin.three-piece-block-smaller.stl` instead.
 
   ${ppp-boilerplate}
 
