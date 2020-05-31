@@ -1,0 +1,26 @@
+thing-id: 4414328
+name: "Cubic Octahedron - Interlocking puzzle by Christoph Lohe"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, assembled-alt-angle-1.jpg, assembled-alt-angle-2.jpg, pieces.jpg]
+targets: [--]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 8.5; $burr_bevel = 1.2;', targets: ''}
+description: |
+  Assemble the four pieces into the unusual octahedral shape shown in the photo.
+
+  _Cubic Octahedron_ is a successor of sorts to Stewart Coffin's iconic puzzles ${link:coffin.three-piece-block} and ${link:coffin.multi-grain-burr}. It uses the same geometry as Coffin's earlier designs, but is a step up in difficulty, requiring several moves to get the last piece in. If you're unfamiliar with this type of design, I'd recommend starting with Three-Piece Block as a warm-up before attempting to tackle this one.
+
+  ### Printing Instructions
+
+  Print one copy of `${name}.stl`. This model uses snap joints so that the pieces can be printed without supports; for this particular puzzle, I recommend using a sturdy PLA filament (or something stronger, such as PLA+ or ABS) and/or reinforcing with glue, due to the fragile nature of some of the joints.
+
+  ${snap-joints-boilerplate}
+
+  For a slightly smaller version that uses less material, you can print `${name}-smaller.stl` instead.
+
+  ${ppp-boilerplate}
+
+  ${christoph-lohe-bio}
+
+  Happy puzzling!

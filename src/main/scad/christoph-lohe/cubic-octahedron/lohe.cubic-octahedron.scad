@@ -25,7 +25,7 @@ require_puzzlecad_version("2.0");
 
 $burr_scale = 10;
 $burr_bevel = 1.3;
-$burr_inset = 0.07;
+$burr_inset = 0.07;     // Use 0.06 for a tighter fit
 $plate_width = 120;
 
 burr_plate([
