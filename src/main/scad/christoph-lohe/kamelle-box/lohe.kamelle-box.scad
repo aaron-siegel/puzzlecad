@@ -65,8 +65,8 @@ module box() {
     
     translate([mid + 0.5, mid + 0.5, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
     translate([mid + 0.5, dim.y - mid - 0.5, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
-    translate([$burr_scale + mid - 0.5, mid, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
-    translate([$burr_scale * 2 + mid - 0.5, dim.y - mid, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
+    translate([$burr_scale * 2 + mid - 0.5, mid, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
+    translate([$burr_scale + mid - 0.5, dim.y - mid, dim.z]) cylinder(r = 1.8, h = 2, $fn = 32);
     
 }
 
@@ -77,17 +77,17 @@ module cap() {
         beveled_prism([
             [0, 0],
             [0, dim.y],
-            [$burr_scale * 2 + box_puzzle_border - $burr_inset, dim.y],
-            [$burr_scale * 2 + box_puzzle_border - $burr_inset, $burr_scale + box_puzzle_border + $burr_inset],
+            [$burr_scale + box_puzzle_border - $burr_inset, dim.y],
             [$burr_scale + box_puzzle_border - $burr_inset, $burr_scale + box_puzzle_border + $burr_inset],
-            [$burr_scale + box_puzzle_border - $burr_inset, 0],
+            [$burr_scale * 2 + box_puzzle_border - $burr_inset, $burr_scale + box_puzzle_border + $burr_inset],
+            [$burr_scale * 2 + box_puzzle_border - $burr_inset, 0],
         ],
         height = box_puzzle_border, $burr_bevel = 0.5);
         
         translate([mid + 0.5, mid + 0.5, 0]) cylinder(r = 2, h = 2, $fn = 32);
         translate([mid + 0.5, dim.y - mid - 0.5, 0]) cylinder(r = 2, h = 2, $fn = 32);
-        translate([$burr_scale + mid - 0.5, mid, 0]) cylinder(r = 2, h = 2, $fn = 32);
-        translate([$burr_scale * 2 + mid - 0.5, dim.y - mid, 0]) cylinder(r = 2, h = 2, $fn = 32);
+        translate([$burr_scale * 2 + mid - 0.5, mid, 0]) cylinder(r = 2, h = 2, $fn = 32);
+        translate([$burr_scale + mid - 0.5, dim.y - mid, 0]) cylinder(r = 2, h = 2, $fn = 32);
         
     }
     

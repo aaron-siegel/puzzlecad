@@ -21,42 +21,57 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 8;
+$burr_bevel = 0.5;
 
 *frame();
+*frame_cap();
 *pieces();
 
 module frame() {
     
-    burr_plate([
-        ["xxxxxxxxxxxxxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxxxxxxxxxxxxx",
-         "xxxxxxxxxxxxxx|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x............x|xxxxxxxxxxxxxx",
-         "x{connect=mz+y+}xxxxxx{connect=mz+y+}x{connect=mz+y+}xxxxxx{connect=mz+y+}|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x{connect=mz+y+}xxxxxx{connect=mz+y+}x{connect=mz+y+}xxxxxx{connect=mz+y+}"
-    ],
-        ["x{connect=fz-y+}xxxxxx{connect=fz-y+}x{connect=fz-y+}xxxxxx{connect=fz-y+}|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|x{connect=fz-y+}xxxxxx{connect=fz-y+}x{connect=fz-y+}xxxxxx{connect=fz-y+}" ]
-    ]);
+    burr_piece([
+        "xxxxxxxxxxxxxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxx|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x............x|xxxxxxxxxxxxxx",
+        "x{connect=mz+y+}xxxxxx{connect=mz+y+}x{connect=mz+y+}xxxxxx{connect=mz+y+}|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x............x|x{connect=mz+y+}xxxxxx{connect=mz+y+}x{connect=mz+y+}xxxxxx{connect=mz+y+}"
+    ], $burr_outer_z_bevel = [1.75, $burr_bevel]);
+
+}
+
+module frame_cap() {
+    
+    burr_piece([
+        "x{connect=fz-y+}xxxxxx{connect=fz-y+}x{connect=fz-y+}xxxxxx{connect=fz-y+}|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|xxx........xxx|x{connect=fz-y+}xxxxxx{connect=fz-y+}x{connect=fz-y+}xxxxxx{connect=fz-y+}"
+    ], $burr_outer_z_bevel = [$burr_bevel, 1.75]);
 
 }
 
 module pieces() {
-
+    
     burr_plate([
-        
-        [ "......|......|..xxxx|..xxxx|..xxxx|..xxxx",
-          "xxxx..|xxxx..|xxxx..|xxxx..|......|......",
-          "......|......|xxxx..|xxxx..|......|......",
-          "......|......|..xxxx|..xxxx|..xxxx|..xxxx" ],
-        [ "xxxx..|xxxx..|xxxx..|xxxx..",
-          "xx....|xx....|xxxxxx|xxxxxx",
-          "......|......|..xx..|..xx..",
-          "xxxx..|xxxx..|xxxx..|xxxx.." ],
-        [ "......|......|xxxx..|xxxx..|xxxx..|xxxx..",
-          "xx....|xx....|xx....|xx....|xxxx..|xxxx..",
-          "......|......|......|......|..xxxx|..xxxx",
-          "......|......|xxxx..|xxxx..|xxxx..|xxxx.." ],
-        [ "xxxx..|xxxx..|xxxx..|xxxx..|......|......",
-          "......|......|..xxxx|..xxxx|..xxxx|..xxxx",
-          "xx....|xx....|xxxx..|xxxx..|......|......",
-          "xxxx..|xxxx..|xxxx..|xxxx..|......|......" ]
-    ], $auto_layout = true);
+        [ "..xxxx|xxxx..|x{connect=fz-y+,clabel=A}xxx{connect=fz-y+,clabel=A}..|..xxxx",
+          "..xxxx|xxxx..|xxxx..|..xxxx", 
+          "..xxxx|......|......|..xxxx",
+          "..x{label_text=Z,label_orient=x-z-}x{label_text=Y,label_orient=z+x-,label_hoffset=1}xx|......|......|..xxxx" ],
+        [ "xxxx..|xxxxxx|..xx..|xxxx..",
+          "xxxx..|xxxxxx|..xx..|xxxx..",
+          "xxxx..|xx....|......|xxxx..",
+          "x{label_text=Y,label_orient=x-z-}x{label_text=X,label_orient=z+x-,label_hoffset=1}xx..|xx....|......|xxxx.." ],
+        [ "xxxx..|xxxx..|..xxxx|xxxx..",
+          "xxxx..|xxxx..|..xxxx|xxxx..",
+          "xxxx..|xx....|......|xxxx..",
+          "x{label_text=W,label_orient=x-z-}x{label_text=Z,label_orient=z+x-,label_hoffset=1}xx..|xx....|......|xxxx..",
+          "......|xx....|......|......",
+          "......|xx....|......|......" ],
+        [ "xxxx..|..x{connect=fz-y+,clabel=B}xxx{connect=fz-y+,clabel=B}|xxxx..|x{label_text=W,label_orient=x-z+}x{label_text=X,label_orient=z-x-,label_hoffset=1}xx..",
+          "xxxx..|..xxxx|xxxx..|xxxx..",
+          "xxxx..|......|xx....|xxxx..",
+          "xxxx..|......|xx....|xxxx.." ]
+    ], $burr_outer_y_bevel = 1.75);
+    
+    translate([$burr_scale * 6 + $plate_sep, $burr_scale * 4 + $plate_sep, 0])
+    burr_plate([
+        [ "xxxx", "x{connect=mz+y+,clabel=A}xxx{connect=mz+y+,clabel=A}" ],
+        [ "xxxx", "x{connect=mz+y+,clabel=B}xxx{connect=mz+y+,clabel=B}" ]
+    ]);
 
 }
