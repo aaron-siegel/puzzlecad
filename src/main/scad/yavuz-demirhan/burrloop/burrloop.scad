@@ -3,8 +3,7 @@ include <puzzlecad.scad>
 $burr_scale = 9;
 $plate_width = 120;
 $burr_inset = 0.05;
-$joint_inset = 0.08;
-$burr_bevel = 1;
+$burr_bevel = 1.0;
 $unit_beveled = false;
 
 *frame();
@@ -13,12 +12,12 @@ $unit_beveled = false;
 module frame() {
     render(convexity = 2)
     burr_plate([
-        ["x{connect=mx-}xxxx|x{connect=mx-}xxxx|...xx|...x{connect=fz+}x{connect=fz+}"],
-        ["xxxxx{connect=mx+}|xxxxx{connect=mx+}|xx...|x{connect=fz+}x{connect=fz+}..."],
-            ["x{connect=mx-}xxxx|x{connect=mx-}xxxx|...xx|...x{connect=fz+}x{connect=fz+}"],
-        ["xxxxx{connect=mx+}|xxxxx{connect=mx+}|xx...|x{connect=fz+}x{connect=fz+}..."],
-            ["x{connect=mx-}xxxx|x{connect=mx-}xxxx|...xx|...x{connect=fz+}x{connect=fz+}"],
-        ["xxxxx{connect=mx+}|xxxxx{connect=mx+}|xx...|x{connect=fz+}x{connect=fz+}..."]
+        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
+        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
+        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
+        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
+        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
+        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
     ]);
 }
 
@@ -30,5 +29,5 @@ module pieces() {
         ["xxxxxx|xxxxxx", "x....x|x....x"],
         ["xx..xx|xxxxxx", "x....x|x....x"],
         ["xx..xx|xxxxxx", "x....x|x....x"]
-    ]);
+    ], $burr_bevel = 0.5, $burr_outer_x_bevel = 1.75);
 }
