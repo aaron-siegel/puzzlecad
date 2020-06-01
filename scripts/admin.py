@@ -148,12 +148,19 @@ def update_thing(access_token, thing_name, targets_str):
 		thingiverse_clean(thing_id, 'files')
 	
 		root = os.path.splitext(yaml_path)[0]
+		dir = os.path.dirname(yaml_path)
 		scad_path = root + ".scad"
 		abs_scad_path = os.path.abspath(scad_path)
 		scad_file = os.path.basename(scad_path)
 		scad_root = os.path.splitext(scad_file)[0]
 		
 		thingiverse_post_file(thing_id, scad_path)
+
+		aux_files = contents['aux_files'] if 'aux_files' in contents else []
+
+		for aux_file in aux_files:
+
+			thingiverse_post_file(thing_id, os.path.join(dir, aux_file))
 		
 		configurations = contents['configurations'] if 'configurations' in contents else [{'name': '', 'code': '', 'targets': ''}]
 		
@@ -166,7 +173,7 @@ def update_thing(access_token, thing_name, targets_str):
 				modularized_name = f'{scad_root}{configuration_name}' if stl_target == "--" else f'{scad_root}.{stl_target_dashes}{configuration_name}'
 				stl_target_path = f'{output_dir}/{modularized_name}.stl'
 				thingiverse_post_file(thing_id, stl_target_path)
-				
+
 def resolve_thing(thing_name):
 
 	print(f'../src/main/scad/**/{thing_name}.yaml')

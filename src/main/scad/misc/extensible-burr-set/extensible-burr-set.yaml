@@ -1,0 +1,12 @@
+thing-id: 3370714
+name: "Extensible Burr Set"
+tags: [puzzle, 3D_puzzle, burr_puzzle]
+images: []
+targets: []
+aux_files: []
+configurations: []
+description: |
+
+  ${ppp-boilerplate}
+
+  Happy puzzling!

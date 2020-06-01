@@ -1,30 +1,34 @@
 thing-id: 4387531
 name: "Starter Burr Set"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: [cover.jpg, assembled.jpg, partially-disassembled.jpg]
+images: [cover.jpg, assembled.jpg, partially-disassembled.jpg, with-expansion.jpg]
 targets: [part_1, part_2, expansion]
+aux_files: [starter-burr-set.pdf, starter-burr-set-booklet.pdf]
 configurations:
-  - {name: 'inset-60', code: '$burr_inset = 0.06;', targets: ''}
-  - {name: 'inset-75', code: '$burr_inset = 0.075;', targets: ''}
-  - {name: 'inset-90', code: '$burr_inset = 0.9;', targets: ''}
+  - {name: '', code: '', targets: ['tray_5x3', 'tray_6x4']}
+  - {name: 'inset-60', code: '$burr_inset = 0.06;', targets: ['part_1', 'part_2', 'expansion']}
+  - {name: 'inset-75', code: '$burr_inset = 0.075;', targets: ['part_1', 'part_2', 'expansion']}
+  - {name: 'inset-90', code: '$burr_inset = 0.9;', targets: ['part_1', 'part_2', 'expansion']}
 description: |
-  The _Starter Burr Set_ is a puzzle set that enables you to make dozens of six-piece burr puzzles. Six-piece burrs are one of the oldest mechanical puzzle forms, dating to at least the 18th century, and it's easy to see why their appeal has endured. The goal looks simple, and it's always the same: assemble six puzzles pieces into the interlocking configuration shown in the second photo. But the challenges vary widely in difficulty, from fairly easy to quite hard, depending on which set of six pieces is selected. Burr sets provide a lot of entertainment in a compact package!
+  The _Starter Burr Set_ is a puzzle set that enables you to make dozens of six-piece burr puzzles. Six-piece burrs are one of the oldest mechanical puzzle forms, dating to at least the 18th century, and it's easy to see why their appeal has endured. The goal looks simple, and it's always the same: assemble six puzzles pieces into the interlocking configuration shown in the second photo... But the challenges vary widely in difficulty, from fairly easy to quite hard, depending on which set of six pieces is selected. Burr sets provide a lot of entertainment in a compact package!
 
-  The basic set has 15 pieces, which are intentionally selected so that several puzzles of theoretical or historical interest may be constructed. An optional expansion brings the total number of pieces to 24, greatly increasing the variety of challenges. A pdf booklet contains the list of challenges, as well as some additional background material on six-piece burrs.
+  The basic set has 15 pieces, which are intentionally selected so that several puzzles of theoretical or historical interest may be constructed. An optional expansion brings the total number of pieces to 24, greatly increasing the variety of challenges. A pdf booklet contains the list of challenges for both the basic and expanded set, as well as some additional background material on six-piece burrs.
 
-  The _Starter Burr Set_ is fully compatible with the much larger [Extensible Burr Set](https://www.thingiverse.com/thing:3370714), so you can expand the challenge still further once you've exhausted the possibilities of the starter set.
+  The _Starter Burr Set_ is fully compatible with the much larger ${link:extensible-burr-set}, so you can expand the challenge still further once you've exhausted the possibilities of the starter set.
 
   ### Printing Instructions
 
-  For the basic 15-piece set, print one copy each of `starter-burr-set.part-1.inset-75.stl` and `starter-burr-set.part-2.inset-75.stl`. For the larger 24-piece set, also print one copy of `starter-burr-set.expansion.inset-75.stl`.
+  For the basic 15-piece set, print one copy each of `starter-burr-set.part-1-inset-75.stl` and `starter-burr-set.part-2-inset-75.stl`. For the larger 24-piece set, also print one copy of `starter-burr-set.expansion-inset-75.stl`.
 
-  The suffix `inset-75` refers to the tightness of the pieces. Not all printers are alike, so I've generated three versions of the set with different tolerances. `inset-75` means that 75 microns of tolerance have been added to each piece. `inset-60` will fit tighter, and `inset-90` looser. Personally, I prefer the tightest (60 micron) version (I use a Prusa MK3). If you're not sure, 75 microns is a good default.
+  The suffix `inset-75` refers to the tightness of the pieces. Not all printers are alike, so I've generated three versions of the set with different tolerances. `inset-75` means that 75 microns of tolerance have been added to each piece; `inset-60` will fit tighter, and `inset-90` looser. Personally, I prefer the tightest (60 micron) version (I use a Prusa MK3). If you're not sure, 75 microns is a good default.
 
-  [ BOX ]
+  The expansion uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
 
-  Two versions of the pdf booklet are provided. `starter-burr-set.pdf` is best for reading on a computer or device. If you want to print a copy (on a 2D printer!), you can print `starter-burr-set.booklet.pdf` double-sided and fold the pages in half to form an actual booklet; they're laid out so as to appear in the proper order.
+  Finally, there is an optional tray that holds the printed pieces while not in use. If you want to print a tray (recommended), print `starter-burr-set.tray-5x3.stl` for the 15-piece version or `starter-burr-set.tray-6x4.stl` for the 24-piece version.
 
-  ${snap-joints-boilerplate}
+  ### pdf Booklet
+
+  Two versions of the pdf booklet are provided. `starter-burr-set.pdf` is best for reading on a computer or device. If you want to print a copy (on a 2D printer!), you can print `starter-burr-set-booklet.pdf` double-sided and fold the pages in half to form an actual booklet; they're laid out so as to appear in the proper order. One of the photos contains a picture of the booklet alongside the burr set.
 
   ${ppp-boilerplate}
 

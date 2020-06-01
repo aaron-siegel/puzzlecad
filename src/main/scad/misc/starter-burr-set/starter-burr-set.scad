@@ -27,6 +27,8 @@ $burr_outer_x_bevel = 1.75;
 *part_1();
 *part_2();
 *expansion();
+*tray_5x3();
+*tray_6x4();
 
 module part_1() {
     
@@ -63,4 +65,51 @@ module stamped_burr_plate(piece_ids) {
     translate([0, ceil(len(lower_pieces) / 2) * ($burr_scale * 2 + $plate_sep), 0])
     burr_plate(upper_pieces, $burr_outer_x_bevel = $burr_bevel);
     
+}
+
+module tray_5x3() {
+    
+    burr_tray(5, 3);
+    
+}
+
+module tray_6x4() {
+    
+    burr_tray(6, 4);
+    
+}
+
+module burr_tray(x_size, y_size) {
+    
+    padding = 0.15;
+    perimeter_thickness = 3;
+    spacing = 4;
+    base_thickness = 3;
+
+    difference() {
+        
+        beveled_cube([
+            x_size * $burr_scale * 2 + 2 * perimeter_thickness,
+            y_size * $burr_scale * 2 + (y_size - 1) * spacing + 2 * perimeter_thickness,
+            $burr_scale * 4 + base_thickness
+        ], $burr_bevel = 0.5, $burr_outer_x_bevel = undef);
+        
+        for (y = [1:y_size]) {
+            
+            translate([perimeter_thickness - padding, (y - 1) * ($burr_scale * 2 + spacing) + perimeter_thickness - padding, base_thickness])
+            cube([x_size * $burr_scale * 2 + padding * 2, $burr_scale * 2 + padding * 2, $burr_scale * 4 + 0.01]);
+            
+        }
+        
+        if (y_size > 1) {
+            for (y = [1:y_size-1]) {
+                
+                translate([perimeter_thickness - padding, y * $burr_scale * 2 + (y - 1) * spacing + perimeter_thickness + padding - 0.01, base_thickness + 3 * $burr_scale])
+                cube([x_size * $burr_scale * 2 + padding * 2, spacing + 0.02, $burr_scale + 0.01]);
+                
+            }
+        }
+        
+    }
+
 }
