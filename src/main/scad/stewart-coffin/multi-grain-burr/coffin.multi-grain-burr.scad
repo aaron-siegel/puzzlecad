@@ -49,7 +49,7 @@ module pieces() {
 
 }
 
-module key_piece_tighter() {
+module tighter_key_piece() {
     
     burr_plate([
         ["xx|xx", "xx|xx{connect=mz+y+,clabel=G}"],
