@@ -21,11 +21,13 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 8;
+$burr_inset = 0.09;
 $burr_bevel = 0.5;
 
 *frame();
 *frame_cap();
-*pieces();
+*pieces_1();
+*pieces_2();
 
 module frame() {
     
@@ -45,13 +47,30 @@ module frame_cap() {
 
 }
 
-module pieces() {
+module pieces_1() {
     
     burr_plate([
         [ "..xxxx|xxxx..|x{connect=fz-y+,clabel=A}xxx{connect=fz-y+,clabel=A}..|..xxxx",
           "..xxxx|xxxx..|xxxx..|..xxxx", 
           "..xxxx|......|......|..xxxx",
           "..x{label_text=Z,label_orient=x-z-}x{label_text=Y,label_orient=z+x-,label_hoffset=1}xx|......|......|..xxxx" ],
+        [ "x{label_text=W,label_orient=x-z-}x{label_text=X,label_orient=z-x+,label_hoffset=-1}xx..|..x{connect=fz-y+,clabel=B}xxx{connect=fz-y+,clabel=B}|xxxx..|xxxx..",
+          "xxxx..|..xxxx|xxxx..|xxxx..",
+          "xxxx..|......|xx....|xxxx..",
+          "xxxx..|......|xx....|xxxx.." ]
+    ], $burr_outer_y_bevel = 1.75);
+    
+    translate([0, $burr_scale * 4 + $plate_sep, 0])
+    burr_plate([
+        [ "xxxx", "x{connect=mz+y+,clabel=A}xxx{connect=mz+y+,clabel=A}" ],
+        [ "xxxx", "x{connect=mz+y+,clabel=B}xxx{connect=mz+y+,clabel=B}" ]
+    ]);
+
+}
+
+module pieces_2() {
+    
+    burr_plate([
         [ "xxxx..|xxxxxx|..xx..|xxxx..",
           "xxxx..|xxxxxx|..xx..|xxxx..",
           "xxxx..|xx....|......|xxxx..",
@@ -61,17 +80,7 @@ module pieces() {
           "xxxx..|xx....|......|xxxx..",
           "x{label_text=W,label_orient=x-z-}x{label_text=Z,label_orient=z+x-,label_hoffset=1}xx..|xx....|......|xxxx..",
           "......|xx....|......|......",
-          "......|xx....|......|......" ],
-        [ "xxxx..|..x{connect=fz-y+,clabel=B}xxx{connect=fz-y+,clabel=B}|xxxx..|x{label_text=W,label_orient=x-z+}x{label_text=X,label_orient=z-x-,label_hoffset=1}xx..",
-          "xxxx..|..xxxx|xxxx..|xxxx..",
-          "xxxx..|......|xx....|xxxx..",
-          "xxxx..|......|xx....|xxxx.." ]
+          "......|xx....|......|......" ]
     ], $burr_outer_y_bevel = 1.75);
-    
-    translate([$burr_scale * 6 + $plate_sep, $burr_scale * 4 + $plate_sep, 0])
-    burr_plate([
-        [ "xxxx", "x{connect=mz+y+,clabel=A}xxx{connect=mz+y+,clabel=A}" ],
-        [ "xxxx", "x{connect=mz+y+,clabel=B}xxx{connect=mz+y+,clabel=B}" ]
-    ]);
 
 }
