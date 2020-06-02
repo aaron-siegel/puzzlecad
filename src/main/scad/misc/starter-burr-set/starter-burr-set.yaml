@@ -1,7 +1,7 @@
 thing-id: 4387531
 name: "Starter Burr Set"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: [cover.jpg, assembled.jpg, partially-disassembled.jpg, with-expansion.jpg]
+images: [cover.jpg, assembled.jpg, partially-disassembled.jpg, with-booklet.jpg, with-expansion.jpg]
 targets: [part_1, part_2, expansion]
 aux_files: [starter-burr-set.pdf, starter-burr-set-booklet.pdf]
 configurations:
