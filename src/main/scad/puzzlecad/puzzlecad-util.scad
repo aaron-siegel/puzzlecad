@@ -58,7 +58,31 @@ function substr_until(str, char, pos=0, substr="") =
     str[pos] == undef ? undef :
     str[pos] == char ? substr :
     substr_until(str, char, pos+1, str(substr, str[pos]));
+
+function parse_kv(string, result = [], i = 0) =
+    i >= len(string) ? result
+    : let (next_separator = find_character(string, ",", i),
+           next_entry = parse_kv_entry(substr(string, i, next_separator - i)))
+      parse_kv(string, concat(result, [next_entry]), next_separator + 1);
+      
+function parse_kv_entry(string) =
+    let (equals_index = find_character(string, "=", 0))
+      equals_index == len(string) ? [string, true]     // No value specified; equivalent to key=true
+    : let (key = substr(string, 0, equals_index))
+        string[equals_index + 1] == "{" ? [key, substr(string, equals_index + 2, len(string) - equals_index - 3)]   // Value enclosed in braces
+      : [key, substr(string, equals_index + 1, len(string) - equals_index - 1)]     // Value not enclosed in braces
+    ;
+
+// Finds a character in a string, accounting for balanced braces.
     
+function find_character(string, ch, i, braces_depth = 0) =
+      i >= len(string) ? i
+    : string[i] == ch && braces_depth == 0 ? i
+    : string[i] == "}" && braces_depth > 0 ? find_character(string, ch, i + 1, braces_depth - 1)
+    : string[i] == "}" ? assert(false, "Unbalanced braces in burr specification.")
+    : string[i] == "{" ? find_character(string, ch, i + 1, braces_depth + 1)
+    : find_character(string, ch, i + 1, braces_depth);
+
 function lookup_kv(kv, key, default=undef, i=0) =
     kv[i] == undef ? default :
     kv[i][0] == key ? (kv[i][1] != undef ? kv[i][1] : true) :

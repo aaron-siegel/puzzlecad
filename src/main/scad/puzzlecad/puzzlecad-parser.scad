@@ -176,16 +176,6 @@ function string_to_burr_info_suffix(globals, string, i, result, value) =
 function string_to_burr_info_next(globals, string, i, result, value, kvmap = undef) =
     string_to_burr_info(globals, string, i, concat(result, kvmap ? [[value, kvmap]] : [[value]]));
 
-// Finds a character in a string, accounting for balanced braces.
-    
-function find_character(string, ch, i, braces_depth = 0) =
-      i >= len(string) ? i
-    : string[i] == ch && braces_depth == 0 ? i
-    : string[i] == "}" && braces_depth > 0 ? find_character(string, ch, i + 1, braces_depth - 1)
-    : string[i] == "}" ? assert(false, "Invalid burr specification.")
-    : string[i] == "{" ? find_character(string, ch, i + 1, braces_depth + 1)
-    : find_character(string, ch, i + 1, braces_depth);
-
 function parse_annotations(string, result = [], i = 0) =
     i >= len(string) ? result
     : let (next_separator = find_character(string, ",", i),

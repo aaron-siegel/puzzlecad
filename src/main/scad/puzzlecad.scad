@@ -62,6 +62,7 @@ $post_rotate = [0, 0, 0];
 // Optional parameters that can be used to increase
 // the amount of beveling on outer edges of burr pieces:
 
+$burr_bevel_adjustments = undef;
 $burr_outer_x_bevel = undef;
 $burr_outer_y_bevel = undef;
 $burr_outer_z_bevel = undef;

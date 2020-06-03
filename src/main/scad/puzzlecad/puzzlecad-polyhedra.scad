@@ -391,7 +391,8 @@ function is_coplanar_polygon(poly) =
 /******* Polyhedron Beveling *******/
 
 function make_beveled_poly(faces) =
-    !has_beveling() ? make_poly(faces)
+      !has_beveling()
+    ? make_poly(faces)
     : let (poly = make_poly(faces))
       let (beveled_poly = make_beveled_poly_normalized(poly[0], poly[1]))
       beveled_poly;
@@ -400,13 +401,30 @@ function has_beveling() =
     $burr_bevel >= 0.01 ||
     is_positive_bevel($burr_outer_x_bevel) ||
     is_positive_bevel($burr_outer_y_bevel) ||
-    is_positive_bevel($burr_outer_z_bevel);
+    is_positive_bevel($burr_outer_z_bevel) ||
+    !is_undef($burr_bevel_adjustments);
     
 function is_positive_bevel(bevel) =
     let (bevel_or_pair = to_2_vector(bevel))
     bevel_or_pair[0] >= 0.01 || bevel_or_pair[1] >= 0.01;
 
-function make_beveled_poly_normalized(vertices, faces) = let(
+function make_beveled_poly_normalized(vertices, faces) =
+
+    assert((is_undef($burr_bevel_adjustments) ? 0 : 1) +
+           (is_undef($burr_outer_x_bevel) ? 0 : 1) +
+           (is_undef($burr_outer_y_bevel) ? 0 : 1) +
+           (is_undef($burr_outer_z_bevel) ? 0 : 1)
+           <= 1,
+           "At most one can be specified: $burr_bevel_adjustments, $burr_outer_x_bevel, $burr_outer_y_bevel, $burr_outer_z_bevel")
+
+    let(
+
+    bevel_adjustments =
+          !is_undef($burr_outer_x_bevel) ? outer_bevel_to_bevel_adj("x", to_2_vector($burr_outer_x_bevel))
+        : !is_undef($burr_outer_y_bevel) ? outer_bevel_to_bevel_adj("y", to_2_vector($burr_outer_y_bevel))
+        : !is_undef($burr_outer_z_bevel) ? outer_bevel_to_bevel_adj("z", to_2_vector($burr_outer_z_bevel))
+        : !is_undef($burr_bevel_adjustments) ? parse_bevel_adjustments($burr_bevel_adjustments)
+        : [],
     
     face_normals = [ for (face=faces) polygon_normal([ for (v=face) vertices[v] ]) ],
         
@@ -464,21 +482,10 @@ function make_beveled_poly_normalized(vertices, faces) = let(
     zmin = min([ for (v = vertices) v.z ]),
     zmax = max([ for (v = vertices) v.z ]),
         
-    outer_x_bevel = to_2_vector($burr_outer_x_bevel),
-    outer_y_bevel = to_2_vector($burr_outer_y_bevel),
-    outer_z_bevel = to_2_vector($burr_outer_z_bevel),
-
     edge_bevelings =
         [ for (edge_scheme = edge_schemes)
             let (p = vertices[edge_scheme[0][0]], q = vertices[edge_scheme[0][1]])
-            let (bevel =
-                  outer_x_bevel && values_are_close(xmin, p.x, q.x) ? outer_x_bevel[0]
-                : outer_x_bevel && values_are_close(xmax, p.x, q.x) ? outer_x_bevel[1]
-                : outer_y_bevel && values_are_close(ymin, p.y, q.y) ? outer_y_bevel[0]
-                : outer_y_bevel && values_are_close(ymax, p.y, q.y) ? outer_y_bevel[1]
-                : outer_z_bevel && values_are_close(zmin, p.z, q.z) ? outer_z_bevel[0]
-                : outer_z_bevel && values_are_close(zmax, p.z, q.z) ? outer_z_bevel[1]
-                : $burr_bevel)
+            let (bevel = resolve_bevel_for_edge($burr_bevel, bevel_adjustments, xmin, xmax, ymin, ymax, zmin, zmax, p, q))
             [edge_scheme[0], bevel]
         ],
 
@@ -617,3 +624,46 @@ function find_indices_for_corner_bevel_face(v, ordered_faces_containing, faces, 
       find_indices_for_corner_bevel_face(v, ordered_faces_containing, faces, edge_convexities, k + 1,
         in_convexity[0] < -0.001 && out_convexity[0] < -0.001 ? concat(result, [(k+1) % len(ordered_faces_containing)]) : result)
     ;
+
+function outer_bevel_to_bevel_adj(dim, outer_bevel) =
+    concat(
+        is_undef(outer_bevel[0]) ? [] : [[str(dim, "-"), outer_bevel[0]]],
+        is_undef(outer_bevel[1]) ? [] : [[str(dim, "+"), outer_bevel[1]]]
+    );
+
+function parse_bevel_adjustments(bevel_adj_string) =
+    let (kv_map = parse_kv(bevel_adj_string))
+    flatten([ for (entry = kv_map)
+        assert(is_valid_bevel_adj(entry[0]), "Invalid $burr_bevel_adjustments.")
+        let (value = atof(entry[1]))
+        len(entry[0]) == 3     // Must be of the form z+o
+            ? let (face_name = substr(entry[0], 0, 2),
+                   face_id = index_of(cube_face_names, face_name))
+              [ for (edge_name = cube_edge_names[face_id]) [ str(face_name, edge_name), value ] ]
+            : [ [ entry[0], value ] ]
+    ]);
+
+function is_valid_bevel_adj(bevel_adj) =
+    list_contains(cube_face_names, substr(bevel_adj, 0, 2)) &&
+       len(bevel_adj) == 2
+    || len(bevel_adj) == 3 && bevel_adj[2] == "o"
+    || is_valid_orientation(bevel_adj);
+
+function resolve_bevel_for_edge(default_bevel, bevel_adjustments, xmin, xmax, ymin, ymax, zmin, zmax, p, q, i = 0) =
+      i >= len(bevel_adjustments) ? default_bevel
+    : let (adj_type = bevel_adjustments[i][0], adj = bevel_adjustments[i][1])
+      let (face_name = substr(adj_type, 0, 2))
+      assert(list_contains(cube_face_names, face_name) || is_valid_orientation(adj_type))
+      let (is_on_face = is_edge_on_outer_face(face_name, xmin, xmax, ymin, ymax, zmin, zmax, p, q))
+      is_on_face && len(adj_type) == 2 ? adj
+    : let (orth_face_name = substr(adj_type, 2, 2))
+      is_on_face && is_edge_on_outer_face(orth_face_name, xmin, xmax, ymin, ymax, zmin, zmax, p, q) ? adj
+    : resolve_bevel_for_edge(default_bevel, bevel_adjustments, xmin, xmax, ymin, ymax, zmin, zmax, p, q, i + 1);
+
+function is_edge_on_outer_face(face_dir, xmin, xmax, ymin, ymax, zmin, zmax, p, q) =
+       face_dir == "x-" && values_are_close(xmin, p.x, q.x)
+    || face_dir == "x+" && values_are_close(xmax, p.x, q.x)
+    || face_dir == "y-" && values_are_close(ymin, p.y, q.y)
+    || face_dir == "y+" && values_are_close(ymax, p.y, q.y)
+    || face_dir == "z-" && values_are_close(zmin, p.z, q.z)
+    || face_dir == "z+" && values_are_close(zmax, p.z, q.z);

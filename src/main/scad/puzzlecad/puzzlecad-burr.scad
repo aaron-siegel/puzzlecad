@@ -48,20 +48,15 @@ module burr_piece(burr_spec) {
  * The other arguments should be left as defaults (they're used for recursive calls to burr_plate).
  */
 
-module burr_plate(burr_specs) {
+module burr_plate(burr_specs, num_copies = 1) {
     
     burr_infos = [ for (burr_spec = burr_specs) to_burr_info(burr_spec) ];
-
-    if ($auto_layout) {
-        
-        layout_burr_infos = auto_layout_plate(burr_infos);
-        burr_plate_r(layout_burr_infos);
-        
-    } else {
-        
-        burr_plate_r(burr_infos);
-        
-    }
+    
+    layout_burr_infos = $auto_layout ? auto_layout_plate(burr_infos) : burr_infos;
+    
+    expanded_burr_infos = flatten(copies(num_copies, layout_burr_infos));
+    
+    burr_plate_r(expanded_burr_infos);
     
 }
 
@@ -885,7 +880,8 @@ module male_diag_snap_connector(orient, label, twist = false) {
                 $burr_bevel = 1.5 / $burr_scale,
                 $burr_outer_x_bevel = undef,
                 $burr_outer_y_bevel = undef,
-                $burr_outer_z_bevel = undef
+                $burr_outer_z_bevel = undef,
+                $burr_bevel_adjustments = undef
             );
             
             if (label) {
@@ -994,7 +990,8 @@ module tapered_cube(size, center = false) {
         $burr_bevel = 0,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
-        $burr_outer_z_bevel = [0, 1.5]
+        $burr_outer_z_bevel = undef,
+        $burr_bevel_adjustments = "z-=0,z+=1.5"
     );
     
 }
@@ -1011,7 +1008,8 @@ module tapered_pentagon(size, center = false, clipped = false) {
         $burr_bevel = 0,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
-        $burr_outer_z_bevel = [0, 1.5]
+        $burr_outer_z_bevel = undef,
+        $burr_bevel_adjustments = "z-=0,z+=1.5"
     );
     
 }
