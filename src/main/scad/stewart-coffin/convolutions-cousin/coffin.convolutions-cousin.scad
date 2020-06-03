@@ -22,9 +22,8 @@ require_puzzlecad_version("2.0");
 
 $burr_scale = 16;
 $plate_width = 180;
-$burr_inset = 0.06;     // This can be 0.06 for a tighter fit
+$burr_inset = 0.07;     // This can be 0.06 for a tighter fit
 $burr_bevel = 1.2;
-$joint_inset = 0;
 
 // Uncomment one of the following lines to render that module.
 

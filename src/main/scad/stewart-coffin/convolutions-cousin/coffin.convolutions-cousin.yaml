@@ -11,11 +11,11 @@ description: |
 
     _Convolution's Cousin_ is named for its similarity to Coffin's iconic ${link:coffin.convolution} puzzle. Perhaps "Convolution's forgotten stepcousin" would be a better name, as it is much less well known than Coffin's other 4x4x4 cube puzzles, and its assembled pattern is different. Coffin does not even appear to have assigned it an STC number under his usual puzzle numbering scheme. It is quite a nice puzzle and deserves to be better known! It is also notable for being Coffin's only cube puzzle with internal voids (as far as I know).
     
-    UPDATED June 2020 with a new design and larger size.
+    UPDATED June 2020 with a new design and larger size. Many thanks to Mathew Nedeljko for pointing out the beautiful symmetric pattern that is used in the new design.
 
     ### Printing Instructions
     
-    Two versions are provided, a four-color version and a single-color version. The multicolor version uses "snap joints" to enable each piece to be printed in several components with different colors (see below for details). It's the preferred version and is the one shown in the photo. The single-color version lacks the aesthetic properties of the multicolor one, but it is designed to be relatively easy to print.
+    Two versions are provided, a four-color version and a single-color version. Both versions use "snap joints" to enable each piece to be printed in several components with different colors (see below for details). The multicolored version is preferred and is the one shown in the photo. The single-color version lacks the aesthetic properties of the multicolor one, but it is designed to be relatively easy to print.
     
     To print the four-color version, print `${name}.color-1.stl` through `${name}.color-4.stl` each in a different filament color; colors 1 through 3 will appear on the "straight line" patterns on the cube faces, and color 4 will appear on the corners. You can also print a two-color version by using the same color for `color-1` through `color-3`.
     
