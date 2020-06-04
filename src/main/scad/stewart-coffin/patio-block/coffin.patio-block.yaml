@@ -9,19 +9,17 @@ configurations:
 description: |
     Assemble the eight pieces into a 4x4x4 cube.
 
-    _Patio Block_ is classic Stewart Coffin: a simple, elegant idea gives rise to an unexpectedly challenging assembly puzzle. Coffin described the genesis of its design:
+    _Patio Block_ is classic Stewart Coffin: a simple, elegant idea gives rise to an unexpectedly challenging assembly puzzle. Coffin wrote of the ideas behind its design:
     
     "Start by joining 1x2x2 blocks all ten possible ways. Now put aside the two that are rectangular solids. Try fitting the other eight into a 4x4x4 box until you become convinced that it is impossible. Try eliminating one and duplicating another until they not only fit but do so with interesting symmetry."
     
-    If you enjoy this puzzle, you might also try Coffin's related design [Cube 16](https://www.thingiverse.com/thing:3480298), an interlocking puzzle based on the same idea of joining 1x2x2 blocks.
-    
-    UPDATED June 2020 with a new design and larger size.
+    If you enjoy this puzzle, you might also try Coffin's related design ${link:coffin.cube-16}, an interlocking puzzle based on the same idea of joining 1x2x2 blocks.
+
+    UPDATED June 2020 with a new design and larger pieces.
 
     ### Printing Instructions
-    
-    Print either `coffin.patio-block.stl` _or_ `coffin.patio-block-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material.
-    
-    ${snap-joints-boilerplate}
+
+    Print either `coffin.patio-block.stl` _or_ `coffin.patio-block-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material. Optionally, you may also print a box to hold the pieces in place in their solved state when not in use (as shown in the cover photo) - be sure to use the box model whose size matches the pieces you print.
 
     ${ppp-boilerplate}
 
