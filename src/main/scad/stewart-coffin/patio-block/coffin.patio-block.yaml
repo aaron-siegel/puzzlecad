@@ -1,8 +1,8 @@
 thing-id: 3435733
 name: "Patio Block - Interlocking puzzle by Stewart Coffin (STC #82)"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg]
-targets: [--]
+images: [assembled-in-box.jpg, pieces.jpg, assembled.jpg]
+targets: [pieces, box]
 configurations:
     - {name: '', code: '', targets: ''}
     - {name: 'smaller', code: '$burr_scale = 12.75; $burr_bevel = 1;', targets: ''}
