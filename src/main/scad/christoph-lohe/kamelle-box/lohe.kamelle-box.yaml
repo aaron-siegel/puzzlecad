@@ -1,0 +1,21 @@
+thing-id: 4425555
+name: "Kamelle Box - Packing puzzle by Christoph Lohe"
+tags: [puzzle, 3D_puzzle]
+images: [pieces.jpg, assembled.jpg]
+targets: [pieces, box, cap]
+description: |
+  Pack three pieces into a rectangular box with an obstructed opening.
+
+  _Kamelle Box_ is a fun design with a simple goal: maneuver all three pieces into the box. But the opening is small, and you will have to make use of a mysterious second opening on the bottom of the box ... It's not an especially difficult puzzle, but the solution is clever and entertaining.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl`, `${name}.box.stl`, and `${name}.cap.stl`.
+
+  ${box-assembly-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${christoph-lohe-bio}
+
+  Happy puzzling!

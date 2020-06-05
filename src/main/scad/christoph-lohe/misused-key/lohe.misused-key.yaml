@@ -1,0 +1,23 @@
+thing-id: 4425662
+name: "Misused Key - Interlocking puzzle by Christoph Lohe"
+tags: [puzzle, 3D_puzzle, burr_puzzle]
+images: [assembly-A.jpg, assembly-B.jpg, assembly-C.jpg, pieces.jpg]
+targets: [frame, pieces]
+description: |
+  Assemble the various pieces into the lock shape shown in the cover photo.
+
+  With a difficult level 26 solution, _Misused Key_ is a complex puzzle that will challenge even experienced puzzle solvers. You may need software such as BurrTools to help put it together; at least, assembling it unassisted is beyond my own abilities. Once in its assembled state, it makes a fun take-apart puzzle.
+
+  As a bonus, two other shapes can also be constructed. The "bonus" assemblies have the key in its "normal" (rather than "misused") location, each oriented differently. All three assemblies are shown in the photos.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`.
+
+  This design uses snap joints so that it may be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${christoph-lohe-bio}
+
+  Happy puzzling!

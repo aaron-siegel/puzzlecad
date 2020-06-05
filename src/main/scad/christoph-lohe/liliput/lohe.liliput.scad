@@ -18,10 +18,11 @@
 
 include <puzzlecad.scad>
 
-require_puzzlecad_version("2.0");
+require_puzzlecad_version("2.1");
 
 $burr_scale = 12;
-$burr_inset = 0.07;
+$burr_inset = 0.09;
+$burr_bevel = 0.5;
 
 *frame();
 *pieces();
@@ -29,16 +30,16 @@ $burr_inset = 0.07;
 module frame() {
     
     burr_plate([
-        [ "xx{label_text=C. Lohe,label_orient=y-x+,label_hoffset=0.5}xx|x.xx|x.xx|xxxx",
+        [ "xx{label_text=Christoph Lohe,label_orient=y-x+,label_hoffset=0.5,label_scale=0.35}xx|x.xx|x.xx|xxxx",
           "x.xx|....|....|x..x",
           "x..x{connect=fy+z+,clabel=B}|....|....|x..x",
           "x{connect=mz+y+,clabel=A}..x{connect=mz+y+,clabel=A}|....|....|x{connect=mz+y+,clabel=A}..x{connect=mz+y+,clabel=A}" ]
-    ], $burr_outer_z_bevel = [2, 0.5]);
+    ], $burr_bevel_adjustments = "z-o=1.75,z+=0.01");
     
     translate([4 * $burr_scale + $plate_sep, 0, 0])
     burr_plate([
         [ "x{connect=fz-y+,clabel=A}x{label_text=Liliput,label_orient=y-x+,label_hoffset=0.5,label_voffset=-0.1}xx{connect=fz-y+,clabel=A}|xx.x|xx.x|x{connect=fz-y+,clabel=A}xxx{connect=fz-y+,clabel=A}" ]
-    ], $burr_outer_z_bevel = [0.5, 2]);
+    ], $burr_bevel_adjustments = "z+o=1.75");
     
     translate([0, 4 * $burr_scale + $plate_sep, 0])
     burr_piece("x{connect=mz+y+,clabel=B}");

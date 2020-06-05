@@ -1,0 +1,21 @@
+thing-id: 4425482
+name: "Liliput - Interlocking puzzle by Christoph Lohe"
+tags: [puzzle, 3D_puzzle, burr_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [frame, pieces]
+description: |
+  Insert two pieces into the rectangular frame so that they are completely contained, as shown in the cover photo.
+
+  _Liliput_ is a diminutive puzzle with just a few pieces - but don't be fooled! You will have to discover an intricate sequence of movements in order to maneuver them properly into place. This is an enjoyable little puzzle that will provide a decent, but not overwhelming, challenge.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.frame.stl` and `${name}.pieces.stl`.
+
+  This design uses snap joints so that it may be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${christoph-lohe-bio}
+
+  Happy puzzling!
