@@ -12,12 +12,12 @@ $unit_beveled = false;
 module frame() {
     render(convexity = 2)
     burr_plate([
-        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
-        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
-        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
-        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
-        ["x{connect=mx-z-}xxxx|x{connect=mx-z-}xxxx|...xx|...x{connect=fz+y+}x{connect=fz+y+}"],
-        ["xxxxx{connect=mx+z-}|xxxxx{connect=mx+z-}|xx...|x{connect=fz+y+}x{connect=fz+y+}..."],
+    ["x{connect=mx-z-,clabel=A}xxxx|x{connect=mx-z-,clabel=A}xxxx|...xx|...x{connect=fz+y+,clabel=B}x{connect=fz+y+,clabel=B}"],
+    ["xxxxx{connect=mx+z-,clabel=B}|xxxxx{connect=mx+z-,clabel=B}|xx...|x{connect=fz+y+,clabel=A}x{connect=fz+y+,clabel=A}..."],
+    ["x{connect=mx-z-,clabel=A}xxxx|x{connect=mx-z-,clabel=A}xxxx|...xx|...x{connect=fz+y+,clabel=B}x{connect=fz+y+,clabel=B}"],
+    ["xxxxx{connect=mx+z-,clabel=B}|xxxxx{connect=mx+z-,clabel=B}|xx...|x{connect=fz+y+,clabel=A}x{connect=fz+y+,clabel=A}..."],
+    ["x{connect=mx-z-,clabel=A}xxxx|x{connect=mx-z-,clabel=A}xxxx|...xx|...x{connect=fz+y+,clabel=B}x{connect=fz+y+,clabel=B}"],
+    ["xxxxx{connect=mx+z-,clabel=B}|xxxxx{connect=mx+z-,clabel=B}|xx...|x{connect=fz+y+,clabel=A}x{connect=fz+y+,clabel=A}..."],
     ]);
 }
 
