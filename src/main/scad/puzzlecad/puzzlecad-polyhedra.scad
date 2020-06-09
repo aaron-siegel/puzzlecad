@@ -209,7 +209,7 @@ function find_mergeable_face(faces, face_index, face_normal, j) =
                     
             ? let (amalgam = remove_face_degeneracies(amalgamate_faces(face1, face2, indices[0])))
               let (sorted_vertices = quicksort_points(amalgam))
-              let (duplicate_vertex = find_duplicate(sorted_vertices))
+              let (duplicate_vertex = find_duplicate_point(sorted_vertices))
                 
                 // Check condition 3. If there are no duplicate vertices in the amalgamated face,
                 // then we've found a valid merge. Return the amalgam.
@@ -222,6 +222,11 @@ function find_mergeable_face(faces, face_index, face_normal, j) =
           : find_mergeable_face(faces, face_index, face_normal, j + 1)
 
       );
+
+function find_duplicate_point(sorted_list, i = 0) =
+      i >= len(sorted_list) - 1 ? undef
+    : norm(sorted_list[i] - sorted_list[i+1]) < $poly_err_tolerance ? i
+    : find_duplicate_point(sorted_list, i + 1);
 
 function amalgamate_faces(face1, face2, indices) =
     concat([ for (k=[1:len(face1)-1]) face1[(indices[0]+k) % len(face1)] ],
