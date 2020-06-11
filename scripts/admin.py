@@ -28,6 +28,7 @@ os.environ['OPENSCADPATH'] = libs_dir
 
 parser = argparse.ArgumentParser()
 parser.add_argument('command')
+parser.add_argument('--notests', action="store_true", help='do not run tests when bundling puzzlecad')
 parser.add_argument('cmdargs', nargs='*')
 
 args = parser.parse_args()
@@ -43,8 +44,14 @@ def process_command(args):
 		build_stls(args.cmdargs[0])
 		
 	elif args.command == "bundle-puzzlecad":
-	
-		bundle_puzzlecad(args.cmdargs[0])
+
+		run_tests = not args.notests
+		bundle_puzzlecad(args.cmdargs[0], run_tests)
+
+	elif args.command == 'upload-puzzlecad':
+
+		run_tests = not args.notests
+		upload_puzzlecad(args.cmdargs[0], run_tests)
 
 	elif args.command == 'print-thing-description':
 	
@@ -182,7 +189,7 @@ def resolve_thing(thing_name):
 	if len(yaml_path) == 0:
 		raise Exception(f'Thing not found: {thing_name}')
 		
-	return yaml_path[0];
+	return yaml_path[0]
 
 def load_yaml_file(yaml_file):
 
@@ -269,14 +276,15 @@ def substitute_globals(description, thing_name):
 
 	return description
 
-def bundle_puzzlecad(version):
+def bundle_puzzlecad(version, run_tests = True):
 
 	# Rudimentary poor-excuse-for-a-build-script,
 	# but I'm trying to keep things super simple right now
 
-	exit_status = run_puzzlecad_tests()
-	if (exit_status != 0):
-	    return
+	if (run_tests):
+		exit_status = run_puzzlecad_tests()
+		if (exit_status != 0):
+			return
 	
 	print(f'Bundling puzzlecad version {version} ...')
 	
@@ -302,14 +310,18 @@ def bundle_puzzlecad(version):
 		return
 
 	print('Copying to distribution dir ...')
-	shutil.copy('../src/main/scad/puzzlecad.scad', '../out/dist')
-	shutil.copy('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
-	shutil.copy('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
+	shutil.copy2('../src/main/scad/puzzlecad.scad', '../out/dist')
+	shutil.copy2('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
+	shutil.copy2('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
+	shutil.rmtree('../out/dist/puzzlecad')
+	shutil.copytree('../src/main/scad/puzzlecad', '../out/dist/puzzlecad')
 	
 	print('Creating archive ...')
 	dist_files = [ os.path.relpath(file, '../out/dist') for file in glob('../out/dist/*') ]
+	if (os.path.exists(f'../out/puzzlecad-{version}.zip')):
+		os.remove(f'../out/puzzlecad-{version}.zip')
 	subprocess.run(
-		['zip', f'../puzzlecad-{version}.zip'] + dist_files,
+		['zip', '-r', f'../puzzlecad-{version}.zip'] + dist_files,
 		cwd = '../out/dist'
 		)
 	if result.returncode != 0:
@@ -328,6 +340,11 @@ def run_puzzlecad_tests():
         print('Tests failed!')
     return exit_status
 
+def upload_puzzlecad(version, run_tests = True):
+
+	bundle_puzzlecad(version, run_tests)
+	thingiverse_post_file(3198014, f'../out/puzzlecad-{version}.zip')
+
 def thingiverse_get(endpoint, access_token):
 
 	url = f'https://api.thingiverse.com/{endpoint}'
@@ -342,7 +359,7 @@ def thingiverse_get(endpoint, access_token):
 		raise Exception(f"Call to {url} returned {response.status_code}: {response.text}")
 		
 	return response.json()
-	
+
 def thingiverse_post(endpoint, access_token, data):
 
 	url = f'https://api.thingiverse.com/{endpoint}'
