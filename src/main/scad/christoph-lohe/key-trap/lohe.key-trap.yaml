@@ -1,0 +1,21 @@
+thing-id: -1
+name: "Key Trap - Interlocking puzzle by Christoph Lohe"
+tags: [puzzle, 3D_puzzle, burr_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [frame, shackle, pieces, key]
+description: |
+  Assemble the various pieces into the lock shape shown in the cover photo.
+
+  With a difficult level 26 solution, _Key Trap_ is a complex puzzle that will challenge even experienced puzzle solvers. You may need software such as BurrTools to help put it together; at least, assembling it unassisted is beyond my own abilities. Once in its assembled state, it makes a fun take-apart puzzle.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`.
+
+  This design uses snap joints so that it may be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${christoph-lohe-bio}
+
+  Happy puzzling!
