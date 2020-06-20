@@ -38,10 +38,16 @@ require_puzzlecad_version("2.1");
 // be generated. You can generate the second page as follows:
 *burr_set(notchables, page_number = 2);
 
-// Finally, by default, all the sticks will be generated with length 6. Burr sets made
-// with length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally be
+// By default, all the sticks will be generated with length 6. Burr sets made with
+// length 8 sticks are not uncommon, and settings of 10 or 12 may occasionally be
 // desired as well. You can set it to any (even) number:
 *burr_set(notchables, page_number = 2, stick_length = 8);
+
+// Finally, use burr_tray to generate a tray; the following examples give a large-size
+// 8x6 tray. The optional `padding` parameter can be used to adjust the insets (default
+// is 0.15 mm).
+*burr_tray(8, 6)
+*burr_tray(8, 6, padding = 0.25)
 
 ////// Parameters
 
@@ -133,4 +139,56 @@ module stamped_burr_plate(piece_ids, stick_length = 8) {
     translate([0, ceil(len(lower_pieces) / 2) * ($burr_scale * 2 + $plate_sep), 0])
     burr_plate(upper_pieces, $burr_outer_x_bevel = $burr_bevel);
     
+}
+
+module tray_6x4() {
+    
+    burr_tray(6, 4);
+    
+}
+
+module tray_7x6() {
+    
+    burr_tray(7, 6);
+    
+}
+
+module tray_8x6() {
+    
+    burr_tray(8, 6);
+    
+}
+
+module burr_tray(x_size, y_size, padding = 0.15) {
+    
+    perimeter_thickness = 3;
+    spacing = 4;
+    base_thickness = 3;
+
+    difference() {
+        
+        beveled_cube([
+            x_size * $burr_scale * 2 + 2 * perimeter_thickness,
+            y_size * $burr_scale * 2 + (y_size - 1) * spacing + 2 * perimeter_thickness,
+            $burr_scale * 4 + base_thickness
+        ], $burr_bevel = 0.5, $burr_outer_x_bevel = undef);
+        
+        for (y = [1:y_size]) {
+            
+            translate([perimeter_thickness - padding, (y - 1) * ($burr_scale * 2 + spacing) + perimeter_thickness - padding, base_thickness])
+            cube([x_size * $burr_scale * 2 + padding * 2, $burr_scale * 2 + padding * 2, $burr_scale * 4 + 0.01]);
+            
+        }
+        
+        if (y_size > 1) {
+            for (y = [1:y_size-1]) {
+                
+                translate([perimeter_thickness - padding, y * $burr_scale * 2 + (y - 1) * spacing + perimeter_thickness + padding - 0.01, base_thickness + 3 * $burr_scale])
+                cube([x_size * $burr_scale * 2 + padding * 2, spacing + 0.02, $burr_scale + 0.01]);
+                
+            }
+        }
+        
+    }
+
 }
