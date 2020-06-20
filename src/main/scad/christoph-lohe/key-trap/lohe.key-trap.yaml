@@ -2,15 +2,15 @@ thing-id: -1
 name: "Key Trap - Interlocking puzzle by Christoph Lohe"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [assembled.jpg, pieces.jpg]
-targets: [frame, shackle, pieces, key]
+targets: [frame, shackle, pieces, key, curved_shackle, curved_key]
 description: |
-  Assemble the various pieces into the lock shape shown in the cover photo.
+  Assemble the various pieces into the lock shape shown in the cover photo. The key is looped around the shackle so that they can move freely against each other, but cannot be sparated. How can they be manipulated so that the rest of the pieces can be maneuvered into the lock frame?
 
   With a difficult level 26 solution, _Key Trap_ is a complex puzzle that will challenge even experienced puzzle solvers. You may need software such as BurrTools to help put it together; at least, assembling it unassisted is beyond my own abilities. Once in its assembled state, it makes a fun take-apart puzzle.
 
   ### Printing Instructions
 
-  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`.
+  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`. Alternatively, you may print `${name}.curved-shackle.stl` and `${name}.curved-key.stl` in place of `${name}.shackle.stl` and `${name}.key.stl`; they are functionally identical, but the appearance is different (the curved variants have a more "lock-like" shape; see photos).
 
   This design uses snap joints so that it may be printed without supports. ${snap-joints-boilerplate}
 

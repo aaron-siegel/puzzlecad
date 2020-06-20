@@ -29,6 +29,7 @@ $burr_bevel = 0.5;
 *curved_shackle();
 *pieces();
 *key();
+*curved_key();
 
 module frame() {
 
@@ -73,7 +74,7 @@ module curved_shackle() {
     shackle_arc();
     
     translate([$burr_scale * 3 - $burr_inset, $burr_scale * 8 - $burr_inset, 0])
-    mirror([-1, 0, 0])
+    mirror([1, 0, 0])
     shackle_arc();
     
 }
@@ -98,14 +99,56 @@ module pieces() {
         [ "x..x|x..x|xxxx", "x..x|x..x|x..x" ],
         [ "x..x|x..x|xxxx", "x..x|x..x|xx.x" ],
         [ "x..x|x.xx|xxxx", "x..x|x..x|xx.x" ]
-    ]);
+    ], $burr_outer_x_bevel = 1);
     
 }
 
 module key() {
-
+    
     burr_plate([
-        [ "xxxx.....|x..x.....|x..xxxxxx|x..x..x.x|xxxx....." ]
-    ]);
+        ["xxxx|x..x|x..x{connect=fx+z+,clabel=C}|x..x|xxxx"],
+        ["..x.x|x{connect=mx-z-,clabel=C}xxxx"]
+    ], $plate_sep = $burr_scale);
+    
+}
+
+module curved_key() {
+    
+    burr_plate([
+        [".xx.|x..x|x..x{connect=fx+z+,clabel=C}|x..x|.xx."],
+        ["..x.x|x{connect=mx-z-,clabel=C}xxxx"]
+    ], $plate_sep = $burr_scale);
+
+    translate([$burr_scale - $burr_inset, 4 * $burr_scale - $burr_inset])
+    key_arc();
+    
+    translate([3 * $burr_scale - $burr_inset, 4 * $burr_scale - $burr_inset])
+    mirror([1, 0, 0])
+    key_arc();
+
+    translate([3 * $burr_scale - $burr_inset, $burr_scale - $burr_inset])
+    mirror([1, 0, 0])
+    mirror([0, 1, 0])
+    key_arc();
+
+    translate([$burr_scale - $burr_inset, $burr_scale - $burr_inset])
+    mirror([0, 1, 0])
+    key_arc();
+
+}
+
+module key_arc() {
+    
+    arc = concat(
+        [ for (theta = [180:-5:90]) [ ($burr_scale - $burr_inset) * cos(theta), ($burr_scale - $burr_inset) * sin(theta) ] ],
+        [ [ 2 * $burr_bevel, $burr_scale - $burr_inset],
+          [ 2 * $burr_bevel, $burr_inset ],
+          [ -$burr_inset, $burr_inset],
+          [ -$burr_inset, -2 * $burr_bevel ],
+          [ -($burr_scale - $burr_inset), -2 * $burr_bevel ]
+        ]
+    );
+    
+    beveled_prism(arc, height = $burr_scale - $burr_inset * 2);
     
 }
