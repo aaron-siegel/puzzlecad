@@ -326,7 +326,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                     // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
                     // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
                     // on each face.
-                    dim = cw(2 * (inset_vec + iota_vec), directions[face])
+                    dim = cw(2 * (inset_vec + 10 * iota_vec), directions[face])
                         + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face]);
                     translate(cw(scale_vec, face_center))
                     cube(dim, center = true);
@@ -346,7 +346,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                         )) {
                         
                         edge_center = face_center + 0.5 * directions[other_face];
-                        dim = cw(2 * (inset_vec + iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
+                        dim = cw(2 * (inset_vec + 10 * iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
                             + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
                         translate(cw(scale_vec, edge_center))
                         cube(dim, center = true);
