@@ -1,0 +1,21 @@
+thing-id: 4485274
+name: "Bandido - Interlocking puzzle by Yavuz Demirhan"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [central_piece, other_pieces]
+description: |
+  Assemble six interlocking pieces in an unusual configuration around a cube-shaped central block, as shown in the photo.
+
+  With a very manageable Level 8.6 solution and only one false assembly, _Bandido_ is a fun and approachable interlocking puzzle, and it has a striking appearance once assembled.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.central-piece.stl` and `${name}.other-pieces.stl`, ideally in two contrasting colors.
+
+  The central piece uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${yavuz-demirhan-bio}
+
+  Happy puzzling!

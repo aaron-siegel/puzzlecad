@@ -1,0 +1,25 @@
+thing-id: 4492248
+name: "Burrloop - Interlocking puzzle by Yavuz Demirhan"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, frame-and-pieces.jpg]
+targets: [frame, pieces]
+description: |
+  Assemble an ordinary six-piece burr inside an unusual frame.
+
+  Finding just the right arrangement to fit the burr into the frame can be tricky, but with a little patience the Level 7 solution will reveal itself. I'd rate this one as intermediate-difficulty.
+
+  Thanks to Yu Chih Chang for contributing the model for this design.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.frame.stl` and `${name}.pieces.stl`, ideally in two contrasting colors.
+
+  The frame uses "snap joints" so that it can be printed without supports. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior). __For easiest assembly, first assemble the frame components into two chains of three pieces each, then mate the two chains together.__
+
+  The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. If they come out too loose, a drop of superglue will make them more solid (in most cases this shouldn't be necessary, but unfortunately tolerances vary across printers and filaments). The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
+
+  ${ppp-boilerplate}
+
+  ${yavuz-demirhan-bio}
+
+  Happy puzzling!
