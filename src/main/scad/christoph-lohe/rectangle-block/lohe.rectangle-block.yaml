@@ -10,9 +10,9 @@ description: |
 
   ### Printing Instructions
 
-  Print one copy each of `${name}.frame.stl`, `${name}.frame-cap.stl`, ${name}.pieces-1.stl`, and `${name}.pieces-2.stl`. To get the checker pattern shown in the photo, print `pieces-1` and `pieces-2` in separate colors. I recommend printing `pieces-1` in a sturdy filament such as PLA+, since the joints may be fragile.
+  Print one copy each of `${name}.frame.stl`, `${name}.frame-cap.stl`, `${name}.pieces-1.stl`, and `${name}.pieces-2.stl`. To get the checker pattern shown in the photo, print `pieces-1` and `pieces-2` in separate colors. I recommend printing `pieces-1` in a sturdy filament such as PLA+, since the joints may be fragile.
 
-  Now assemble the two pieces from `pieces-1` by snapping the joints together. For this puzzle, I recommend reinforcing them with glue. (DO NOT ASSEMBLE THE FRAME YET!) Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior). The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
+  Now assemble the two pieces from `pieces-1` by snapping the joints together. For this puzzle, I recommend reinforcing them with glue. __DO NOT ASSEMBLE THE FRAME YET!__ Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior). The joints are designed to be tight, and depending on the printer and filament used, you may need to hammer them into place. The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
 
   Now put the puzzle into its assembled state as follows.
 

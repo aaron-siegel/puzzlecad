@@ -21,7 +21,7 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.0");
 
 $burr_scale = 8;
-$burr_inset = 0.09;
+$burr_inset = 0.12;
 $burr_bevel = 0.5;
 
 *frame();

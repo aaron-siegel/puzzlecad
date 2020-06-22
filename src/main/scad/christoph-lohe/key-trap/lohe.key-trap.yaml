@@ -1,18 +1,22 @@
-thing-id: -1
+thing-id: 4485309
 name: "Key Trap - Interlocking puzzle by Christoph Lohe"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: [assembled.jpg, pieces.jpg]
+images: [assembled.jpg, key-and-shackle.jpg, pieces.jpg]
 targets: [frame, shackle, pieces, key, curved_shackle, curved_key]
 description: |
-  Assemble the various pieces into the lock shape shown in the cover photo. The key is looped around the shackle so that they can move freely against each other, but cannot be sparated. How can they be manipulated so that the rest of the pieces can be maneuvered into the lock frame?
+  Assemble the various pieces into the lock shape shown in the cover photo. The key is looped around the shackle so that they are permanently bound together, but can move freely against each other. How can they be manipulated so as to maneuver the rest of the pieces into the lock frame?
 
-  With a difficult level 26 solution, _Key Trap_ is a complex puzzle that will challenge even experienced puzzle solvers. You may need software such as BurrTools to help put it together; at least, assembling it unassisted is beyond my own abilities. Once in its assembled state, it makes a fun take-apart puzzle.
+  With a difficult level 26 solution, _Key Trap_ is a complex puzzle that will challenge even experienced puzzle solvers. You may need software such as BurrTools to help put it together; assembling it unassisted is beyond my own abilities. Once in its assembled state, it makes a fun take-apart puzzle.
 
   ### Printing Instructions
 
-  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`. Alternatively, you may print `${name}.curved-shackle.stl` and `${name}.curved-key.stl` in place of `${name}.shackle.stl` and `${name}.key.stl`; they are functionally identical, but the appearance is different (the curved variants have a more "lock-like" shape; see photos).
+  Print one copy each of `${name}.frame.stl`, `${name}.shackle.stl`, `${name}.pieces.stl`, and `${name}.key.stl`. Alternatively, you may print `${name}.curved-shackle.stl` and `${name}.curved-key.stl` in place of `${name}.shackle.stl` and `${name}.key.stl`; they are functionally identical, but the appearance is different (the curved variants have a more "lock-like" shape; see photos). __You will need to print the key using build-plate supports in order to support the snap joint.__ DO NOT ASSEMBLE THE KEY YET! Read the following instructions __carefully__ before proceeding.
 
-  This design uses snap joints so that it may be printed without supports. ${snap-joints-boilerplate}
+  This design uses snap joints. After you print it, first connect all the joints before attempting to solve the puzzle. Snap each male connector into a corresponding female connector (for example, the male connector labeled "A" should connect to the female connector with a matching "A" label on the interior).
+
+  __To assemble the key__: _before_ connecting the joint, loop the ringed part of the key around the shackle and into its proper orientation, as shown in the photo. Only _after_ the ringed part is in place, secure the straight part of the key and attach the joint. You must assemble it in __exactly__ the configuration shown in the photo or you will wind up with an unsolvable puzzle. I strongly recommend reinforcing the joint on the key with a few drops of superglue.
+
+  The snap joint concept is discussed further in this tutorial: [Getting Started with Puzzle Printing](https://www.puzzlehub.org/tutorials/getting-started).
 
   ${ppp-boilerplate}
 
