@@ -44,10 +44,10 @@ require_puzzlecad_version("2.1");
 *burr_set(notchables, page_number = 2, stick_length = 8);
 
 // Finally, use burr_tray to generate a tray; the following examples give a large-size
-// 8x6 tray. The optional `padding` parameter can be used to adjust the insets (default
+// 8x6 tray. The optional `tray_inset` parameter can be used to adjust the insets (default
 // is 0.15 mm).
-*burr_tray(8, 6)
-*burr_tray(8, 6, padding = 0.25)
+*burr_tray(8, 6);
+*burr_tray(8, 6, tray_inset = 0.25);
 
 ////// Parameters
 
@@ -159,7 +159,7 @@ module tray_8x6() {
     
 }
 
-module burr_tray(x_size, y_size, padding = 0.15) {
+module burr_tray(x_size, y_size, tray_inset = 0.15) {
     
     perimeter_thickness = 3;
     spacing = 4;
@@ -175,16 +175,16 @@ module burr_tray(x_size, y_size, padding = 0.15) {
         
         for (y = [1:y_size]) {
             
-            translate([perimeter_thickness - padding, (y - 1) * ($burr_scale * 2 + spacing) + perimeter_thickness - padding, base_thickness])
-            cube([x_size * $burr_scale * 2 + padding * 2, $burr_scale * 2 + padding * 2, $burr_scale * 4 + 0.01]);
+            translate([perimeter_thickness - tray_inset, (y - 1) * ($burr_scale * 2 + spacing) + perimeter_thickness - tray_inset, base_thickness])
+            cube([x_size * $burr_scale * 2 + tray_inset * 2, $burr_scale * 2 + tray_inset * 2, $burr_scale * 4 + 0.01]);
             
         }
         
         if (y_size > 1) {
             for (y = [1:y_size-1]) {
                 
-                translate([perimeter_thickness - padding, y * $burr_scale * 2 + (y - 1) * spacing + perimeter_thickness + padding - 0.01, base_thickness + 3 * $burr_scale])
-                cube([x_size * $burr_scale * 2 + padding * 2, spacing + 0.02, $burr_scale + 0.01]);
+                translate([perimeter_thickness - tray_inset, y * $burr_scale * 2 + (y - 1) * spacing + perimeter_thickness + tray_inset - 0.01, base_thickness + 3 * $burr_scale])
+                cube([x_size * $burr_scale * 2 + tray_inset * 2, spacing + 0.02, $burr_scale + 0.01]);
                 
             }
         }

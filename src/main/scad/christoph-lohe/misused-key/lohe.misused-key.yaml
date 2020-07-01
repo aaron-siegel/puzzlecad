@@ -3,6 +3,7 @@ name: "Misused Key - Interlocking puzzle by Christoph Lohe"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [assembly-A.jpg, assembly-B.jpg, assembly-C.jpg, pieces.jpg]
 targets: [frame, shackle, pieces, key]
+aux_files: [lohe.misused-key.xmpuzzle]
 description: |
   Assemble the various pieces into the lock shape shown in the cover photo.
 
