@@ -1,0 +1,23 @@
+thing-id: 4517715
+name: "Arne's Cube - Interlocking puzzle by Alfons Eyckmans"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg]
+targets: [pieces_1, pieces_2, pieces_3, pieces_4, pieces_5, pieces_6]
+description: |
+  Disassemble the interlocking cube.
+
+  _Arne's Cube_ is a fascinating design. At its core is an ordinary nine-piece burr with sticks of length 8. This would make Arne's Cube a fairly conventional framed burr, except that the frame comes completely apart during disassembly! This is a puzzle for experienced puzzle solvers, with 25 separate components, and requiring 49 moves to disassemble. You have been warned.
+
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so. It is quite a challenge to assemble, even with BurrTools! (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the other designs in the Printable Puzzle Project - see below.)
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces-1.stl` through `${name}.pieces-6.stl`. You may use whatever color scheme you wish; for the print shown in the photos, I used six different colors.
+
+  This puzzle uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${alfons-eyckmans-bio}
+
+  Happy puzzling!

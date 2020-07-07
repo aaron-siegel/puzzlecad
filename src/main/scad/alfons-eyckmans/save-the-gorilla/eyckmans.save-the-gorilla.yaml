@@ -1,0 +1,21 @@
+thing-id: 4517712
+name: "Save the Gorilla - Interlocking puzzle by Alfons Eyckmans"
+tags: [puzzle, 3D_puzzle]
+images: [cover.jpg, pieces.jpg, gorilla.jpg]
+targets: [gorilla, pieces_color_1, pieces_color_2, pieces_color_3]
+description: |
+  Disassemble the 19-piece interlocking shape to remove the gorilla-shaped piece trapped inside.
+
+  _Save the Gorilla_ is one of Alfons Eyckmans's popular "Burr Zoo" puzzles, in which ordinary-looking burr shapes conceal animal figurines trapped inside. (In the photo, the gorilla shape is shown standing outside the puzzle, but in the assembled state it will be concealed within.) This is a challenging puzzle, requiring a total of 70 moves for the disassembly.
+
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so. _Save the Gorilla_ is a puzzle for experienced puzzle solvers, and it can be a challenge to assemble even _with_ BurrTools!
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.gorilla.stl`, `${name}.pieces-color-1.stl`, `${name}.pieces-color-2.stl`, and `${name}.pieces-color-3.stl`.
+
+  ${ppp-boilerplate}
+
+  ${alfons-eyckmans-bio}
+
+  Happy puzzling!
