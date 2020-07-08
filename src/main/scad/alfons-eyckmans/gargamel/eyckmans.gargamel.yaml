@@ -3,12 +3,13 @@ name: "Gargamel - Interlocking puzzle by Alfons Eyckmans"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg]
 targets: [pieces_1, pieces_2, pieces_3]
+aux_files: [eyckmans.gargamel.xmpuzzle]
 description: |
   Disassemble the eight-piece interlocking cube.
 
   _Gargamel_ is an intricate and challenging puzzle, requiring 77 total moves to completely disassemble. It's a wonderful design with some surprising movements. This is a puzzle for experienced puzzle solvers - you have been warned!
 
-  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so. (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the other designs in the Printable Puzzle Project - see below.)
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so, and I've included the BurrTools (xmpuzzle) file provided by Alfons. (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the less complex designs in the Printable Puzzle Project - see below.)
 
   ### Printing Instructions
 

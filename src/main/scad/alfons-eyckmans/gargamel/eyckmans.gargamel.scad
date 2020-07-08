@@ -25,7 +25,7 @@ $burr_inset = 0.08;     // Use 0.07 for a tighter fit
 $burr_bevel = 0.5;
 
 *pieces_1();
-pieces_2();
+*pieces_2();
 *pieces_3();
 
 module pieces_1() {

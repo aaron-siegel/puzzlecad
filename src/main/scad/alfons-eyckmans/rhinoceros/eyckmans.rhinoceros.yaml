@@ -3,12 +3,13 @@ name: "Rhinoceros - Interlocking puzzle by Alfons Eyckmans"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, rhino.jpg]
 targets: [rhino, pieces_color_1, pieces_color_2, pieces_color_3]
+aux_files: [eyckmans.rhinoceros.xmpuzzle]
 description: |
   Disassemble the 13-piece interlocking shape to remove the rhinoceros-shaped piece trapped inside.
 
   _Rhinoceros_ is one of Alfons Eyckmans's popular "Burr Zoo" puzzles, in which ordinary-looking burr shapes conceal animal figurines trapped inside. (In the photo, the rhino shape is shown standing atop the puzzle, but in the assembled state it will be concealed within.) This is a challenging puzzle, requiring a total of 51 moves for the disassembly.
 
-  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so. _Rhinoceros_ is a puzzle for experienced puzzle solvers, and it can be a challenge to assemble even _with_ BurrTools!
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so, and I've included the BurrTools (xmpuzzle) file provided by Alfons. (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the less complex designs in the Printable Puzzle Project - see below.)
 
   ### Printing Instructions
 
