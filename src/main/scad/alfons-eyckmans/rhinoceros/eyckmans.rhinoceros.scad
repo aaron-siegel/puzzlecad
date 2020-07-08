@@ -33,7 +33,7 @@ rhino_burr_inset = 0.08;    // Looser inset for the rhino; use 0.07 for a tighte
 module pieces_color_1() {
 
     burr_plate([
-        [ "xxxx{label_text=Rhinoceros,label_orient=y+x-,label_hoffset=-0.5}xxxx|x......x|x......x", "xx....xx|x......x|x......x" ],
+        [ "xxxxxxxx|x......x|x......x", "xx....xx|x......x|x......x" ],
         [ "xxxx{label_text=Alfons Eyckmans,label_orient=y+x-,label_hoffset=-0.5}xxxx|x......x|x......x", "xx....xx|x......x|x......x" ],
         [ "xxxxxxxx|x......x|x......x", "xx....xx|x......x|x......x" ],
         [ "xxxxxxxx|x......x|x......x", "xx....xx|x......x|x......x" ],

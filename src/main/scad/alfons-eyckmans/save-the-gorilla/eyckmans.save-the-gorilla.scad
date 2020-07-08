@@ -49,7 +49,7 @@ module pieces_color_2() {
         [ "xxxxxxxx|x.x....x", "xx....xx|x......x" ],
         [ "xxxxxxxx|x....x.x", "xx....xx|x......x" ],
         [ "xxxxxxxx|x....x.x", "xx....xx|x......x" ],
-        [ "xxxx{label_text=Save the Gorilla,label_orient=z+x+,label_hoffset=0.5}xxxx|x......x", "x......x|x......x" ],
+        [ "xxxxxxxx|x......x", "x......x|x......x" ],
         [ "xxxx{label_text=Alfons Eyckmans,label_orient=z+x+,label_hoffset=0.5}xxxx|x..x...x", "x......x|x......x" ],
         [ "xxxxxxxx|x......x", "xx..xxxx|x......x" ],
     ], $burr_outer_x_bevel = 1.75);
