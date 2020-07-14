@@ -30,8 +30,6 @@
 
 ==================================================================== */
 
-use <puzzlecad/puzzlecad-util.scad>
-
 /***** Cube Geometry *****/
 
 cube_face_names = ["z-", "y-", "x-", "x+", "y+", "z+"];

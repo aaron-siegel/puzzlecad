@@ -154,7 +154,7 @@ function string_to_burr_info(globals, string, i=0, result=[]) =
         : string[i] == "#" ? string_to_burr_info_sharp(globals, string, i, result, 24)
         : assert(false, "Invalid burr specification.");
          
-component_ids = ".abcdefghijklmnopqrstuvwxyz";
+component_ids = ".abcdefghijklmnopqrstuvwxyz+";
 
 // Parse a single character, with optional annotations.
 

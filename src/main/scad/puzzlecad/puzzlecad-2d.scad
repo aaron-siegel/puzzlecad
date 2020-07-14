@@ -32,17 +32,6 @@
 
 /******* Puzzle containers and lids *******/
 
-module packing_box(dim, thickness, insets = 0.25) {
-    
-    render(convexity = 2)
-    difference() {
-        beveled_cube(dim + [(thickness + insets) * 2, (thickness + insets) * 2, thickness + insets]);
-        translate([thickness, thickness, thickness])
-        cube(dim + [insets * 2, insets * 2, insets]);
-    }
-    
-}
-
 $tray_scale = 16;
 $tray_padding = 2.5;
 $tray_opening_height = 5.6;
