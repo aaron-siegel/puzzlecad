@@ -111,9 +111,12 @@ module burr_piece_2(burr_spec, center = false, piece_number = undef) {
     bounding_box = piece_bounding_box(burr_info);
 
     if (!is_undef(bounding_box)) {
+
+        translate([-0.001, -0.001, 0])  // OpenSCAD sometimes chokes on floating point errors for rendering complex polyhedra; this seems to help
         translate(center ? [0, 0, 0] : -bounding_box[0])
         rotate($post_rotate)
         burr_piece_base(burr_info);
+
     }
     
 }

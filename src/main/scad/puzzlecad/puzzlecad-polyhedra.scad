@@ -76,7 +76,9 @@ module beveled_polyhedron(points, faces) {
 /***** Polyhedron Simplification *****/
 
 function make_poly(faces) =
-    let (merged_faces = merge_coplanar_faces(remove_degeneracies(faces)))
+    let (foo = [ for (f = faces, p = f) assert(is_3_vector(p), str("Invalid polyhedron: ", f)) ])
+    let (simplified_faces = remove_degeneracies(faces))
+    let (merged_faces = merge_coplanar_faces(simplified_faces))
     make_poly_2(remove_degeneracies(merged_faces));
     
 function make_poly_2(faces) =
@@ -102,6 +104,7 @@ function remove_face_degeneracies(face) =
 
 function remove_face_degeneracies_once(face) = len(face) == 0 ? [] : [
     for (k=[0:len(face)-1])
+    let (foo = assert(is_3_vector(face[k]), face))
     if (norm(face[k] - face[(k+1) % len(face)]) >= $poly_err_tolerance &&
         norm(face[k] - face[(k+2) % len(face)]) >= $poly_err_tolerance &&
         norm(face[(k+len(face)-1) % len(face)] - face[(k+1) % len(face)]) >= $poly_err_tolerance)
@@ -116,7 +119,7 @@ function remove_face_degeneracies_once(face) = len(face) == 0 ? [] : [
 function remove_collinear_points(faces, face) = len(face) == 0 ? [] : [
     for (k=[0:len(face)-1])
     let (a = face[(k-1+len(face)) % len(face)], b = face[k], c = face[(k+1) % len(face)])
-    let (foo = assert(!is_undef(a) && !is_undef(b) && !is_undef(c), face))
+    let (foo = assert(is_3_vector(a) && is_3_vector(b) && is_3_vector(c), face))
     if (norm(cross(b - a, c - b)) >= $poly_err_tolerance || !is_sequential_triplet(faces, [c, b, a]))
     face[k]
 ];

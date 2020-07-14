@@ -157,7 +157,7 @@ function to_2_vector(a) = is_num(a) ? [a, a] : a;
  
 function vectorize(a) = is_num(a) ? [a, a, a] : a;
 
-function is_3_vector(a) = len(a) == 3 && is_num(a[0]) && is_num(a[1]) && is_num(a[2]);
+function is_3_vector(a) = len(a) == 3 && is_num(a.x * 0) && is_num(a.y * 0) && is_num(a.z * 0);
     
 function lookup3(array, vector) = array[vector.x][vector.y][vector.z];
 
