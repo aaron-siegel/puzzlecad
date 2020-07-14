@@ -34,6 +34,8 @@ package org.puzzlecad;
 
 class XmpuzzleVoxel {
 
+    public final static XmpuzzleVoxel EMPTY = new XmpuzzleVoxel(false, 0);
+
     boolean isFilled;
     int color;
 

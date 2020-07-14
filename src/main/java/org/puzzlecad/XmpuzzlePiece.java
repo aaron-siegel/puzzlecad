@@ -57,7 +57,8 @@ class XmpuzzlePiece {
             for (int j = 0; j < y; j++) {
                 for (int i = 0; i < x; i++) {
 
-                    array[k][j][i] = voxels[k * x * y + j * x + i];
+                    int index = k * x * y + j * x + i;
+                    array[k][j][i] = voxels[index];
 
                 }
             }
@@ -76,13 +77,16 @@ class XmpuzzlePiece {
         ArrayList<XmpuzzleVoxel> voxels = new ArrayList<XmpuzzleVoxel>();
         for (int i = 0; i < string.length(); i++) {
             char ch = string.charAt(i);
-            if (ch == '_' || ch == '#') {
-                boolean isFilled = (ch == '#');
+            if (ch == '_' || ch == '#' || ch == '+') {
+                boolean isFilled = (ch != '_');
                 int color = 0;
-                if (i + 1 < string.length() && Character.isDigit(string.charAt(i + 1))) {
-                    color = string.charAt(i + 1) - '0';
+                while (i + 1 < string.length() && Character.isDigit(string.charAt(i + 1))) {
+                    color = color * 10 + string.charAt(i + 1) - '0';
+                    i++;
                 }
                 voxels.add(new XmpuzzleVoxel(isFilled, color));
+            } else {
+                throw new RuntimeException("Parse error: unknown char '" + ch + "'");
             }
         }
         return voxels.toArray(new XmpuzzleVoxel[0]);
