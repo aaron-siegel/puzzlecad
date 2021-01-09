@@ -59,6 +59,12 @@ $unit_beveled = false;
 $auto_layout = false;
 $post_rotate = [0, 0, 0];
 
+// Can be set to false to only render connectors
+// or only main parts to have two objects in the slicer.
+// this way, one can e.g. easily have thicker infill for the connectors.
+$render_connectors = true;
+$render_main = true;
+
 // Optional parameters that can be used to increase
 // the amount of beveling on outer edges of burr pieces:
 
