@@ -1,0 +1,24 @@
+thing-id: 4734855
+name: "Anke's Cube - Interlocking puzzle by Alfons Eyckmans"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg]
+targets: [pieces_1, pieces_2, pieces_3, pieces_4, pieces_5, pieces_6]
+aux_files: [eyckmans.moiras-cube.xmpuzzle]
+description: |
+  Disassemble the interlocking cube.
+
+  _Anke's Cube_ has a similar structure to Eyckmans's earlier ${link:eyckmans.arnes-cube}, but with an even higher-level solution. Like its predecessor, _Anke's Cube_ is for experienced puzzle solvers, with 25 separate components, and requiring 66 moves to disassemble.
+
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so, and I've included the BurrTools (xmpuzzle) file. _Anke's Cube_ is quite a challenge to assemble, even with BurrTools! (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the less complex designs in the Printable Puzzle Project - see below.)
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces-1.stl` through `${name}.pieces-6.stl`. You may use whatever color scheme you wish; for the print shown in the photos, I used six different colors.
+
+  This puzzle uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${alfons-eyckmans-bio}
+
+  Happy puzzling!
