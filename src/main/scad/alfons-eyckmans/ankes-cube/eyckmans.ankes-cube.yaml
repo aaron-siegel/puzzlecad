@@ -3,7 +3,7 @@ name: "Anke's Cube - Interlocking puzzle by Alfons Eyckmans"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg]
 targets: [pieces_1, pieces_2, pieces_3, pieces_4, pieces_5, pieces_6]
-aux_files: [eyckmans.moiras-cube.xmpuzzle]
+aux_files: [eyckmans.ankes-cube.xmpuzzle]
 description: |
   Disassemble the interlocking cube.
 

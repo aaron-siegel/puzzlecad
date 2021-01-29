@@ -21,30 +21,24 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.1");
 
 $burr_scale = 8;
-$burr_inset = 0.07;
+$burr_inset = 0.08;     // Use 0.07 for a tighter fit
 $burr_bevel = 0.5;
-$joint_inset = 0;
 
 *pieces_1();
 *pieces_2();
 *pieces_3();
 *pieces_4();
 *pieces_5();
+*pieces_6();
+
+// 1 - Dark green
+// 2 - Medium green
+// 3 - Medium green
+// 4 - White
+// 5 - Light green
+// 6 - Brown
 
 module pieces_1() {
-    
-    burr_plate([
-        [ "x......xx|xxxxxxxxx|x...xxxxx", "x......xx|xxxxxxxxx|x...xxxxx" ],
-        [ "x....xxxx|xxxxxxxxx|x...x.xxx", "x.....xxx|xxx...xxx|x.....xxx" ],
-        [ "xxxx...xx|xxxxxxxxx|x.....xxx", "xxx....xx|xxx....xx|x......xx" ],
-        [ "xxxx...xx|xxxxxxxxx|xxx...xxx", "x......xx|xxx.x..xx|xx.....xx" ],
-        [ "x.xx....x|xxxxxxxxx|x......xx", "x.x.....x|xxx...xxx|x......xx" ],
-        [ "x..x...xx|xxxxxxxxx|x.......x", "x..x...xx|xxxxxxxxx|x.......x" ]
-    ]);
-    
-}
-
-module pieces_2() {
     
     burr_plate([
         [ "x.x{connect=mz+y+,clabel=A}|xxx{connect=mz+y+,clabel=A}", "x..|x.." ],
@@ -54,10 +48,20 @@ module pieces_2() {
     
 }
 
+module pieces_2() {
+    
+    burr_plate([
+        [ "xxx...xxx|x{label_text=Cube,label_orient=x-y-,label_voffset=0.17}xxxxxxxx|xxx...xxx",
+          "x.x...x.x|x{label_text=Moira's,label_orient=x-y-,label_voffset=-0.17}.xxxxx.x|x.x...x.x" ],
+        [ "xxx...xxx|xxxxxxxxx|xxx...xxx", "x.x...x.x|x.xxxxx.x|x.x...x.x" ],
+        [ "xxx...xxx|xxxxxxxxx|xxx...xxx", "x.x...x.x|x.xxxxx.x|x.x...x.x" ]
+    ]);
+    
+}
+
 module pieces_3() {
     
     burr_plate([
-        [ "xxx...xxx|xxxxxxxxx|xxx...xxx", "x.x...x.x|x.xxxxx.x|x.x...x.x" ],
         [ "xxx{connect=mz+y+,clabel=C}|xxx|xxx{connect=mz+y+,clabel=C}", "x..|x..|x.."],
         [ "x{connect=mz+y+,clabel=D}xx|xxx|x{connect=mz+y+,clabel=D}xx", "..x|..x|..x"],
         [ "x{connect=fz-y+,clabel=C}...x{connect=fz-y+,clabel=D}|xxxxx|x{connect=fz-y+,clabel=C}...x{connect=fz-y+,clabel=D}" ]
@@ -68,9 +72,9 @@ module pieces_3() {
 module pieces_4() {
     
     burr_plate([
-        [ "x..|xxx{connect=fy-z+,clabel=E}" ],
+        [ "xxx{connect=fz+y+,clabel=E}", "x.." ],
         [ "x...x|x{connect=mz+y-,clabel=E}xxxx{connect=mz+y-,clabel=F}|x...x", "x...x|.....|....." ],
-        [ "..x|x{connect=fy-z+,clabel=F}xx" ]
+        [ "x{connect=fz+y+,clabel=F}xx", "..x" ]
     ], num_copies = 4);
     
 }
@@ -83,4 +87,17 @@ module pieces_5() {
         [ "x{connect=fz-y-,clabel=H}.|x{connect=fz-y-,clabel=H}x" ]
     ], num_copies = 4);
 
+}
+
+module pieces_6() {
+    
+    burr_plate([
+        [ "x......xx|xxxxxxxxx|x...xxxxx", "x......xx|xxxxxxxxx|x...xxxxx" ],
+        [ "x....xxxx|xxxxxxxxx|x...x.xxx", "x.....xxx|xxx...xxx|x.....xxx" ],
+        [ "xxxx...xx|xxxxxxxxx|x.....xxx", "xxx....xx|xxx....xx|x......xx" ],
+        [ "xxxx...xx|xxxxxxxxx|xxx...xxx", "x......xx|xxx.x..xx|xx.....xx" ],
+        [ "x.xx....x|xxxxxxxxx|x......xx", "x.x.....x|xxx...xxx|x......xx" ],
+        [ "x..x...xx|xxxxxxxxx|x.......x", "x..x...xx|xxxxxxxxx|x.......x" ]
+    ]);
+    
 }
