@@ -98,10 +98,12 @@ public class XmpuzzleToScad {
 
             if (arguments.filterByColor != null) {
                 writeThisPiece = false;
+                filterLoop:
                 for (XmpuzzleVoxel voxel : file.pieces[i].voxels) {
                     for (int color : arguments.filterByColor) {
                         if (voxel.color == color) {
                             writeThisPiece = true;
+                            break filterLoop;
                         }
                     }
                 }
@@ -231,7 +233,7 @@ public class XmpuzzleToScad {
         }
 
         if (arguments == null || arguments.filename == null) {
-            System.out.println("Usage: java -jar bt-to-scad.jar [btfile]");
+            System.out.println("Usage: java -jar bt2scad.jar [btfile]");
             System.out.println("  where [btfile] is an .xmpuzzle file");
             return;
         }

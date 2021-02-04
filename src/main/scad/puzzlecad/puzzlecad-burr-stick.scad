@@ -51,10 +51,10 @@ function burr_stick(kaenel_number, stick_length = 6, add_stamp = false) =
 function kaenel_number_to_burr_info(kaenel_number) =
     let (bitmask = kaenel_number - 1)
     [
-      [[1                     , 1 - bit_of(bitmask,  8), 1 - bit_of(bitmask,  9), 1,                    ],
-       [1                     , 1 - bit_of(bitmask, 10), 1 - bit_of(bitmask, 11), 1,                    ]],
-      [[1 - bit_of(bitmask, 0), 1 - bit_of(bitmask,  1), 1 - bit_of(bitmask,  2), 1 - bit_of(bitmask, 3)],
-       [1 - bit_of(bitmask, 4), 1 - bit_of(bitmask,  5), 1 - bit_of(bitmask,  6), 1 - bit_of(bitmask, 7)]]
+      [[1 - bit_of(bitmask, 12), 1 - bit_of(bitmask,  8), 1 - bit_of(bitmask,  9), 1 - bit_of(bitmask, 13)],
+       [1 - bit_of(bitmask, 14), 1 - bit_of(bitmask, 10), 1 - bit_of(bitmask, 11), 1 - bit_of(bitmask, 15)]],
+      [[1 - bit_of(bitmask, 0) , 1 - bit_of(bitmask,  1), 1 - bit_of(bitmask,  2), 1 - bit_of(bitmask, 3) ],
+       [1 - bit_of(bitmask, 4) , 1 - bit_of(bitmask,  5), 1 - bit_of(bitmask,  6), 1 - bit_of(bitmask, 7) ]]
     ];
 
 // Stamps the end of a burr stick, inserting a label at the appropriate place in a burr_info struct.
