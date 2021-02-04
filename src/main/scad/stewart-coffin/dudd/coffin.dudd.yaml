@@ -22,6 +22,8 @@ description: |
   * <font size="-2">_Missing Notch_: Print one copy of `${name}.piece-1.stl` and five copies of `${name}.piece-2.stl`. This variant was not mentioned by Coffin in AP-ART, but has been proposed by Coffin and Eric Fuller and made in wood by Fuller.</font>
   * <font size="-2">Bill Cutler's original version (easier): Print six copies of `${name}.piece-2.stl`.</font>
 
+  All of the variants have essentially the same solution, but the variants with mixed pieces (_Missing Notches_ and _Missing Notch_) are more confusing, and therefore more challenging.
+
   ${ppp-boilerplate}
 
   ${stewart-coffin-bio}
