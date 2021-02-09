@@ -19,18 +19,37 @@
 include <puzzlecad.scad>
 
 $burr_scale = 27;
-$burr_inset = 0;//0.11;
-$burr_bevel = 0;//0.6;
-$post_rotate = [0, 135, 0];
+$burr_inset = 0.13;     // Use 0.11 for a tighter fit
+$burr_bevel = 0.6;
+$plate_width = 160;
 
-color1();
-*color2();
+*pieces();
+*tips();
 
-module color1() {
+module pieces() {
     
     burr_plate([
         [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+}x{components={y-z+,z+y-,z+x-,x-z+}}.",
-         ".x{components={z-y+,z-x+}}|.x{components=z-}x{components=,connect=dfx-z-~,clabel=B}|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=B}."]
-    ], $post_translate = [-sqrt(1/2), 0, sqrt(1/2)]);
+         ".x{components={z-y+,z-x+}}|.x{components=z-}.|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=A}."],
+        [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+,connect=dfx+z+,clabel=B}x{components={y-z+,z+y-,z+x-,x-z+}}.",
+         ".x{components={z-y+,z-x+}}|.x{components=z-}.|.x{components={z-y-,z-x-}}."],
+        [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+,connect=dfx+z+,clabel=B}x{components={y-z+,z+y-,z+x-,x-z+}}.",
+         ".x{components={z-y+,z-x+}}|.x{components=z-}.|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=A}."],
+        [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+,connect=dfx-z+,clabel=B}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+}x{components={y-z+,z+y-,z+x-,x-z+}}.",
+         ".x{components={z-y+,z-x+}}|.x{components=z-}.|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=A}."],
+        [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+,connect=dfx+z+,clabel=B}x{components={y-z+,z+y-,z+x-,x-z+}}.",
+         ".x{components={z-y+,z-x+}}|.x{components=z-}x{components={},connect=dfx-z-~,clabel=A}|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=A}."],
+        [".x{components={y+z+,z+y+,z+x+,x+z+}}x{components=x-z+,connect=dfx-z+,clabel=B}|.x{components={z+,y-z+,y+z+}}.|x{components=x+z+,connect=dfx+z+,clabel=B}x{components={y-z+,z+y-,z+x-,x-z+}}.",
+         ".x{components={z-y+,z-x+}}|.x{components=z-}.|.x{components={z-y-,z-x-},connect=dfx+z-~,clabel=A}."]
+    ], $post_rotate = [0, 135, 0]);
+    
+}
+
+module tips() {
+    
+    burr_plate([
+        ["x{components={y+z+,y+x-},connect=dmy+z+,clabel=A}|x{components={y-z+,y-x-}}"],
+        ["x{components={y+z+},connect=dmy+z+,clabel=B}|x{components={y-z+,z+y-}}", ".|x{components=z-y-}"]
+    ], num_copies = 6, $post_rotate = [0, 45, 0]);
     
 }
