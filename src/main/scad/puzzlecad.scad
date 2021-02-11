@@ -37,11 +37,12 @@ include <puzzlecad/puzzlecad-polyhedra.scad>
 include <puzzlecad/puzzlecad-layout.scad>
 include <puzzlecad/puzzlecad-burr.scad>
 include <puzzlecad/puzzlecad-burr-stick.scad>
+include <puzzlecad/puzzlecad-notched-stick.scad>
 include <puzzlecad/puzzlecad-2d.scad>
 
 // Version ID for version check.
 
-puzzlecad_version = "2.1";
+puzzlecad_version = "2.2";
 
 // Default values for scale, inset, bevel, etc.:
 

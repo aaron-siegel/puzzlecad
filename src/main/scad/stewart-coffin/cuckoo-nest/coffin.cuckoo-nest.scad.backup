@@ -1,0 +1,336 @@
+include <puzzlecad.scad>
+
+scale = 50;                 // in mm
+tolerance = 0.25;           // in mm
+
+hex_sticks();
+
+hex_radius = sqrt(1/24);    // relative to scale
+dowel_radius = 0.08;        // relative to scale
+stick_length = 1.5;         // relative to scale
+thread_depth = hex_radius * 0.6;
+
+critical_angle = 180 - 2 * atan(sqrt(2));       // Coffin's 70.5 degrees
+
+module hex_sticks() {
+    
+    // All the sticks in Cuckoo's Nest are identical except for the threads and thread marks,
+    // so we abbreviate with the following submodule.
+    
+    module hex_stick(threads = undef, thread_marks = undef) {
+        drilled_stick(
+            length = stick_length,
+            radius = hex_radius,
+            drilled_radius = dowel_radius,
+            sides = 6,
+            pattern = [0, 1, 0],
+            threads = threads,
+            thread_marks = thread_marks
+        );
+    }
+    
+    y_spacing = hex_radius * 2 * scale + 6;
+    
+    hex_stick();
+    
+    translate([0, y_spacing, 0])
+    hex_stick(threads = [0, 0, hex_radius * 0.6], thread_marks = [undef, undef, [3, 1]]);
+
+    translate([0, y_spacing * 2, 0])
+    hex_stick(threads = [0, 0, hex_radius * 0.6], thread_marks = [undef, undef, [1, 3]]);
+    
+    translate([stick_length * scale + 6, 0, 0])
+    hex_stick(threads = [hex_radius * 0.6, 0, 0], thread_marks = [[3, 1]]);
+    
+    for (k = [1:2]) {
+        translate([stick_length * scale + 6, y_spacing * k, 0])
+        hex_stick(threads = [hex_radius * 0.6, 0, 0], thread_marks = [[1, 3]]);
+    }
+    
+}
+
+*elbow_dowel();
+*free_dowel();
+
+module elbow_dowel() {
+    
+    dowel(stick_length / 2 - sqrt(3) / 4 - 0.5 / scale, dowel_radius, thread_depth);
+    translate([scale * dowel_radius * 4, 0, 0])
+    dowel(stick_length / 2 + sqrt(3) / 4 - 0.5 / scale, dowel_radius, thread_depth);
+    
+}
+
+module free_dowel() {
+    
+    dowel(stick_length, dowel_radius, 0);
+    
+}
+
+module drilled_stick(length, radius, drilled_radius, sides, pattern, threads = undef, thread_marks = undef) {
+    
+    rotate([30, 0, 0]) {
+        
+        difference() {
+            
+            rotate([0, 90, 0])
+            beveled_prism(regular_polygon(radius * scale, sides), length * scale, center = true);
+                        
+            for (k = [0:len(pattern)-1]) {
+                shift = -(len(pattern) - 1) / 2 + k;
+                translate([scale * shift * sqrt(3) / 4, 0, 0])
+                rotate([120 * pattern[k], 0, 0])
+                rotate([0, 90 - critical_angle, 0]) {
+                    cylinder(h = length * scale, r = drilled_radius * scale, center = true, $fn = 64);
+                    if (!is_undef(thread_marks[k])) {
+                        for (i = [1:thread_marks[k][0]]) {
+                            translate([0, (-(thread_marks[k][0] - 1) / 2 + i - 1) * 1.5, radius * scale - 1.5])
+                            rotate([0, 90, 0])
+                            cylinder(r = 0.5, h = drilled_radius * scale + 1, $fn = 16);
+                        }
+                        for (i = [1:thread_marks[k][1]]) {
+                            translate([0, (-(thread_marks[k][1] - 1) / 2 + i - 1) * 1.5, -(radius * scale - 1.5)])
+                            rotate([0, -90, 0])
+                            cylinder(r = 0.5, h = drilled_radius * scale + 1, $fn = 16);
+                        }
+                    }
+                }
+            }
+            
+            if (!is_undef(thread_marks)) {
+            }
+            
+        }
+        
+        if (!is_undef(threads)) {
+            for (k = [0:len(threads)-1]) {
+                if (threads[k] > 0) {
+                    shift = -(len(pattern) - 1) / 2 + k;
+                    translate([scale * shift * sqrt(3) / 4, 0, 0])
+                    rotate([120 * pattern[k], 0, 0])
+                    rotate([0, 90 - critical_angle, 0]) {
+                        translate([0, 0, 0.5])
+                        thread_in(drilled_radius * scale, threads[k] * scale, $fn = 64);
+                        translate([0, 0, -0.5 - threads[k] * scale])
+                        thread_in(drilled_radius * scale, threads[k] * scale, $fn = 64);
+                        cylinder(h = 1, r = drilled_radius * scale + 0.01, center = true, $fn = 64);
+                    }
+                }
+            }
+        }
+        
+    }
+    
+}
+
+*dowel(0.3, 0.08, sqrt(1/24) * 0.6);
+module dowel(length, radius, thread_length = 0) {
+    
+    beveled_prism(
+        regular_polygon(radius * scale - tolerance, 64),
+        (length - thread_length) * scale,
+        $burr_bevel = 0,
+        $burr_bevel_adjustments = thread_length > 0 ? "z-=0.5" : "z-=0.5,z+=0.5"
+    );
+//     cylinder(h = (length - thread_length) * scale, r = radius * scale - tolerance, $fn = 64);
+    
+    if (thread_length > 0) {
+        translate([0, 0, (length - thread_length) * scale - 0.01]) {
+            thread_out(radius * scale, thread_length * scale, $fn = 64);
+        }
+    }
+    
+}
+
+function regular_polygon(radius, sides) = [ for (k = [sides-1:-1:0]) radius * [ cos(360 * k / sides), sin(360 * k / sides) ] ];
+
+module nut_test() {
+    
+    //thread_in(5, 5, $fn = 64);
+    thread_out(5, 5, $fn = 64);
+    cylinder(h=5,r=4.1, $fn = 64);
+    
+}
+
+defQ = 32;
+
+// function for thread quality
+function get_thr_qual(dia) = lookup(dia, [
+[5,10],[6,12],[7,14],[8,16],[10,20],[12,12],[14,28],[16,32],[18,36],[20,40],[22,44],[24,48],[27,54],[30,60],[33,66],[36,72],[39,78],[42,84],[45,90],[48,96],[52,104],[56,112],[60,120],[64,128],[78,156]]);
+
+// function for shaft quality
+function get_sh_qual(dia) = lookup(dia, [
+[5,10],[6,12],[7,14],[8,16],[10,20],[12,24],[14,28],[16,32],[18,36],[20,40],[22,44],[24,48],[27,54],[30,60],[33,66],[36,72],[39,78],[42,84],[45,90],[48,96],[52,104],[56,112],[60,120],[64,128],[78,156]]);
+
+module hex_nut(dia)
+{
+	$fn = get_sh_qual(dia);
+	thr = get_thr_qual(dia);
+	hi = hex_nut_hi(dia);
+	difference()
+	{
+		cylinder(r = hex_nut_dia(dia)/2,h = hi, $fn=6);
+		translate([0,0,-0.1])	cylinder(r = dia/2, h =hi + 0.2);
+	}
+	translate([0,0,0.1])	thread_in(dia,hi-0.2,thr);
+}
+
+module hex_bolt(dia,hi)
+{
+	$fn = get_sh_qual(dia);
+	thr = get_thr_qual(dia);
+	hhi = hex_bolt_hi(dia);
+	cylinder(r = hex_bolt_dia(dia)/2,h = hhi, $fn=6);
+	translate([0,0,hhi-0.1])	thread_out(dia,hi+0.1,thr);
+}
+
+// function for thread pitch
+function get_coarse_pitch(diameter) = lookup(diameter, [
+[1,0.25],[1.2,0.25],[1.4,0.3],[1.6,0.35],[1.8,0.35],[2,0.4],[2.5,0.45],[3,0.5],[3.5,0.6],[4,0.7],[5,0.8],[6,1],[7,1],[8,1.25],[10,1.5],[12,1.75],[14,2],[16,2],[18,2.5],[20,2.5],[22,2.5],[24,3],[27,3],[30,3.5],[33,3.5],[36,4],[39,4],[42,4.5],[45,4.5],[48,5],[52,5],[56,5.5],[60,5.5],[64,6],[78,5]]);
+
+// function for hex nut diameter from thread size
+function hex_nut_dia(dia) = lookup(dia, [
+[3,6.4],[4,8.1],[5,9.2],[6,11.5],[8,16.0],[10,19.6],[12,22.1],[16,27.7],[20,34.6],[24,41.6],[30,53.1],[36,63.5]]);
+// function for hex nut height from thread size
+function hex_nut_hi(dia) = lookup(dia, [
+[3,2.4],[4,3.2],[5,4],[6,3],[8,5],[10,5],[12,10],[16,13],[20,16],[24,19],[30,24],[36,29]]);
+
+// function for hex bolt head diameter from thread size
+function hex_bolt_dia(dia) = lookup(dia, [
+[3,6.4],[4,8.1],[5,9.2],[6,11.5],[8,14.0],[10,16],[12,22.1],[16,27.7],[20,34.6],[24,41.6],[30,53.1],[36,63.5]]);
+// function for hex bolt head height from thread size
+function hex_bolt_hi(dia) = lookup(dia, [
+[3,2.4],[4,3.2],[5,4],[6,3.5],[8,4.5],[10,5],[12,10],[16,13],[20,16],[24,19],[30,24],[36,29]]);
+
+module thread_out(radius, height)
+{
+	pitch = get_coarse_pitch(radius * 2);
+	h = (cos(30)*pitch)/8;
+	Rmin = radius - 5 * h;	// as wiki Dmin
+	turns = (height - pitch) / pitch;			// number of turns
+	segments = turns * $fn;				// number of segments
+	cylinder(r = Rmin, h = height);
+	for(segment=[0:segments])
+		th_out_pt(Rmin-0.1,pitch,360/$fn,segment,$fn,h,(height-pitch)/segments);
+}
+
+module th_out_pt(rt,p,s,sg,thr,h,sh)
+// rt = radius of thread (nearest centre)
+// p = pitch
+// s = segment length (degrees)
+// sg = segment number
+// thr = segments in circumference
+// h = ISO h of thread / 8
+// sh = segment height (z)
+{
+	as = (sg % thr) * s;			// angle to start of seg
+	ae = as + s  - (s/100);		// angle to end of seg (with overlap)
+	z = sh*sg;
+
+	cas=cos(as);
+	sas=sin(as);
+	cae=cos(ae);
+	sae=sin(ae);
+	rtp=rt+(5*h);
+
+	casrt=cas*rt;
+	sasrt=sas*rt;
+	caert=cae*rt;
+	saert=sae*rt;
+
+	//   1,4
+	//   |\
+	//   |  \  2,5
+ 	//   |  / 
+	//   |/
+	//   0,3
+	//  view from front (x & z) extruded in y by sg
+	//  
+	//echo(str("as=",as,", ae=",ae," z=",z));
+	polyhedron(
+		points = [
+			[casrt,sasrt,z],					// 0
+			[casrt,sasrt,z+(3/4*p)],			// 1
+			[cas*rtp,sas*rtp,z+(3/8*p)],		// 2
+			[caert,saert,z+sh],				// 3
+			[caert,saert,z+(3/4*p)+sh],		// 4
+			[cae*rtp,sae*rtp,z+sh+(3/8*p)]],	// 5
+		faces = [
+			[0,1,2],			// near face
+			[3,5,4],			// far face
+			[0,3,4],[0,4,1],	// left face
+			[0,5,3],[0,2,5],	// bottom face
+			[1,4,5],[1,5,2]]);	// top face
+}
+
+module thread_in(radius, height)
+{
+	pitch = get_coarse_pitch(radius * 2);
+	h = (cos(30)*pitch)/8;
+	Rmin = radius - (5*h);	// as wiki Dmin
+	turns = (height - pitch) / pitch;			// number of turns
+	segments = turns*$fn;				// number of segments
+	//echo(str("diameter=",diameter," height=",height," p=",p," h=",h," Rmin=",Rmin," s=",s));
+    /*
+	difference()
+	{
+		cylinder(r = (radius)+0.5,h = height);
+		translate([0,0,-1]) cylinder(r = radius + 0.1, h = height + 2);
+	}
+    */
+	for(segment = [0:segments])
+		th_in_pt(Rmin+0.01,pitch,360 / $fn,segment,$fn,h,(height-pitch)/segments);
+}
+
+module th_in_pt(rt,p,s,sg,thr,h,sh)
+// rt = radius of thread (nearest centre)
+// p = pitch
+// s = segment length (degrees)
+// sg = segment number
+// thr = segments in circumference
+// h = ISO h of thread / 8
+// sh = segment height (z)
+{
+//	as = 360 - (((sg % thr) * s) - 180);	// angle to start of seg
+//	ae = as - s + (s/100);		// angle to end of seg (with overlap)
+	as = ((sg % thr) * s - 180);	// angle to start of seg
+	ae = as + s -(s/100);		// angle to end of seg (with overlap)
+	z = sh*sg;
+
+	cas=cos(as);
+	sas=sin(as);
+	cae=cos(ae);
+	sae=sin(ae);
+	rtp=rt+(5*h);
+
+	casrt=cas*rt;
+	casrtp=cas*rtp;
+	sasrt=sas*rt;
+	sasrtp=sas*rtp;
+	caert=cae*rt;
+	caertp=cae*rtp;
+	saert=sae*rt;
+	saertp=sae*rtp;
+
+	//         2,5
+	//          /|
+	//  1,4 /  | 
+ 	//        \  |
+	//          \|
+	//         0,3
+	//  view from front (x & z) extruded in y by sg
+	//  
+	polyhedron(
+		points = [
+			[casrtp,sasrtp,z],				//0
+			[casrt,sasrt,z+(3/8*p)],			//1
+			[casrtp,sasrtp,z+(3/4*p)],		//2
+			[caertp,saertp,z+sh],			//3
+			[caert,saert,z+(3/8*p)+sh],		//4
+			[caertp,saertp,z+(3/4*p)+sh]],	//5
+		faces = [
+			[0,1,2],			// near face
+			[3,5,4],			// far face
+			[0,3,4],[0,4,1],	// left face
+			[0,5,3],[0,2,5],	// bottom face
+			[1,4,5],[1,5,2]]);	// top face
+}
