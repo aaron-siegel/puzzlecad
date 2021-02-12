@@ -105,6 +105,91 @@ module dowel(length, radius, thread_length = 0) {
 
 function regular_polygon(radius, sides) = [ for (k = [sides-1:-1:0]) radius * [ cos(360 * k / sides), sin(360 * k / sides) ] ];
 
+////////////////////////////////////////////////////////////////////
+// HART SYMMETRIC STICKS
+
+module unit_stick(length, radius, sides = 6, pre_rotate = 0) {
+    
+    scale($burr_scale)
+    rotate([0, 90, 0])
+    rotate([0, 0, pre_rotate])
+    beveled_prism(regular_polygon(radius, sides), length, center = true, $burr_bevel = $burr_bevel / $burr_scale);
+    
+}
+
+module cubic_stick_lattice(length, radius, angle = 0, sides = 6, pre_rotate = 0) {
+    
+    for (edge = unoriented_cube_edge_names) {
+        
+        rotate(cube_face_rotation(edge))
+        rotate(cube_edge_pre_rotation(edge))
+        translate($burr_scale * [0, 1/2, 1/2])
+        rotate(a = angle, v = [0, 1, 1])
+        unit_stick(length, radius, sides, pre_rotate, $burr_bevel = 0);
+        
+    }
+    
+}
+
+module dodecahedral_stick_lattice(length, radius, angle = 0, sides = 5, pre_rotate = 0) {
+    
+    for (flip = [0,1], zrot = [0:4], frot = [0:(flip == 0 ? 3 : 1)]) {
+        rotate([180 * flip, 0, 0])
+        rotate(a = 72 * zrot, v = [0, -1, 1 / phi])
+        rotate(a = 72 * frot, v = [0, 1, 1 / phi])
+        translate($burr_scale * [0, phi * phi / 2, 0])
+        rotate([0, angle, 0])
+        unit_stick(length, radius, sides, pre_rotate);
+    }
+    
+}
+
+module drilled_dodecahedral_stick(length, radius, drilled_radius, angle = 0, sides = 5) {
+    
+    rotate([-36, 0, 0])
+    rotate([0, -angle, 0])
+    translate($burr_scale * [0, -phi * phi / 2, 0])
+    difference() {
+        
+        translate($burr_scale * [0, phi * phi / 2, 0])
+        rotate([0, angle, 0])
+        unit_stick(length, radius, sides);
+        
+        for (flip = [0,1], zrot = [0:4], frot = [0:(flip == 0 ? 3 : 1)]) {
+            rotate([180 * flip, 0, 0])
+            rotate(a = 72 * zrot, v = [0, -1, 1 / phi])
+            rotate(a = 72 * frot, v = [0, 1, 1 / phi])
+            translate($burr_scale * [0, phi * phi / 2, 0])
+            rotate([0, -angle, 0])
+            unit_stick(length, drilled_radius, sides = 32, $burr_bevel = 0);
+        }
+        
+    }
+    
+}
+
+module truncated_icosahedral_stick_lattice(length, radius, angle = 0, sides = 6, pre_rotate = 0) {
+    
+    radial_fraction = 0.55279;      // ratio of pentagon radius to height = 2/sqrt(5*phi+5)
+    
+    for (flip = [0:1], zrot = [0:4], zrot2 = [0:4], frot = [0:5]) {
+        rotate([180 * flip, 0, 0])
+        rotate(a = 72 * zrot2, v = [-(1 + (phi + 1) * radial_fraction), 3 * phi - phi * radial_fraction, 0])
+        rotate(a = 72 * zrot, v = [1 + (phi + 1) * radial_fraction, 3 * phi - phi * radial_fraction, 0])
+        rotate(a = 60 * frot, v = [0, 1, 0.38197])  // 0.38197 = tan(arcsin(x)) = x/sqrt(1-x^2) where x = sqrt(3)/(3*phi)
+        translate($burr_scale * [0, 3 * phi / 2, 0])
+        rotate([0, angle, 0])
+        unit_stick(length, radius, sides, pre_rotate);
+    }
+    
+}
+
+////////////////////////////////////////////////////////////////////
+// THREADS
+// This code for generating threaded connectors is adapted from
+// the public domain library by Trevor Moseley. The connectors are
+// *not* ISO standard.
+
 module thread(radius, height, inner_thread = false) {
     
 	pitch = coarse_pitch(radius * 2);

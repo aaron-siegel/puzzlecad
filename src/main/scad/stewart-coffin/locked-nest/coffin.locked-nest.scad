@@ -26,7 +26,7 @@ $notched_stick_tolerance = 0.1;    // in mm
 *free_stick();
 *elbow_stick();
 *free_dowel();
-elbow_dowel();
+*elbow_dowel();
 
 hex_radius = sqrt(1/24);    // relative to scale
 dowel_radius = 0.08;        // relative to scale

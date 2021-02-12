@@ -47,6 +47,9 @@ cube_face_rotation_map = [ for (face = [0:5]) [cube_face_names[face], cube_face_
 cube_edge_names = [ ["y-", "x+", "y+", "x-"], ["z+", "x+", "z-", "x-"], ["y+", "z+", "y-", "z-"],
                     ["y+", "z-", "y-", "z+"], ["z-", "x+", "z+", "x-"], ["y+", "x+", "y-", "x-"] ];
 
+unoriented_cube_edge_names = ["y+z+", "x-z+", "z+x+", "y+x-", "y+x+", "z+y-",
+                              "z-y-", "x-y-", "z-x-", "x+z-", "x+y-", "y+z-"];
+
 cube_edge_directions = [ for (n=[0:5]) [ for (k=[0:3])
     let (face_index = index_of(cube_face_names, cube_edge_names[n][k]))
     directions[face_index]
@@ -131,3 +134,7 @@ function fev_mirror(fev) =
     let (face = fev[0], edge = fev[1], vertex = fev[2])
     let (mirror = face_mirrors[face][edge])
     [ mirror[0], mirror[1], 1 - vertex];
+
+/***** Icosahedral Geometry *****/
+
+phi = (1 + sqrt(5)) / 2;
