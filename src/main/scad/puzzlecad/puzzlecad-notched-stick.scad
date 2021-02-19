@@ -168,11 +168,11 @@ module drilled_dodecahedral_stick(length, radius, drilled_radius, angle = 0, sid
     
 }
 
-module truncated_icosahedral_stick_lattice(length, radius, angle = 0, sides = 6, pre_rotate = 0) {
+module truncated_icosahedral_stick_lattice(length, radius, angle = 0, sides = 6, parity = 0, pre_rotate = 0) {
     
     radial_fraction = 0.55279;      // ratio of pentagon radius to height = 2/sqrt(5*phi+5)
     
-    for (flip = [0:1], zrot = [0:4], zrot2 = [0:4], frot = [0:5]) {
+    for (flip = [0:1], zrot = [0:4], zrot2 = [0:4], frot = [parity:2:5]) {
         rotate([180 * flip, 0, 0])
         rotate(a = 72 * zrot2, v = [-(1 + (phi + 1) * radial_fraction), 3 * phi - phi * radial_fraction, 0])
         rotate(a = 72 * zrot, v = [1 + (phi + 1) * radial_fraction, 3 * phi - phi * radial_fraction, 0])
