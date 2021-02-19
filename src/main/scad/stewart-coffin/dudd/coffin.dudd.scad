@@ -18,9 +18,11 @@
 
 include <puzzlecad.scad>
 
-require_puzzlecad_version("2.0");
+require_puzzlecad_version("2.1");
 
 $burr_outer_x_bevel = 1.75;
+$burr_bevel = 0.5;
+$burr_inset = 0.07;
 $use_alternate_diag_inset_hack = true;
 
 *piece_1();
@@ -29,17 +31,17 @@ $use_alternate_diag_inset_hack = true;
 module piece_1() {
     
     burr_piece([
-        "x....x|xxxxxx",
-        "x....x|xxx{components={z-,y-,x-z-,x-y-,x+z-,x+y-}}x{components={z-,y-,x-z-,x-y-,x+z-,x+y-}}xx"
+        "xxx{components={z+,y+,x+z+,x+y+,x-z+,x-y+}}x{components={z+,y+,x+z+,x+y+,x-z+,x-y+}}xx|xxxxxx",
+        "x....x|x....x"
     ]);
     
 }
 
 module piece_2() {
-    
+
     burr_piece([
-        "x....x|xxx{components={z+,y-,x-z+,x-y-,x+z+,x+y-}}x{components={z+,y-,x-z+,x-y-,x+z+,x+y-}}xx",
-        "x....x|xxx{components={z-,y-,x-z-,x-y-,x+z-,x+y-}}x{components={z-,y-,x-z-,x-y-,x+z-,x+y-}}xx"
+        "xxx{components={z+,y+,x+z+,x+y+,x-z+,x-y+}}x{components={z+,y+,x+z+,x+y+,x-z+,x-y+}}xx|xxx{components={z+,y-,x+z+,x+y-,x-z+,x-y-}}x{components={z+,y-,x+z+,x+y-,x-z+,x-y-}}xx",
+        "x....x|x....x"
     ]);
     
 }

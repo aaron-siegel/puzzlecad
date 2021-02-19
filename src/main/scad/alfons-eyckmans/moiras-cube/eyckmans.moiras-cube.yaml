@@ -1,0 +1,26 @@
+thing-id: 4734942
+name: "Moira's Cube - Interlocking puzzle by Alfons Eyckmans"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg]
+targets: [pieces_1, pieces_2, pieces_3, pieces_4, pieces_5, pieces_6]
+aux_files: [eyckmans.moiras-cube.xmpuzzle]
+description: |
+  Disassemble the interlocking cube.
+
+  _Moira's Cube_ is one of several cube puzzles by Alfons Eyckmans in the style of his earlier ${link:eyckmans.arnes-cube}. Like its predecessors, _Moira's Cube_ is for experienced puzzle solvers, with 24 separate components, and requiring a whopping 74 total moves to disassemble.
+
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so, and I've included the BurrTools (xmpuzzle) file. _Moira's Cube_ is quite a challenge to assemble, even with BurrTools! (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the less complex designs in the Printable Puzzle Project - see below.)
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces-1.stl` through `${name}.pieces-5.stl`. You may use whatever color scheme you wish; for the print shown in the photos, I used five different colors, with `pieces-2` and `pieces-3` in the same color.
+
+  This puzzle uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  Because its dimensions are quite large (9x9x9), _Moira's Cube_ is modeled to a small (8 mm) voxel size, in order to keep the overall size of the printed puzzle manageable. As a result, some of the connectors might be relatively fragile, so I recommend using a sturdy filament such as PLA+. If you do use a more brittle filament, I suggest reinforcing each joint with a drop of superglue.
+
+  ${ppp-boilerplate}
+
+  ${alfons-eyckmans-bio}
+
+  Happy puzzling!

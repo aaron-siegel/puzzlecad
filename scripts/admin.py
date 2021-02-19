@@ -176,9 +176,11 @@ def update_thing(access_token, thing_name, targets_str):
 			for stl_target in configuration_targets:
 			
 				stl_target_dashes = stl_target.replace("_", "-")
-				configuration_name = '' if configuration['name'] == '' else '-' + configuration['name']
-				modularized_name = f'{scad_root}{configuration_name}' if stl_target == "--" else f'{scad_root}.{stl_target_dashes}{configuration_name}'
-				stl_target_path = f'{output_dir}/{modularized_name}.stl'
+				stl_target_suffix = '' if stl_target == "--" else '.' + stl_target.replace("_", "-")
+				configuration_suffix = '' if configuration['name'] == '' else '.' + configuration['name'] if stl_target_suffix == '' else '-' + configuration['name']
+				modularized_name = f'{scad_root}{stl_target_suffix}{configuration_suffix}'
+				extension = 'zip' if 'pages' in configuration else 'stl'
+				stl_target_path = f'{output_dir}/{modularized_name}.{extension}'
 				thingiverse_post_file(thing_id, stl_target_path)
 
 def resolve_thing(thing_name):
@@ -212,22 +214,37 @@ def build_stls(thing_name):
 	for configuration in configurations:
 		configuration_targets = contents['targets'] if configuration['targets'] == '' else configuration['targets']
 		for stl_target in configuration_targets:
-			build_stl(scad_path, stl_target, configuration)
+			build_stl_target(scad_path, stl_target, configuration)
 		
-def build_stl(scad_path, stl_target, configuration):
+def build_stl_target(scad_path, stl_target, configuration):
 
 	os.makedirs(output_dir, exist_ok = True)
 
 	abs_scad_path = os.path.abspath(scad_path)
 	scad_file = os.path.basename(scad_path)
 	scad_root = os.path.splitext(scad_file)[0]
+
+	stl_target_suffix = '' if stl_target == "--" else '.' + stl_target.replace("_", "-")
 	
-	stl_target_dashes = stl_target.replace("_", "-")
-	
-	configuration_name = '' if configuration['name'] == '' else '-' + configuration['name']
+	configuration_suffix = '' if configuration['name'] == '' else '.' + configuration['name'] if stl_target_suffix == '' else '-' + configuration['name']
 	configuration_code = configuration['code']
 	
-	modularized_name = f'{scad_root}{configuration_name}' if stl_target == "--" else f'{scad_root}.{stl_target_dashes}{configuration_name}'
+	target_func = '' if stl_target == '--' else f'{stl_target}();';
+	
+	modularized_base_name = f'{scad_root}{stl_target_suffix}{configuration_suffix}'
+	
+	if 'pages' in configuration:
+		page_count = configuration['pages']
+		for page in range(1, page_count + 1):
+			preamble_code = f'{configuration_code}\n$page = {page};\n{target_func}\n'
+			build_stl(abs_scad_path, preamble_code, f'{modularized_base_name}.{page}')
+		zip_stls(modularized_base_name, page_count)
+			
+	else:
+		preamble_code = f'{configuration_code}\n{target_func}\n'
+		build_stl(abs_scad_path, preamble_code, modularized_base_name)
+
+def build_stl(abs_scad_path, preamble_code, modularized_name):
 	
 	stl_target_path = f'{output_dir}/{modularized_name}.stl'
 	temp_scad_path = f'{output_dir}/{modularized_name}.scad'
@@ -240,9 +257,7 @@ def build_stl(scad_path, stl_target, configuration):
 	
 		print(f'  Building target {modularized_name} ...')
 		
-		target_func = "" if stl_target == "--" else f'{stl_target}();';
-	
-		script = f'include <{abs_scad_path}>\n\n{configuration_code}\n{target_func}\n'
+		script = f'include <{abs_scad_path}>\n\n{preamble_code}\n'
 	
 		with open(temp_scad_path, 'w') as file:
 			file.write(script)
@@ -251,6 +266,24 @@ def build_stl(scad_path, stl_target, configuration):
 	
 		if exit_status != 0:
 			raise Exception(f'Failed on target {modularized_name}.')
+
+def zip_stls(modularized_base_name, page_count):
+	
+	zip_target_path = f'{output_dir}/{modularized_base_name}.zip'
+	stl_paths = [f'{output_dir}/{modularized_base_name}.{page}.stl' for page in range(1, page_count + 1)]
+	
+	if os.path.exists(zip_target_path) and all(os.path.getmtime(zip_target_path) >= os.path.getmtime(stl_path) for stl_path in stl_paths):
+	
+		print(f'  Target {zip_target_path} is up to date.')
+		
+	else:
+	
+		os.system(f'rm -f {zip_target_path}')
+		stl_paths_str = ' '.join(stl_paths)
+		exit_status = os.system(f'zip -j {zip_target_path} {stl_paths_str}')
+
+		if exit_status != 0:
+			raise Exception(f'Failed on target {modularized_base_name}.')
 
 def substitute_globals(description, thing_name):
 

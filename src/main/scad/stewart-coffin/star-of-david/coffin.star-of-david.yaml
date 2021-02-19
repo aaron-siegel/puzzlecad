@@ -1,0 +1,26 @@
+thing-id: 4748155
+name: "Star of David - Interlocking puzzle by Stewart Coffin (STC #37)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, top-view.jpg, halves.jpg, pieces.jpg, assemblies-diagram.jpg]
+targets: [pieces]
+aux_files: [coffin.star-of-david.assembly-instructions.pdf]
+description: |
+  Assemble the six pieces into each of three symmetric polyhedral shapes. (One of the images shows Coffin's illustration of the three solution assemblies.)
+
+  _Star of David_ follows the same essential shape as Coffin's earlier design ${link:coffin.triumph-companion}; but whereas _Triumph Companion_ is built from three identical mirror-image pairs, the six pieces of _Star of David_ are all dissimilar. This makes the assembly far less obvious, and _Star of David_ is a considerably more difficult and confusing puzzle.
+
+  Coffin wrote: "For whatever help it may be, I will point out the following: Although the pieces may appear to differ from one another in a rather random and haphazard manner, they actually necessarily follow a very definite geometrical plan in every detail .... Interestingly, every piece has to be exactly the shape that it is in order for this puzzle to function as it does, and it was no small task discovering this unique design."
+
+  Coffin also wrote that "Because of the difficulty of solutions ... unlike most of my puzzles it came with explicit assembly instructions." Out of fairness, I have included a copy of Coffin's assembly instructions here (`${name}.assembly-instructions.pdf`) - but in my opinion, if you've solved and are familiar with _Triumph Companion_ or Coffin's other related designs, then this is not _that_ difficult of a puzzle.
+
+  True to form, Coffin followed up several years later with a new design, ${link:coffin.star-of-david-improved}, which is similar in concept but with simpler pieces. I'm not sure I'd agree with Coffin's designation "improved" (though it's definitely "simpler"): both designs have their charm! Coffin enthusiasts will surely want to print them both.
+
+  ### Printing Instructions
+
+  Print one copy of `${name}.pieces.stl`. That's it! This is a nice easy print, with no supports or joints needed.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

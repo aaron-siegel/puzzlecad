@@ -1,0 +1,22 @@
+thing-id: 4751760
+name: "Augmented Four Corners - Interlocking puzzle by Stewart Coffin (STC #34)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [pieces, tips]
+description: |
+
+  Assemble the six pieces into the polyhedral shape shown in the photo.
+
+  _Augmented Four Corners_ is a variation on Coffin's earlier design ${link:coffin.four-corners}. It has a similar shape, but the assembly is considerably more difficult. In Coffin's words: "To convert _Four Corners_ from a polyhedral sculpture into more of an assembly puzzle, blocks are added to the corners to create six dissimilar pieces with only one solution and one sliding axis."
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tips.stl`, each in a different filament color. You will need to use build-plate supports for `${name}.pieces.stl`. Supports are needed only along the base of the diagonal, and should not leave scars or interfere with the fit of the puzzle. Be sure to use a support overhang threshold of less than 45 degrees to ensure that supports are generated only at the base and not along the sides of the diagonal.
+
+  This model uses "snap joints" so that it can be printed with the desired color scheme. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

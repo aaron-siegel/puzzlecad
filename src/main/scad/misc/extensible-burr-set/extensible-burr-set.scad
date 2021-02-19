@@ -53,7 +53,7 @@ require_puzzlecad_version("2.1");
 
 // The following parameter controls the page size; it is 12 by default.
 
-page_size = 12;
+page_size = 6;
 
 // These four parameters are the usual puzzlecad parameters. For details, refer to the
 // Puzzle Modeling Tutorial at: https://www.puzzlehub.org/ppp
@@ -89,7 +89,7 @@ comprehensive = union_of_number_lists(notchables, union_of_number_lists(ultimate
 
 // Even More Burr Set: Even more pieces that further expand the Comprehensive Burr Set!
 
-even_more = [63, 144, 154, 256, 256, 276, 311, 368, 369, 508, 622, 672, 743, 766, 768, 788, 863, 924, 957, 983, 989, 1000, 1012, 1013];
+even_more = [63, 144, 154, 256, 256, 276, 311, 368, 369, 383, 508, 622, 640, 672, 743, 766, 768, 788, 863, 864, 887, 895, 924, 954, 957, 983, 986, 989, 997, 1000, 1012, 1013, 1935];
 
 // Rob Stegmann's "obscure notchables" and "obscure millables" - rarely used pieces of
 // the corresponding type. There is some overlap between these and the above sets.
@@ -102,6 +102,10 @@ obscure_millables = [88, 118, 160, 192, 224, 399, 416, 431, 448, 491, 508, 536, 
 // several notable burrs that require length 8 pieces in order to work.
 
 length_8 = [216, 412, 476, 624, 512, 702, 751, 757, 768, 883, 896, 944, 956, 960, 1015, 1021, 1024];
+
+// An example six-piece burr that is useful for doing test prints.
+
+example = [1, 256, 824, 928, 975, 1024];
 
 if (!is_undef(pieces)) {
 
@@ -141,21 +145,27 @@ module stamped_burr_plate(piece_ids, stick_length = 8) {
     
 }
 
-module tray_6x4() {
+module tray_6x4(tray_inset = 0.15) {
     
-    burr_tray(6, 4);
-    
-}
-
-module tray_7x6() {
-    
-    burr_tray(7, 6);
+    burr_tray(6, 4, tray_inset);
     
 }
 
-module tray_8x6() {
+module tray_7x6(tray_inset = 0.15) {
     
-    burr_tray(8, 6);
+    burr_tray(7, 6, tray_inset);
+    
+}
+
+module tray_8x6(tray_inset = 0.15) {
+    
+    burr_tray(8, 6, tray_inset);
+    
+}
+
+module tray_10x7(tray_inset = 0.15) {
+    
+    burr_tray(10, 7, tray_inset);
     
 }
 

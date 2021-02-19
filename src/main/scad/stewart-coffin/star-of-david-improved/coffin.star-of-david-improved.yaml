@@ -1,0 +1,24 @@
+thing-id: 4748156
+name: "Star of David Improved - Interlocking puzzle by Stewart Coffin (STC #37-A)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg, assemblies-diagram.jpg]
+targets: [pieces_1,pieces_2]
+aux_files: [coffin.star-of-david-improved.assembly-instructions.pdf]
+description: |
+  Assemble the six pieces into each of four symmetric polyhedral shapes. One of the images shows Coffin's illustration of three of the four solution assemblies (the fourth, "BILATERAL", was mentioned but not documented by Coffin).
+
+  _Star of David Improved_ is a refinement of Coffin's earlier design ${link:coffin.star-of-david}. Coffin wrote: "The assembled solution shapes are the same for both, but the new version has pieces of simpler design ... But believe it or not, this [_Improved_] version is even more confusing to solve than the original version."
+
+  I'm not sure I'd agree with Coffin's designation "improved" (though it's definitely "simpler"): both designs have their charm! Coffin enthusiasts will surely want to print them both. I've included a copy of Coffin's assembly instructions (`${name}.assembly-instructions.pdf`) in case you need help with the solutions.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces-1.stl` and `${name}.pieces-2.stl` in different colors.
+
+  This model uses "snap joints" so that it can be printed in two colors. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

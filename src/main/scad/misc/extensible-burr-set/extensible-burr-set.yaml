@@ -1,11 +1,65 @@
 thing-id: 3370714
 name: "Extensible Burr Set"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: []
-targets: []
+images: [tray.jpg,assembled.jpg,partially-assembled.jpg,one-piece.jpg,many-pieces.jpg]
+targets: [--]
 aux_files: []
-configurations: []
+configurations:
+  - {name: 'example-60', code: '$burr_inset = 0.06; burr_set(example, page_number = $page);', pages: 1, targets: ''}
+  - {name: 'notchables-60', code: '$burr_inset = 0.06; burr_set(notchables, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'ultimate-60', code: '$burr_inset = 0.06; burr_set(ultimate, page_number = $page);', pages: 5, targets: ''}
+  - {name: 'level5-60', code: '$burr_inset = 0.06; burr_set(level5, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'comprehensive-60', code: '$burr_inset = 0.06; burr_set(comprehensive, page_number = $page);', pages: 21, targets: ''}
+  - {name: 'even-more-60', code: '$burr_inset = 0.06; burr_set(even_more, page_number = $page);', pages: 6, targets: ''}
+  - {name: 'example-75', code: '$burr_inset = 0.075; burr_set(example, page_number = $page);', pages: 1, targets: ''}
+  - {name: 'notchables-75', code: '$burr_inset = 0.075; burr_set(notchables, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'ultimate-75', code: '$burr_inset = 0.075; burr_set(ultimate, page_number = $page);', pages: 5, targets: ''}
+  - {name: 'level5-75', code: '$burr_inset = 0.075; burr_set(level5, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'comprehensive-75', code: '$burr_inset = 0.075; burr_set(comprehensive, page_number = $page);', pages: 21, targets: ''}
+  - {name: 'even-more-75', code: '$burr_inset = 0.075; burr_set(even_more, page_number = $page);', pages: 6, targets: ''}
+  - {name: 'example-90', code: '$burr_inset = 0.09; burr_set(example, page_number = $page);', pages: 1, targets: ''}
+  - {name: 'notchables-90', code: '$burr_inset = 0.09; burr_set(notchables, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'ultimate-90', code: '$burr_inset = 0.09; burr_set(ultimate, page_number = $page);', pages: 5, targets: ''}
+  - {name: 'level5-90', code: '$burr_inset = 0.09; burr_set(level5, page_number = $page);', pages: 7, targets: ''}
+  - {name: 'comprehensive-90', code: '$burr_inset = 0.09; burr_set(comprehensive, page_number = $page);', pages: 21, targets: ''}
+  - {name: 'even-more-90', code: '$burr_inset = 0.09; burr_set(even_more, page_number = $page);', pages: 6, targets: ''}
+  - {name: 'tray-6x4-150', code: 'tray_6x4(tray_inset = 0.15);', targets: ''}
+  - {name: 'tray-7x6-150', code: 'tray_7x6(tray_inset = 0.15);', targets: ''}
+  - {name: 'tray-8x6-150', code: 'tray_8x6(tray_inset = 0.15);', targets: ''}
+  - {name: 'tray-10x7-150', code: 'tray_10x7(tray_inset = 0.15);', targets: ''}
+  - {name: 'tray-6x4-250', code: 'tray_6x4(tray_inset = 0.25);', targets: ''}
+  - {name: 'tray-7x6-250', code: 'tray_7x6(tray_inset = 0.25);', targets: ''}
+  - {name: 'tray-8x6-250', code: 'tray_8x6(tray_inset = 0.25);', targets: ''}
+  - {name: 'tray-10x7-250', code: 'tray_10x7(tray_inset = 0.25);', targets: ''}
 description: |
+  UPDATED February 2021 a redesigned tray, a new "even more burr set", and a few errata (see below).
+
+  This is a modular collection of pieces for making classic six-piece burr puzzles. It encompasses several well-known burr sets, modeled with identical dimensions to make them interchangeable. You can print one or more individual sets, a "comprehensive" set that includes 125 pieces, and/or individual combinations of pieces as necessary. Models are also included for trays that can store the pieces in a convenient display (see photos).
+
+  Six-piece burr puzzles are among the oldest and best-known interlocking puzzles in the world. A good [overview of this type of puzzle](http://robspuzzlepage.com/interlocking.htm#trad) is given by Rob Stegmann on his puzzle pages; Stegmann also provides 284 specific examples. In the Extensible Burr Set, each burr piece is printed with an identifying number (its "Kaenel number") stamped on the end; this numbering scheme is identical to Stegmann's, so his puzzle pages can be used as a handy reference for making puzzles out of this set.
+
+  Here are the specific burr sets that can be printed:
+
+  * <font size="-2">Example - A set of just six pieces for making a typical burr puzzle (use this as a sample for testing)</font>
+  * <font size="-2">42-Piece Burr Set - A very well-known set for making solid assemblies</font>
+  * <font size="-2">Ultimate Burr Set - 27 pieces, all distinct, that can make a range of interesting puzzles</font>
+  * <font size="-2">42-Piece Level 5 Set - A nice set that can make a number of challenging level-5 puzzles</font>
+  * <font size="-2">Comprehensive Burr Set - Includes all of the above, and many more - a total of 125 pieces that can make nearly all named puzzles of this type</font>
+  * <font size="-2">Even More Burr Set (added February 2021) - An additional set of 33 pieces, including many not present in the comprehensive set and additional copies of various others. Print this _in addition_ to the comprehensive set, and you will have a burr set capable of making _any_ six-piece burr puzzle in the catalog.</font>
+
+  ### Printing Instructions
+
+  To print, choose a set and a tolerance, download the appropriate .zip file, and print all the .stl files within. Each set is provided in three versions, with 60 micron, 75 micron, and 90 micron tolerances. 60 microns will be the tightest fit, and 90 will be quite loose. I strongly prefer the 60 micron version; I like the snug fit, especially with holey burrs. But I am printing on a Prusa i3 MK3 with PLA+ filament and 0.15mm layer height, which gives a fair amount of precision; depending on your printer, filament, and print settings, 60 microns may be too tight. I've included an example six-piece burr (e.g., example-60.zip) if you want to try out a particular setting before printing out a full set.
+
+  Some of the pieces use "snap joints" so that they can be printed without supports. ${snap-joints-boilerplate}
+
+  Trays are included in several sizes: 6x4, 8x6, and 10x7 (the absolute largest that can fit on a standard Prusa print bed at default scale). I've found that larger tolerances are necessary for the trays, so I've generated them with 150 micron and 250 micron tolerances. Again, I prefer the tighter setting, as it holds the pieces more firmly in place.
+
+  Also included is an OpenSCAD module that can render all of the above, or any particular subset thereof, or any others of the 837 physically distinct burr pieces. Options are included to adjust the tolerance, beveling, or the stick length of the burr pieces (the default is length 6, but you may wish to create length 8 or longer modules). There are instructions in the attached .scad file. You will need the [puzzlecad](https://www.thingiverse.com/thing:3198014) library in order to use it.
+
+  ### February 2021 Update
+
+  In addition to the new "Even More Burr Set" expansion (noted above), the tray has been redesigned to be sturdier and easier to use. Also, one piece in the Comprehensive set has been renamed - piece 109 in the old edition was mislabeled; it's now piece 55. (The pieces are identical in shape, but 55 is the correct Kaenel number.)
 
   ${ppp-boilerplate}
 

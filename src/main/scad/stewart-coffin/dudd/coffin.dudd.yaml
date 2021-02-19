@@ -1,0 +1,31 @@
+thing-id: 4748185
+name: "Dudd / Missing Notches - Interlocking puzzles by Stewart Coffin (STC #129 / 129-A)"
+tags: [puzzle, 3D_puzzle]
+images: [cover.jpg, pieces.jpg, assembled.jpg]
+targets: [piece_1, piece_2]
+description: |
+  _Dudd_ and _Missing Notches_ are two closely related puzzles by Stewart Coffin. Both have the same objective: assemble six burr pieces into the configuration shown in the first photo. Enthusiasts of interlocking puzzles will recognize this shape as the standard six-piece burr assembly, featured in many other puzzles, such as the ${link:starter-burr-set}. _Dudd_ and _Missing Notches_ have a twist, though: the pieces have confusing diagonal cuts that make the assembly very tricky and unusual.
+
+  Coffin wrote: "The name _Dudd_ is perhaps misleading (as well as being misspelled). The idea for this puzzle came from a similar one that Bill Cutler designed many years earlier. His looks like an ordinary six-piece burr except that each piece has a pair of additional diagonal notches. Half of those notches are unnecessary, and so _Dudd_ has only six, and is thereby much trickier to assemble.
+
+  "[_Missing Notches_] is similar to _Dudd_ but has ten diagonal notches instead of the required minimum of six, for added confusion. The idea behind the name was to suggest that I was trying to make the Cutler version but left out two notches by mistake. Some got it, some didn’t."
+
+  ### Printing Instructions
+
+  Print copies of `${name}.piece-1.stl` and `${name}.piece-2.stl` as follows, depending on which version of the puzzle you wish to make. You will need to use supports for `${name}.piece-2.stl`, but the supports are necessary only for the tip of the diagonal at the base of the piece, so they should remove cleanly without scarring. (Make sure you use a support overhang threshold of less than 45 degrees, to ensure that supports are _not_ generated along the sides of the diagonal.)
+
+  * <font size="-2">_Dudd_: Print six copies of `${name}.piece-1.stl`.</font>
+  * <font size="-2">_Missing Notches_: Print two copies of `${name}.piece-1.stl` and four copies of `${name}.piece-2.stl`.</font>
+
+  It is also possible to print the following additional variants.
+
+  * <font size="-2">_Missing Notch_: Print one copy of `${name}.piece-1.stl` and five copies of `${name}.piece-2.stl`. This variant was not mentioned by Coffin in AP-ART, but has been proposed by Coffin and Eric Fuller and made in wood by Fuller.</font>
+  * <font size="-2">Bill Cutler's original version (easier): Print six copies of `${name}.piece-2.stl`.</font>
+
+  All of the variants have essentially the same solution, but the variants with mixed pieces (_Missing Notches_ and _Missing Notch_) are more confusing, and therefore more challenging.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

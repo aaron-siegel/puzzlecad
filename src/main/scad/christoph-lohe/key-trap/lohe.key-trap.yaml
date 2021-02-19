@@ -3,6 +3,7 @@ name: "Key Trap - Interlocking puzzle by Christoph Lohe"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [assembled.jpg, key-and-shackle.jpg, pieces.jpg]
 targets: [frame, shackle, pieces, key, curved_shackle, curved_key]
+aux-files: [lohe.key-trap.xmpuzzle]
 description: |
   Assemble the various pieces into the lock shape shown in the cover photo. The key is looped around the shackle so that they are permanently bound together, but can move freely against each other. How can they be manipulated so as to maneuver the rest of the pieces into the lock frame?
 

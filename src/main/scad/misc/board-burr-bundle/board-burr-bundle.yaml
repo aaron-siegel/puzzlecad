@@ -1,0 +1,28 @@
+thing-id: 4738043
+name: "Board Burr Bundle"
+tags: [puzzle, 3D_puzzle, burr_puzzle]
+images: [cover.jpg, assembled.jpg, pieces.jpg, with-booklet.jpg]
+targets: [part_1, part_2, part_3, tray]
+aux_files: [board-burr-bundle.pdf]
+description: |
+  The _Board Burr Bundle_ is a puzzle set that enables you to make dozens of board burr puzzles. The goal looks simple, and it's always the same: assemble six puzzle pieces - two in each of three colors - into the interlocking configuration shown in the second photo. Yet the challenges vary widely in difficulty, from moderately easy to excruciatingly hard.
+
+  Board burrs are related to ordinary six-piece burr puzzles, with the same assembled shape and number of pieces, but they present a different type of challenge, with a greater degree of interlock. If you're familiar with interlocking puzzle sets, then you probably already know roughly what to expect. If you're not, then I highly recommend starting with my ${link:starter-burr-set} instead. The challenges in this set are considerably more difficult!
+
+  The set consists of 18 pieces in three different colors. It _must_ be printed in three colors, or the challenges will not work as expected. An accompanying pdf booklet describes the challenges in detail and gives some additional background information on board burr puzzles.
+
+  In addition to the 18 pieces in the standard set, there are more than 100 distinct board shapes that can make other board burr puzzles. The provided .scad file can be used with OpenSCAD to generate any of them, as well as to generate larger-sized trays, in similar fashion to my ${link:extensible-burr-set}.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.part-1.stl`, `${name}.part-2.stl`, and `${name}.part-3.stl`, each in a different filament color.
+
+  There is an optional tray that can neatly hold the pieces when not in use. If you want to print a tray (recommended), then print `${name}.tray.stl` as well. (The .scad file can be used to generate larger trays as well, if you want to hold additional pieces.)
+
+  ### pdf Booklet
+
+  The `${name}.pdf` document contains additional background material on the _Board Burr Bundle_ and a list of challenges. One of the photos shows it printed out, booklet style, next to the set.
+
+  ${ppp-boilerplate}
+
+  Happy puzzling!
