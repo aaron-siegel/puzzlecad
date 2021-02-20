@@ -1,0 +1,25 @@
+thing-id: 4768769
+name: "Roughhouse - Interlocking puzzle by László Molnár"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [pieces_1, pieces_2]
+description: |
+  Assemble six pieces into a 4x4x4 cube shape.
+
+  _Roughhouse_ is one of a series of Turning Interlocking Cubes ("TICs") by the endlessly creative László Molnár. Its pieces are all made from adjoined cubes meeting at right angles, but fitting them together requires a series of unusual and surprising rotations. TICs are challenging puzzles, but finding the solution is a satisfying and rewarding experience.
+
+  The puzzle is modeled to precise tolerances. It should not be necessary to use force or bend the plastic in order to assemble the puzzle. If you feel like you need to force a piece in order for it to fit, then most likely, you haven't found the right rotations. Keep trying!
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces-1.stl` and `${name}.pieces-2.stl`. Printing them in separate colors will give a nice contrasting effect as shown in the photos, but is not necessary (the puzzle does not depend on the color scheme).
+
+  This model uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  <b>Due to the convoluted and fragile shapes of the pieces on this puzzle, I recommend printing at 100% scale, in a sturdy filament such as PLA+ (at least for `pieces-1`), and reinforcing the joints with glue.</b>
+
+  ${ppp-boilerplate}
+
+  ${laszlo-molnar-bio}
+
+  Happy puzzling!
