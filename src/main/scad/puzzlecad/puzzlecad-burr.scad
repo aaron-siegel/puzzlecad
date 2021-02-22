@@ -275,7 +275,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 hoffset_str = lookup_kv(options, "label_hoffset");
                 voffset_str = lookup_kv(options, "label_voffset");
                 label_scale_str = lookup_kv(options, "label_scale");
-                
+
                 hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
                     let(hoffset = atof(hoffset_str))
                     assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
@@ -289,6 +289,8 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
                 assert(label_scale, str("Invalid label_scale: ", label_scale_str));
 
+                label_font = lookup_kv(options, "label_font", default = "Arial");
+ 
                 // Translate by the explicit offsets
                 translate(voffset)
                 translate(hoffset)
@@ -302,8 +304,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 rotate([0, 0, 90])
                 translate([0, 0, -1])
                 linear_extrude(2)
-                text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64);
-
+                text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64, font = label_font);
             }
             
         }
