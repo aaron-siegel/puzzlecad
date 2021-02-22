@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2021 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2021 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -31,17 +31,6 @@
 ==================================================================== */
 
 /******* Puzzle containers and lids *******/
-
-module packing_box(dim, thickness, insets = 0.25) {
-    
-    render(convexity = 2)
-    difference() {
-        beveled_cube(dim + [(thickness + insets) * 2, (thickness + insets) * 2, thickness + insets]);
-        translate([thickness, thickness, thickness])
-        cube(dim + [insets * 2, insets * 2, insets]);
-    }
-    
-}
 
 $tray_scale = 16;
 $tray_padding = 2.5;

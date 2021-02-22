@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2021 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2021 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -154,7 +154,7 @@ function string_to_burr_info(globals, string, i=0, result=[]) =
         : string[i] == "#" ? string_to_burr_info_sharp(globals, string, i, result, 24)
         : assert(false, "Invalid burr specification.");
          
-component_ids = ".abcdefghijklmnopqrstuvwxyz";
+component_ids = ".abcdefghijklmnopqrstuvwxyz+";
 
 // Parse a single character, with optional annotations.
 
@@ -190,6 +190,17 @@ function parse_annotation(string) =
         string[equals_index + 1] == "{" ? [key, substr(string, equals_index + 2, len(string) - equals_index - 3)]   // Value enclosed in braces
       : [key, substr(string, equals_index + 1, len(string) - equals_index - 1)]     // Value not enclosed in braces
     ;
+
+function is_valid_connect_annotation(connect, allow_diagonal = true) =
+    (
+      (connect[0] == "m" || connect[0] == "f") &&
+      (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
+       len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
+    ) || (
+      allow_diagonal && connect[0] == "d" && (connect[1] == "m" || connect[1] == "f") &&
+      (len(connect) == 6 && is_valid_orientation(substr(connect, 2, 4)) ||
+       len(connect) == 7 && connect[6] == "~" && is_valid_orientation(substr(connect, 2, 4)))
+    );
 
 function wrap(burr_map) =
     [ for (layer = burr_map) [ for (row = layer) [ for (voxel = row) voxel[0] == undef ? [voxel] : voxel] ] ];
