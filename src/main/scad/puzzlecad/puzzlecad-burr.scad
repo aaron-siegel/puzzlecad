@@ -289,7 +289,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
                 assert(label_scale, str("Invalid label_scale: ", label_scale_str));
 
-                label_font = lookup_kv(options, "label_font", default = "Arial");
+                label_font = lookup_kv(options, "label_font", default = "Liberation Sans");
  
                 // Translate by the explicit offsets
                 translate(voffset)
