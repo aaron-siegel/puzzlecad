@@ -21,7 +21,7 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.1");
 
 $burr_scale = 9;
-$burr_bevel = 1;
+$burr_bevel = 0.5;
 $auto_layout = true;
 
 //print one copy each of spider() and sticks() below:
@@ -49,7 +49,7 @@ module sticks() {
     ["x......x|x....xxx|xxxxxxxx","x......x|x.....xx|xx....xx"],
     ["x......x|x....x.x|xxxxxxxx","x......x|x......x|xx...xxx"],
     ["x......x|x....x.x|xxxxxxxx","x......x|x......x|xx....xx"],
-    ["x{label_text=Ara,label_orient=x-y-}......x|x......x|xxxxxxxx","x......x|x......x|xx.xx.xx"],
-    ["x......x{label_text=cna,label_orient=x+y+}|x......x|xxxx{label_text=Alfons Eyckmans,label_orient=y-x+,label_hoffset=0.5}xxxx","x......x|x......x|xx.xx.xx"],
-  ]);
+    ["x{label_text=Aracna,label_orient=x-y-,label_hoffset=0.5}......x|x......x|xxxxxxxx","x......x|x......x|xx.xx.xx"],
+    ["x......x{label_text=Aracna,label_orient=x+y+,label_hoffset=-0.5}|x......x|xxxx{label_text=A. Eyckmans,label_orient=y-x+,label_hoffset=0.5}xxxx","x......x|x......x|xx.xx.xx"],
+  ], $burr_outer_x_bevel=1.75);
 }
