@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2021 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2021 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -208,17 +208,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 connect = connect_list[i];
                 clabel = clabel_list[i];
 
-                is_valid_connect = 
-                    (
-                      (connect[0] == "m" || connect[0] == "f") &&
-                      (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
-                       len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
-                    ) || (
-                      connect[0] == "d" && (connect[1] == "m" || connect[1] == "f") &&
-                      (len(connect) == 6 && is_valid_orientation(substr(connect, 2, 4)) ||
-                       len(connect) == 7 && connect[6] == "~" && is_valid_orientation(substr(connect, 2, 4)))
-                    );
-                assert(is_valid_connect, str("Invalid connector: ", connect));
+                assert(is_valid_connect_annotation(connect), str("Invalid connector: ", connect));
                 
                 type = connect[0] == "d" ? connect[1] : connect[0];
                 orient = connect[0] == "d" ? substr(connect, 2, 4) : substr(connect, 1, 4);

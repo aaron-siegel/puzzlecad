@@ -42,20 +42,27 @@ include <puzzlecad/puzzlecad-2d.scad>
 
 // Version ID for version check.
 
-puzzlecad_version = "2.1";
+puzzlecad_version = "2.2";
 
 // Default values for scale, inset, bevel, etc.:
 
 $burr_scale = 11.15;
 $burr_inset = 0.07;
 $burr_bevel = 0.5;
+
+$box_wall_thickness = 6;
+$box_inset = 0.25;
+$box_bevel = 0.5;
+
 $plate_width = 180;
 $plate_depth = 180;
 $plate_sep = 6;
+
 $joint_inset = 0.015;
 $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
+
 $unit_beveled = false;
 $auto_layout = false;
 $post_rotate = [0, 0, 0];
