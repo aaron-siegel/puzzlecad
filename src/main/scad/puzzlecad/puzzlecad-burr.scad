@@ -166,35 +166,204 @@ module burr_piece_base(burr_spec, test_poly = undef) {
     all_voxels = [ for (layer = burr, row = layer, voxel = row) voxel ];
     distinct_voxels = distinct(all_voxels);
     
-    difference() {
-
-        union() {
-            
-            // Render components separately for each distinct voxel type
-
-            for (component_id = distinct_voxels) {
-                if (component_id >= 1) {
-                    if (diagonal_component_count > 0) {
-                        assert($burr_inset >= 0, "Diagonal geometry is only supported with a non-negative inset (for now).");
-                        burr_piece_component_diag(burr_info, component_id, test_poly);
-                    } else if ($burr_inset < 0.01) {
-                        // Inset is very small or negative. Rendering strategy is different
-                        // in this case.
-                        effective_inset = min($burr_inset, -0.01);
-                        burr_piece_component_neg_inset(
-                            burr_info, component_id, test_poly,
-                            $burr_bevel = 0, $burr_inset = effective_inset
-                        );
-                    } else {
-                        burr_piece_component(burr_info, component_id, test_poly);
+    if ($render_main) {
+        difference() {
+	    
+            union() {
+		
+                // Render components separately for each distinct voxel type
+                
+                for (component_id = distinct_voxels) {
+                    if (component_id >= 1) {
+                        if (diagonal_component_count > 0) {
+                            assert($burr_inset >= 0, "Diagonal geometry is only supported with a non-negative inset (for now).");
+                            burr_piece_component_diag(burr_info, component_id, test_poly);
+                        } else if ($burr_inset < 0.01) {
+                            // Inset is very small or negative. Rendering strategy is different
+                            // in this case.
+                            effective_inset = min($burr_inset, -0.01);
+                            burr_piece_component_neg_inset(
+                                burr_info, component_id, test_poly,
+                                $burr_bevel = 0, $burr_inset = effective_inset
+                            );
+                        } else {
+                            burr_piece_component(burr_info, component_id, test_poly);
+                        }
                     }
                 }
             }
             
+            // Remove female connectors and cutouts for male connectors.
+            
+            for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+                
+                connect_str = lookup_kv(aux[x][y][z], "connect");
+                connect_list = strtok(connect_str, ",");
+                clabel_str = lookup_kv(aux[x][y][z], "clabel");
+                clabel_list = strtok(clabel_str, ",");
+                
+                if (connect_list) {
+                    for (i = [0:len(connect_list)-1]) {
+                    
+                        connect = connect_list[i];
+                        clabel = clabel_list[i];
+                        
+                        is_valid_connect = 
+                            (
+                                (connect[0] == "m" || connect[0] == "f") &&
+                                (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
+                                 len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
+                            ) || (
+                                connect[0] == "d" && (connect[1] == "m" || connect[1] == "f") &&
+                                (len(connect) == 6 && is_valid_orientation(substr(connect, 2, 4)) ||
+                                 len(connect) == 7 && connect[6] == "~" && is_valid_orientation(substr(connect, 2, 4)))
+                            );
+                        assert(is_valid_connect, str("Invalid connector: ", connect));
+                        
+                        type = connect[0] == "d" ? connect[1] : connect[0];
+                        orient = connect[0] == "d" ? substr(connect, 2, 4) : substr(connect, 1, 4);
+                        
+                        is_valid_clabel =
+                            is_undef(clabel) ||
+                            len(clabel) == 1 ||
+                            len(clabel) == 3 && is_valid_orientation(str(substr(orient, 0, 2), substr(clabel, 1, 2)));
+                        assert(is_valid_clabel, str("Invalid clabel: ", clabel));
+                        
+                        assert(is_undef(clabel) || len(clabel) == 3 || len(orient) == 4, str("No orientation specified for clabel: ", clabel));
+                        
+                        if (!is_undef(clabel) && len(clabel) == 3 && len(orient) == 4) {
+                            echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
+                        }
+                        
+                        translate(cw(scale_vec, [x,y,z])) {
+                            
+                            if (connect[0] == "m")
+                                male_connector_cutout(orient);
+                            else if (connect[0] == "f")
+                                female_connector(orient, clabel[0], substr(clabel, 1, 2));
+                            else if (connect[0] == "d" && connect[1] == "m")
+                                male_diag_snap_connector_cutout(orient, twist = connect[6] == "~");
+                            else if (connect[0] == "d" && connect[1] == "f")
+                                female_diag_snap_connector(orient, clabel, twist = connect[6] == "~");
+                            
+                        }
+                        
+                    }
+                }
+            }
+            
+            // Remove any labels that are specified.
+            
+            for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+                
+                options = aux[x][y][z];
+                label_orient = lookup_kv(options, "label_orient");
+                label_text = lookup_kv(options, "label_text");
+                
+                if (label_orient && !label_text || !label_orient && label_text) {
+                    assert(false, "label_orient and label_text must be specified together.");
+                }
+                
+                if (label_orient && label_text) {
+                    
+                    face_dir_str = substr(label_orient, 0, 2);
+                    rot1 = cube_face_rotation(face_dir_str);
+                    rot2 = cube_edge_pre_rotation(label_orient);
+                    face_dir = lookup_kv(direction_map, face_dir_str);
+                    assert(rot1 && rot2 && face_dir, str("Invalid label_orient: ", label_orient));
+                    
+                    hoffset_str = lookup_kv(options, "label_hoffset");
+                    voffset_str = lookup_kv(options, "label_voffset");
+                    label_scale_str = lookup_kv(options, "label_scale");
+                    
+                    hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
+                        let(hoffset = atof(hoffset_str))
+                        assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
+                        hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
+                    
+                    voffset = is_undef(voffset_str) ? [0, 0, 0] :
+                        let(voffset = atof(voffset_str))
+                        assert(voffset, str("Invalid label_voffset: ", voffset_str))
+                        -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
+                    
+                    label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
+                    assert(label_scale, str("Invalid label_scale: ", label_scale_str));
+                    
+                    // Translate by the explicit offsets
+                    translate(voffset)
+                    translate(hoffset)
+                    // Translate into natural position
+                    translate(cw(scale_vec, [x, y, z] + 0.5 * face_dir) - cw(face_dir, inset_vec))
+                    // Rotate into proper orientation
+                    rotate(rot1)
+                    rotate(rot2)
+                    // Extra 90-degree z-rotation is required to ensure that label_orient specifies the
+                    // flow direction of text (as expected)
+                    rotate([0, 0, 90])
+                    translate([0, 0, -1])
+                    linear_extrude(2)
+                    text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64);
+                    
+                }
+                
+            }
+            
         }
+            
+        // Add space-fillers ("bridges" between components). This ensures that the entire
+        // piece remains connected in the final rendering.
+        // TODO: Add corner space-fillers?
         
-        // Remove female connectors and cutouts for male connectors.
-        
+        for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
+            cell = [x,y,z];
+            if (lookup3(burr, cell) > 0) {
+                for (face=[3:5]) {      // Just the positive-directional faces (so we check each face pair just once)
+                    
+                    facing_cell = cell + directions[face];
+                    face_center = cell + 0.5 * directions[face];
+                    
+                    // If the facing cell *is* defined but is from a different component, then
+                    // we need to render a space-filler.
+                    if (lookup3(burr, facing_cell) > 0 && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
+                        
+                        // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
+                        // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
+                        // on each face.
+                        dim = cw(2 * (inset_vec + 10 * iota_vec), directions[face])
+                            + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face]);
+                        translate(cw(scale_vec, face_center))
+                        cube(dim, center = true);
+                        
+                    }
+                    
+                    // Now add any edge space-filler adjacent to this face, taking care (as before) to avoid
+                    // duplicates.
+                    if (face < 5) {
+                        for (other_face=[face+1:5]) {
+                            if (lookup3(burr, facing_cell) > 0 &&
+                                lookup3(burr, cell + directions[other_face]) > 0 &&
+                                lookup3(burr, facing_cell + directions[other_face]) > 0 &&
+                                ( lookup3(burr, facing_cell) != lookup3(burr, cell) ||
+                                  lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) ||
+                                  lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)
+                                )) {
+                                
+                                edge_center = face_center + 0.5 * directions[other_face];
+                                dim = cw(2 * (inset_vec + 10 * iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
+                                    + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
+                                translate(cw(scale_vec, edge_center))
+                                cube(dim, center = true);
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Render the male connectors. connect and clabel will have already been validated (above).
+    if ($render_connectors) {
         for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
             
             connect_str = lookup_kv(aux[x][y][z], "connect");
@@ -202,193 +371,23 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             clabel_str = lookup_kv(aux[x][y][z], "clabel");
             clabel_list = strtok(clabel_str, ",");
              
-            if (connect_list)
-            for (i = [0:len(connect_list)-1]) {
+            if (connect_list) {
+                for (i = [0:len(connect_list)-1]) {
                 
-                connect = connect_list[i];
-                clabel = clabel_list[i];
-
-                is_valid_connect = 
-                    (
-                      (connect[0] == "m" || connect[0] == "f") &&
-                      (len(connect) == 3 && list_contains(cube_face_names, substr(connect, 1, 2)) ||
-                       len(connect) == 5 && is_valid_orientation(substr(connect, 1, 4)))
-                    ) || (
-                      connect[0] == "d" && (connect[1] == "m" || connect[1] == "f") &&
-                      (len(connect) == 6 && is_valid_orientation(substr(connect, 2, 4)) ||
-                       len(connect) == 7 && connect[6] == "~" && is_valid_orientation(substr(connect, 2, 4)))
-                    );
-                assert(is_valid_connect, str("Invalid connector: ", connect));
+                    connect = connect_list[i];
+                    clabel = clabel_list[i];
                 
-                type = connect[0] == "d" ? connect[1] : connect[0];
-                orient = connect[0] == "d" ? substr(connect, 2, 4) : substr(connect, 1, 4);
-                
-                is_valid_clabel =
-                    is_undef(clabel) ||
-                    len(clabel) == 1 ||
-                    len(clabel) == 3 && is_valid_orientation(str(substr(orient, 0, 2), substr(clabel, 1, 2)));
-                assert(is_valid_clabel, str("Invalid clabel: ", clabel));
-                
-                assert(is_undef(clabel) || len(clabel) == 3 || len(orient) == 4, str("No orientation specified for clabel: ", clabel));
-                
-                if (!is_undef(clabel) && len(clabel) == 3 && len(orient) == 4) {
-                    echo(str("WARNING: Redundant orientation in clabel for oriented connector will be ignored (connect=", connect, ", clabel=", clabel, ")"));
-                }
-                
-                translate(cw(scale_vec, [x,y,z])) {
-                    
-                    if (connect[0] == "m")
-                        male_connector_cutout(orient);
-                    else if (connect[0] == "f")
-                        female_connector(orient, clabel[0], substr(clabel, 1, 2));
-                    else if (connect[0] == "d" && connect[1] == "m")
-                        male_diag_snap_connector_cutout(orient, twist = connect[6] == "~");
-                    else if (connect[0] == "d" && connect[1] == "f")
-                        female_diag_snap_connector(orient, clabel, twist = connect[6] == "~");
-                    
-                }
-                
-            }
-
-        }
-        
-        // Remove any labels that are specified.
-        
-        for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
-            
-            options = aux[x][y][z];
-            label_orient = lookup_kv(options, "label_orient");
-            label_text = lookup_kv(options, "label_text");
-            
-            if (label_orient && !label_text || !label_orient && label_text) {
-                assert(false, "label_orient and label_text must be specified together.");
-            }
-            
-            if (label_orient && label_text) {
-                
-                face_dir_str = substr(label_orient, 0, 2);
-                rot1 = cube_face_rotation(face_dir_str);
-                rot2 = cube_edge_pre_rotation(label_orient);
-                face_dir = lookup_kv(direction_map, face_dir_str);
-                assert(rot1 && rot2 && face_dir, str("Invalid label_orient: ", label_orient));
-
-                hoffset_str = lookup_kv(options, "label_hoffset");
-                voffset_str = lookup_kv(options, "label_voffset");
-                label_scale_str = lookup_kv(options, "label_scale");
-                
-                hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
-                    let(hoffset = atof(hoffset_str))
-                    assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
-                    hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
-                
-                voffset = is_undef(voffset_str) ? [0, 0, 0] :
-                    let(voffset = atof(voffset_str))
-                    assert(voffset, str("Invalid label_voffset: ", voffset_str))
-                   -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
-                
-                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
-                assert(label_scale, str("Invalid label_scale: ", label_scale_str));
-
-                // Translate by the explicit offsets
-                translate(voffset)
-                translate(hoffset)
-                // Translate into natural position
-                translate(cw(scale_vec, [x, y, z] + 0.5 * face_dir) - cw(face_dir, inset_vec))
-                // Rotate into proper orientation
-                rotate(rot1)
-                rotate(rot2)
-                // Extra 90-degree z-rotation is required to ensure that label_orient specifies the
-                // flow direction of text (as expected)
-                rotate([0, 0, 90])
-                translate([0, 0, -1])
-                linear_extrude(2)
-                text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64);
-
-            }
-            
-        }
-        
-    }
-        
-    // Add space-fillers ("bridges" between components). This ensures that the entire
-    // piece remains connected in the final rendering.
-    // TODO: Add corner space-fillers?
-    
-    for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
-        cell = [x,y,z];
-        if (lookup3(burr, cell) > 0) {
-            for (face=[3:5]) {      // Just the positive-directional faces (so we check each face pair just once)
-                
-                facing_cell = cell + directions[face];
-                face_center = cell + 0.5 * directions[face];
-                
-                // If the facing cell *is* defined but is from a different component, then
-                // we need to render a space-filler.
-                if (lookup3(burr, facing_cell) > 0 && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
-                    
-                    // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
-                    // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
-                    // on each face.
-                    dim = cw(2 * (inset_vec + 10 * iota_vec), directions[face])
-                        + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face]);
-                    translate(cw(scale_vec, face_center))
-                    cube(dim, center = true);
-                    
-                }
-                    
-                // Now add any edge space-filler adjacent to this face, taking care (as before) to avoid
-                // duplicates.
-                if (face < 5)
-                for (other_face=[face+1:5]) {
-                    if (lookup3(burr, facing_cell) > 0 &&
-                        lookup3(burr, cell + directions[other_face]) > 0 &&
-                        lookup3(burr, facing_cell + directions[other_face]) > 0 &&
-                        ( lookup3(burr, facing_cell) != lookup3(burr, cell) ||
-                          lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) ||
-                          lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)
-                        )) {
-                        
-                        edge_center = face_center + 0.5 * directions[other_face];
-                        dim = cw(2 * (inset_vec + 10 * iota_vec + bevel_vec / sqrt(2)), directions[face] + directions[other_face])
-                            + cw(scale_vec - 2 * (inset_vec + bevel_vec / sqrt(2)), [1, 1, 1] - directions[face] - directions[other_face]);
-                        translate(cw(scale_vec, edge_center))
-                        cube(dim, center = true);
-                        
+                    if (connect[0] == "m") {
+                        translate(cw(scale_vec, [x, y, z]))
+                        male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
+                    } else if (connect[0] == "d" && connect[1] == "m") {
+                        translate(cw(scale_vec, [x, y, z]))
+                            male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
                     }
                 }
-                
             }
         }
     }
-            
-    // Render the male connectors. connect and clabel will have already been validated (above).
-    
-    for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
-        
-            
-        connect_str = lookup_kv(aux[x][y][z], "connect");
-        connect_list = strtok(connect_str, ",");
-        clabel_str = lookup_kv(aux[x][y][z], "clabel");
-        clabel_list = strtok(clabel_str, ",");
-         
-        if (connect_list)
-        for (i = [0:len(connect_list)-1]) {
-            
-            connect = connect_list[i];
-            clabel = clabel_list[i];
-            
-            if (connect[0] == "m") {
-                translate(cw(scale_vec, [x, y, z]))
-                male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-            } else if (connect[0] == "d" && connect[1] == "m") {
-                translate(cw(scale_vec, [x, y, z]))
-                male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
-            }
-            
-        }
-        
-    }
-    
 }
 
 // This module renders a single (individually beveled) component of a burr piece.
