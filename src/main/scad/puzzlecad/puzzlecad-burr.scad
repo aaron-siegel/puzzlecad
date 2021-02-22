@@ -246,57 +246,9 @@ module burr_piece_base(burr_spec, test_poly = undef) {
         
         for (x=[0:xlen-1], y=[0:ylen-1], z=[0:zlen-1]) {
             
-            options = aux[x][y][z];
-            label_orient = lookup_kv(options, "label_orient");
-            label_text = lookup_kv(options, "label_text");
-            
-            if (label_orient && !label_text || !label_orient && label_text) {
-                assert(false, "label_orient and label_text must be specified together.");
-            }
-            
-            if (label_orient && label_text) {
-                
-                face_dir_str = substr(label_orient, 0, 2);
-                rot1 = cube_face_rotation(face_dir_str);
-                rot2 = cube_edge_pre_rotation(label_orient);
-                face_dir = lookup_kv(direction_map, face_dir_str);
-                assert(rot1 && rot2 && face_dir, str("Invalid label_orient: ", label_orient));
+            translate(cw(scale_vec, [x, y, z]))
+            puzzle_label(aux[x][y][z], scale_vec);
 
-                hoffset_str = lookup_kv(options, "label_hoffset");
-                voffset_str = lookup_kv(options, "label_voffset");
-                label_scale_str = lookup_kv(options, "label_scale");
-
-                hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
-                    let(hoffset = atof(hoffset_str))
-                    assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
-                    hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
-                
-                voffset = is_undef(voffset_str) ? [0, 0, 0] :
-                    let(voffset = atof(voffset_str))
-                    assert(voffset, str("Invalid label_voffset: ", voffset_str))
-                   -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
-                
-                label_scale = is_undef(label_scale_str) ? 0.4 : atof(label_scale_str);
-                assert(label_scale, str("Invalid label_scale: ", label_scale_str));
-
-                label_font = lookup_kv(options, "label_font", default = "Liberation Sans");
- 
-                // Translate by the explicit offsets
-                translate(voffset)
-                translate(hoffset)
-                // Translate into natural position
-                translate(cw(scale_vec, [x, y, z] + 0.5 * face_dir) - cw(face_dir, inset_vec))
-                // Rotate into proper orientation
-                rotate(rot1)
-                rotate(rot2)
-                // Extra 90-degree z-rotation is required to ensure that label_orient specifies the
-                // flow direction of text (as expected)
-                rotate([0, 0, 90])
-                translate([0, 0, -1])
-                linear_extrude(2)
-                text(label_text, halign = "center", valign = "center", size = min(scale_vec) * label_scale, $fn=64, font = label_font);
-            }
-            
         }
         
     }
@@ -1034,6 +986,63 @@ module connector_label(parity, orient, label, explicit_label_orient) {
     linear_extrude(height=label_depth)
     text(label, halign = "center", valign = "center", size = $burr_scale / 3.7, $fn = 64);
     
+}
+
+module puzzle_label(options, scale_vec) {
+    
+    label_orient = lookup_kv(options, "label_orient");
+    label_text = lookup_kv(options, "label_text");
+    
+    if (label_orient && !label_text || !label_orient && label_text) {
+        assert(false, "label_orient and label_text must be specified together.");
+    }
+    
+    if (label_orient && label_text) {
+        
+        face_dir_str = substr(label_orient, 0, 2);
+        rot1 = cube_face_rotation(face_dir_str);
+        rot2 = cube_edge_pre_rotation(label_orient);
+        face_dir = lookup_kv(direction_map, face_dir_str);
+        assert(rot1 && rot2 && face_dir, str("Invalid label_orient: ", label_orient));
+
+        face_axis = label_orient[0] == "x" ? 0 : label_orient[0] == "y" ? 1 : 2;
+        unit_size = min(scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]);
+
+        hoffset_str = lookup_kv(options, "label_hoffset");
+        hoffset = is_undef(hoffset_str) ? [0, 0, 0] :
+            let(hoffset = atof(hoffset_str))
+            assert(hoffset, str("Invalid label_hoffset: ", hoffset_str))
+            hoffset * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[0]);
+        
+        voffset_str = lookup_kv(options, "label_voffset");
+        voffset = is_undef(voffset_str) ? [0, 0, 0] :
+            let(voffset = atof(voffset_str))
+            assert(voffset, str("Invalid label_voffset: ", voffset_str))
+           -atof(voffset_str) * cw(scale_vec, lookup_kv(edge_directions_map, label_orient)[1]);
+        
+        label_scale_str = lookup_kv(options, "label_scale", default = "0.4");
+        label_scale = atof(label_scale_str);
+        assert(label_scale, str("Invalid label_scale: ", label_scale_str));
+
+        label_font = lookup_kv(options, "label_font", default = "Liberation Sans");
+
+        // Translate by the explicit offsets
+        translate(voffset)
+        translate(hoffset)
+        // Translate into natural position
+        translate(cw(scale_vec, 0.5 * face_dir))
+        // Rotate into proper orientation
+        rotate(rot1)
+        rotate(rot2)
+        // Extra 90-degree z-rotation is required to ensure that label_orient specifies the
+        // flow direction of text (as expected)
+        rotate([0, 0, 90])
+        translate([0, 0, -1])
+        linear_extrude(2)
+        text(label_text, halign = "center", valign = "center", size = unit_size * label_scale, font = label_font, $fn = 64);
+        
+    }
+
 }
 
 /******* Bounding box computation *******/

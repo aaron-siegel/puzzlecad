@@ -150,7 +150,7 @@ module packing_box_base(box_spec) {
                                 }
                             }
                         }
-                        // If thatch_thickness is less than the wall thickness, there's an additional cutout.
+                        // If $thatch_thickness is less than the wall thickness, there's an additional cutout.
                         if ($thatch_thickness < thickness_vec[face_axis]) {
                             translate((x == 0 || y == 0 || z == 0 ? 1 : -1) * [0, 0, $thatch_thickness / 2 + 0.01])
                             cube([face_scale.x + 0.01, face_scale.y + 0.01, thickness_vec[face_axis] - $thatch_thickness], center = true);
@@ -182,6 +182,11 @@ module packing_box_base(box_spec) {
                 }
                 
             }
+            
+            // Labels
+            
+            translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
+            puzzle_label(options, cell_size[x][y][z]);
             
         }
         
