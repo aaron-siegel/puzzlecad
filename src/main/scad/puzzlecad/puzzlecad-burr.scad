@@ -460,7 +460,7 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
     
     ortho_geom = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1])
         let (components_str = lookup_kv(aux[x][y][z], "components"))
-        let (components = strtok(components_str, ","))
+        let (components = expand_components_list(strtok(components_str, ",")))
         [ for (face=[0:5]) [ for (edge=[0:3]) [ for (vertex=[0:1])
             let (face_name = cube_face_names[face])
             let (edge_name = str(face_name, cube_edge_names[face][edge]))
@@ -594,6 +594,20 @@ module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
     }
     
 }
+
+function expand_components_list(components, i = 0) =
+    is_undef(components) ? undef
+      : i >= len(components) ? []
+      : components[i][0] == "s" ?
+        let (slice_faces = [ substr(components[i], 1, 2), substr(components[i], 3, 2) ])
+        concat(
+          slice_faces,
+          [ for (face_name = cube_face_names, edge_dir = slice_faces)
+            if (face_name[0] != slice_faces[0][0] && face_name[0] != slice_faces[1][0])
+            str(face_name, edge_dir) ],
+          expand_components_list(components, i + 1)
+        )
+      : concat([components[i]], expand_components_list(components, i + 1));
 
 module burr_piece_component_neg_inset(burr_info, component_id, test_poly = undef) {
     
@@ -1059,7 +1073,7 @@ function piece_bounding_box(burr_info) =
                   for (p = cube_bounding_points())
                       apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
               else if (burr_cell > 0)
-                  for (component = strtok(lookup_kv(aux_cell, "components"), ","))
+                  for (component = expand_components_list(strtok(lookup_kv(aux_cell, "components"), ",")))
                   for (p = component_bounding_points(component))
                       apply_rot($post_rotate, cw(scale_vec, [x, y, z] + p))
             ]
@@ -1092,4 +1106,3 @@ function component_bounding_points(name) =
         let (edge_rot = cube_edge_pre_rotation(name))
         [ for (p = [[0, scaled_inset.y, 2 * scaled_inset.z], [0, scaled_inset.y, pos.z], [pos.x, pos.y, pos.z], [neg.x, pos.y, pos.z]])
             apply_rot(face_rot, apply_rot(edge_rot, p)) ];
-
