@@ -33,6 +33,7 @@
 $thatch_density = 0.5;
 $thatch_fineness = 3;
 $thatch_thickness = 2;
+$thatch_boundary_width = 0.75;
 
 module packing_box(box_spec) {
     
@@ -86,7 +87,9 @@ module packing_box_base(box_spec) {
      
     dim = [ len(box_info), len(box_info[0]), len(box_info[0][0]) ];
     
-    interior_dim = cw(scale_vec, dim - [2, 2, 2]);
+    interior_hull = cw(scale_vec, [max(2, dim.x), max(2, dim.y), max(2, dim.z)] - [2, 2, 2]);
+    
+    exterior_hull = interior_hull + cw(thickness_vec, [min(2, dim.x), min(2, dim.y), min(2, dim.z)]);
     
     cell_size = [ for (x = [0:dim.x-1]) [ for (y = [0:dim.y-1]) [ for (z = [0:dim.z-1])
         [ x == 0 || x == dim.x - 1 ? thickness_vec.x : scale_vec.x,
@@ -104,15 +107,16 @@ module packing_box_base(box_spec) {
     difference() {
         
         // Render the hull of the box
-        beveled_cube(interior_dim + thickness_vec * 2, $burr_bevel = $box_bevel);
+        beveled_cube(exterior_hull, $burr_bevel = $box_bevel);
         
         // Carve out the interior
         translate(thickness_vec - inset_vec)
-        cube(interior_dim + inset_vec * 2);
+        cube(interior_hull + inset_vec * 2);
         
         // Carve out the faces
         for (z = [0:dim.z-1], y = [0:dim.y-1], x = [0:dim.x-1]) {
             
+            cell = [x, y, z];
             options = aux[x][y][z];
             
             face_axis =
@@ -120,6 +124,9 @@ module packing_box_base(box_spec) {
               : y == 0 || y == dim.y - 1 ? 1
               : z == 0 || z == dim.z - 1 ? 2
               : -1;
+
+            horiz_unit = face_axis == 0 ? [0, 1, 0] : face_axis == 1 ? [0, 0, 1] : [1, 0, 0];
+            vert_unit = face_axis == 0 ? [0, 0, 1] : face_axis == 1 ? [1, 0, 0] : [0, 1, 0];
             
             if (face_axis >= 0) {
                 if (layout[x][y][z] != 24 && layout[x][y][z] != 15 && layout[x][y][z] != 27) {
@@ -138,8 +145,34 @@ module packing_box_base(box_spec) {
                     cutout_scale = sqrt(1 - $thatch_density) / ($thatch_fineness * sqrt(2));
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
                     rotate(face_axis == 0 ? [0, 90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0]) {
-                        intersection() {
-                            cube([face_scale.x + 0.01, face_scale.y + 0.01, thickness_vec[face_axis] + 0.02], center = true);
+                        render(convexity = 2) intersection() {
+                            union() {
+                                cube([
+                                    face_scale.x - 2 * $thatch_boundary_width,
+                                    face_scale.y - 2 * $thatch_boundary_width,
+                                    thickness_vec[face_axis] + 0.02
+                                ], center = true);
+                                for (h = [-1,1]) {
+                                    if (lookup3(layout, cell + horiz_unit * h) == 27) {
+                                        translate([h * (face_scale.x / 2 - $thatch_boundary_width / 2), 0, 0])
+                                        cube([$thatch_boundary_width + 0.01, face_scale.y - 2 * $thatch_boundary_width, thickness_vec[face_axis] + 0.02], center = true);
+                                    }
+                                }
+                                for (v = [-1,1]) {
+                                    if (lookup3(layout, cell + vert_unit * v) == 27) {
+                                        translate([0, v * (face_scale.y / 2 - $thatch_boundary_width / 2), 0])
+                                        cube([face_scale.x - 2 * $thatch_boundary_width, $thatch_boundary_width + 0.01, thickness_vec[face_axis] + 0.02], center = true);
+                                    }
+                                }
+                                for (h = [-1,1], v = [-1,1]) {
+                                    if (lookup3(layout, cell + horiz_unit * h) == 27 &&
+                                        lookup3(layout, cell + vert_unit * v) == 27 &&
+                                        lookup3(layout, cell + horiz_unit * h + vert_unit * v) == 27) {
+                                        translate([h * (face_scale.x / 2 - $thatch_boundary_width / 2), v * (face_scale.y / 2 - $thatch_boundary_width / 2), 0])
+                                        cube([$thatch_boundary_width + 0.01, $thatch_boundary_width + 0.01, thickness_vec[face_axis] + 0.02], center = true);
+                                    }
+                                }
+                            }
                             union() {
                                 for (i = [-$thatch_fineness:$thatch_fineness], j = [-$thatch_fineness:$thatch_fineness]) {
                                     if ((i + j) % 2 == 0) {
@@ -153,7 +186,11 @@ module packing_box_base(box_spec) {
                         // If $thatch_thickness is less than the wall thickness, there's an additional cutout.
                         if ($thatch_thickness < thickness_vec[face_axis]) {
                             translate((x == 0 || y == 0 || z == 0 ? 1 : -1) * [0, 0, $thatch_thickness / 2 + 0.01])
-                            cube([face_scale.x + 0.01, face_scale.y + 0.01, thickness_vec[face_axis] - $thatch_thickness], center = true);
+                            cube([
+                                face_scale.x + 2 * inset_vec[(face_axis + 1) % 3] + 0.01,
+                                face_scale.y + 2 * inset_vec[(face_axis + 2) % 3] + 0.01,
+                                thickness_vec[face_axis] - $thatch_thickness
+                            ], center = true);
                         }
                     }
                 }
