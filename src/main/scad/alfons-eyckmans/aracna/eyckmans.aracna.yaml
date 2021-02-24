@@ -1,0 +1,24 @@
+thing-id: 4755928
+name: "Aracna - Interlocking puzzle by Alfons Eyckmans"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg]
+targets: [spider, sticks]
+aux_files: [eyckmans.aracna.xmpuzzle]
+description: |
+  Disassemble the 13-piece interlocking shape to remove the spider-shaped piece trapped inside.
+
+  _Aracna_ is one of Alfons Eyckmans's popular "Burr Zoo" puzzles, in which ordinary-looking burr shapes conceal animal figurines trapped inside. This is a challenging puzzle for experienced puzzle solvers.
+
+  It's intended as a take-apart puzzle, but in order to attempt it as such, you will first need to assemble it. Unless your puzzle-solving skills are far greater than mine, you'll probably want to use software such as BurrTools to do so, and a BurrTools (xmpuzzle) file is included. (Please do not contact me for the solution; if you don't have experience using BurrTools, you might be better off starting with one of the less complex designs in the Printable Puzzle Project - see below.)
+
+  Tom Burns contributed the models and photographs for this design to PPP.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.spider.stl` and `${name}.sticks.stl`.
+
+  ${ppp-boilerplate}
+
+  ${alfons-eyckmans-bio}
+
+  Happy puzzling!
