@@ -30,10 +30,10 @@
 
 ==================================================================== */
 
-$thatch_density = 0.5;
-$thatch_fineness = 3;
-$thatch_thickness = 2;
-$thatch_boundary_width = 0.75;
+$thatch_density = 0.35;
+$thatch_fineness = 2;
+$thatch_thickness = 3;
+$thatch_boundary_width = 1.5;
 
 module packing_box(box_spec) {
     
@@ -110,8 +110,10 @@ module packing_box_base(box_spec) {
         beveled_cube(exterior_hull, $burr_bevel = $box_bevel);
         
         // Carve out the interior
-        translate(thickness_vec - inset_vec)
-        cube(interior_hull + inset_vec * 2);
+        if (dim.x > 2 && dim.y > 2 && dim.z > 2) {
+            translate(thickness_vec - inset_vec)
+            cube(interior_hull + inset_vec * 2);
+        }
         
         // Carve out the faces
         for (z = [0:dim.z-1], y = [0:dim.y-1], x = [0:dim.x-1]) {
@@ -125,8 +127,8 @@ module packing_box_base(box_spec) {
               : z == 0 || z == dim.z - 1 ? 2
               : -1;
 
-            horiz_unit = face_axis == 0 ? [0, 1, 0] : face_axis == 1 ? [0, 0, 1] : [1, 0, 0];
-            vert_unit = face_axis == 0 ? [0, 0, 1] : face_axis == 1 ? [1, 0, 0] : [0, 1, 0];
+            horiz_unit = face_axis == 0 ? [0, 0, 1] : face_axis == 1 ? [1, 0, 0] : [1, 0, 0];
+            vert_unit = face_axis == 0 ? [0, 1, 0] : face_axis == 1 ? [0, 0, 1] : [0, 1, 0];
             
             if (face_axis >= 0) {
                 if (layout[x][y][z] != 24 && layout[x][y][z] != 15 && layout[x][y][z] != 27) {
@@ -137,14 +139,14 @@ module packing_box_base(box_spec) {
                     radius = lookup_kv(options, "radius", 1/3);
                     face_scale = min(scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]);
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
-                    rotate(face_axis == 0 ? [0, 90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0])
-                    cylinder(r = radius * face_scale, h = thickness_vec[face_axis] + 0.01, center = true, $fn = 32);
+                    rotate(face_axis == 0 ? [0, -90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0])
+                    cylinder(r = radius * face_scale, h = thickness_vec[face_axis] + 0.01, center = true, $fn = 64);
                 }
                 if (layout[x][y][z] == 27) {
                     face_scale = [scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]];
                     cutout_scale = sqrt(1 - $thatch_density) / ($thatch_fineness * sqrt(2));
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
-                    rotate(face_axis == 0 ? [0, 90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0]) {
+                    rotate(face_axis == 0 ? [0, -90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0]) {
                         render(convexity = 2) intersection() {
                             union() {
                                 cube([
