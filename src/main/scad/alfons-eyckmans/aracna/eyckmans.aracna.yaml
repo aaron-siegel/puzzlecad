@@ -17,6 +17,8 @@ description: |
 
   Print one copy each of `${name}.spider.stl` and `${name}.sticks.stl`.
 
+  This model uses "snap joints" so that it can be printed without supports. ${snap-joints-boilerplate}
+
   ${ppp-boilerplate}
 
   ${alfons-eyckmans-bio}
