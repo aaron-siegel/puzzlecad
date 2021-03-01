@@ -37,8 +37,8 @@ $thatch_boundary_width = 1.5;
 
 module packing_box(box_spec) {
     
-    box_info = to_burr_info(box_spec);
-    layout_box_infos = $auto_layout ? auto_layout_plate([box_info]) : [box_info];
+    box_info = to_burr_info(box_spec, $unit_beveled = false);
+    layout_box_infos = $auto_layout ? auto_layout_plate([box_info], allowed_rotations = ["z+"]) : [box_info];
     
     packing_box_r(layout_box_infos);
     
@@ -81,15 +81,27 @@ module packing_box_base(box_spec) {
     inset_vec = vectorize($box_inset);
     thickness_vec = vectorize($box_wall_thickness);
 
-    box_info = to_burr_info(box_spec);
+    box_info = to_burr_info(box_spec, $unit_beveled = false);
     layout = [ for (plane=box_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
     aux = [ for (plane=box_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
      
     dim = [ len(box_info), len(box_info[0]), len(box_info[0][0]) ];
     
-    interior_hull = cw(scale_vec, [max(2, dim.x), max(2, dim.y), max(2, dim.z)] - [2, 2, 2]);
+    nonempty_layers = [
+        for (z = [0:dim.z-1])
+        let (count = sum([ for (x = [0:dim.x-1], y = [0:dim.y-1]) layout[x][y][z] > 0 ? 1 : 0 ]))
+        if (count > 0)
+        z
+    ];
     
-    exterior_hull = interior_hull + cw(thickness_vec, [min(2, dim.x), min(2, dim.y), min(2, dim.z)]);
+    has_nonempty_bottom = nonempty_layers[0] == 0;
+    has_nonempty_top = nonempty_layers[len(nonempty_layers)-1] == dim.z - 1;
+    exterior_z_dim = nonempty_layers[len(nonempty_layers)-1] - nonempty_layers[0] + 1;
+    interior_z_dim = exterior_z_dim - (has_nonempty_bottom ? 1 : 0) - (has_nonempty_top ? 1 : 0);
+    
+    interior_hull = cw(scale_vec, [max(2, dim.x) - 2, max(2, dim.y) - 2, interior_z_dim]);
+    
+    exterior_hull = interior_hull + cw(thickness_vec, [min(2, dim.x), min(2, dim.y), exterior_z_dim - interior_z_dim]);
     
     cell_size = [ for (x = [0:dim.x-1]) [ for (y = [0:dim.y-1]) [ for (z = [0:dim.z-1])
         [ x == 0 || x == dim.x - 1 ? thickness_vec.x : scale_vec.x,
@@ -103,20 +115,22 @@ module packing_box_base(box_spec) {
           z == 0 ? 0 : sum([ for (k = [0:z-1]) cell_size[x][y][k].z ])
         ]
     ] ] ];
-    
+          
     difference() {
         
         // Render the hull of the box
         beveled_cube(exterior_hull, $burr_bevel = $box_bevel);
         
         // Carve out the interior
-        if (dim.x > 2 && dim.y > 2 && dim.z > 2) {
+        if (dim.x > 2 && dim.y > 2 && interior_z_dim > 0) {
+            translate(has_nonempty_bottom ? [0, 0, 0] : -[0, 0, thickness_vec.z])
             translate(thickness_vec - inset_vec)
             cube(interior_hull + inset_vec * 2);
         }
         
         // Carve out the faces
-        for (z = [0:dim.z-1], y = [0:dim.y-1], x = [0:dim.x-1]) {
+        translate([0, 0, -cell_offset[0][0][min(nonempty_layers)].z])
+        for (z = [min(nonempty_layers):max(nonempty_layers)], y = [0:dim.y-1], x = [0:dim.x-1]) {
             
             cell = [x, y, z];
             options = aux[x][y][z];
@@ -187,7 +201,7 @@ module packing_box_base(box_spec) {
                         }
                         // If $thatch_thickness is less than the wall thickness, there's an additional cutout.
                         if ($thatch_thickness < thickness_vec[face_axis]) {
-                            translate((x == 0 || y == 0 || z == 0 ? 1 : -1) * [0, 0, $thatch_thickness / 2 + 0.01])
+                            translate((x == 0 || y == 0 || z == dim.z - 1 ? 1 : -1) * [0, 0, $thatch_thickness / 2 + 0.01])
                             cube([
                                 face_scale.x + 2 * inset_vec[(face_axis + 1) % 3] + 0.01,
                                 face_scale.y + 2 * inset_vec[(face_axis + 2) % 3] + 0.01,
@@ -211,12 +225,11 @@ module packing_box_base(box_spec) {
                     rot = cube_face_rotation(orient);
                     face_axis = orient[0] == "x" ? 0 : orient[0] == "y" ? 1 : 2;
                     cell_scale = min(cell_size[x][y][z][(face_axis + 1) % 3], cell_size[x][y][z][(face_axis + 2) % 3]);
-                    radius = min(3, cell_scale / 3, cell_scale / 2 - 1.2) + 0.2;
                     
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
                     rotate(rot)
                     translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 2.14])
-                    cylinder(r = radius, h = 2.15, $fn = 32);
+                    cylinder(r = guide_pin_radius(cell_scale) + 0.2, h = guide_pin_height(cell_scale) + 0.15, $fn = 32);
                     
                 }
                 
@@ -243,15 +256,18 @@ module packing_box_base(box_spec) {
             rot = cube_face_rotation(orient);
             face_axis = orient[0] == "x" ? 0 : orient[0] == "y" ? 1 : 2;
             cell_scale = min(cell_size[x][y][z][(face_axis + 1) % 3], cell_size[x][y][z][(face_axis + 2) % 3]);
-            radius = min(3, cell_scale / 3, cell_scale / 2 - 1.2);
             
             translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
             rotate(rot)
             translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 0.01])
-            cylinder(r = radius, h = 2, $fn = 32);
+            cylinder(r = guide_pin_radius(cell_scale), h = guide_pin_height(cell_scale), $fn = 32);
             
         }
         
     }
     
 }
+
+function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 0.75);
+
+function guide_pin_height(cell_scale) = min(2, guide_pin_radius(cell_scale) * 2);

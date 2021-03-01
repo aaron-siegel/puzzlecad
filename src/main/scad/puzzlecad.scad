@@ -51,7 +51,7 @@ $burr_inset = 0.07;
 $burr_bevel = 0.5;
 
 $box_wall_thickness = 6;
-$box_inset = 0.25;
+$box_inset = 0.2;
 $box_bevel = 0.5;
 
 $plate_width = 180;
