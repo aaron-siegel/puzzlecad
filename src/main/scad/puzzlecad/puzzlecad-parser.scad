@@ -158,7 +158,7 @@ component_ids = ".abcdefghijklmnopqrstuvwxyz+";
 
 // Parse a single character, with optional annotations.
 
-valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_font", "label_hoffset", "label_voffset", "label_scale" ];
+valid_annotations = [ "connect", "clabel", "components", "label_orient", "label_text", "label_font", "label_hoffset", "label_voffset", "label_scale", "circle" ];
 
 function string_to_burr_info_opt_suffix(globals, string, i, result, value) =
     substr(string, i+1, 1) == "{" ? string_to_burr_info_suffix(globals, string, i + 2, result, value)
