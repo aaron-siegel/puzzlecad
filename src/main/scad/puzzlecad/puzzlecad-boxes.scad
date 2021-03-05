@@ -249,17 +249,12 @@ module packing_box_base(box_spec) {
         options = aux[x][y][z];
         connect = lookup_kv(options, "connect");
         circle_radius = atof(lookup_kv(options, "circle"));
-        
-        face_axis =
-            x == 0 || x == dim.x - 1 ? 0
-          : y == 0 || y == dim.y - 1 ? 1
-          : z == 0 || z == dim.z - 1 ? 2
-          : -1;
-        
+
         if (!is_undef(connect) && connect[0] == "m") {
             
             orient = substr(connect, 1, 2);
             rot = cube_face_rotation(orient);
+            face_axis = orient[0] == "x" ? 0 : orient[0] == "y" ? 1 : 2;
             cell_scale = min(cell_size[x][y][z][(face_axis + 1) % 3], cell_size[x][y][z][(face_axis + 2) % 3]);
             
             translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
@@ -273,6 +268,11 @@ module packing_box_base(box_spec) {
             
             // Put an annulus around the circular cutout (so it plays nice with patterned surfaces)
             
+            face_axis =
+                x == 0 || x == dim.x - 1 ? 0
+              : y == 0 || y == dim.y - 1 ? 1
+              : z == 0 || z == dim.z - 1 ? 2
+              : -1;        
             face_scale = min(scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]);
             translate([0, 0, -cell_offset[0][0][min(nonempty_layers)].z])
             translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
