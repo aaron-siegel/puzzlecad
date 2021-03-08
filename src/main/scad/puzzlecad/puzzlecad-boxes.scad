@@ -79,6 +79,7 @@ module packing_box_base(box_spec) {
    
     scale_vec = vectorize($burr_scale);
     inset_vec = vectorize($box_inset);
+    cutout_inset_vec = is_undef($box_cutout_inset) ? inset_vec : vectorize($box_cutout_inset);
     thickness_vec = vectorize($box_wall_thickness);
 
     box_info = to_burr_info(box_spec, $unit_beveled = false);
@@ -124,8 +125,8 @@ module packing_box_base(box_spec) {
         // Carve out the interior
         if (dim.x > 2 && dim.y > 2 && interior_z_dim > 0) {
             translate(has_nonempty_bottom ? [0, 0, 0] : -[0, 0, thickness_vec.z])
-            translate(thickness_vec - inset_vec)
-            cube(interior_hull + inset_vec * 2);
+            translate(thickness_vec - cutout_inset_vec)
+            cube(interior_hull + cutout_inset_vec * 2);
         }
         
         // Carve out the faces
