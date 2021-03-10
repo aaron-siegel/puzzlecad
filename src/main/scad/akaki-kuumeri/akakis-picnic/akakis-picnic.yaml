@@ -1,0 +1,21 @@
+thing-id: 4185289
+name: "Akaki's Picnic -- A packing puzzle series by Akaki Kuumeri"
+tags: [puzzle, 3D_puzzle]
+images: [chocolate.jpg]
+targets: [basket, chocolate, wine, vegetable, fruit, subway, egg, ice_cream, cake, coffee, sandwich, salmiakki, chicken, hamburger]
+description: |
+  Akaki's Picnic is a series of packing puzzles. Pack the pieces into a basket with a special handle.
+
+  Each puzzle uses the same basket, so you can choose to print only one basket, with multiple sets of puzzle pieces.
+
+  Each puzzle has the same goal: pack all the pieces into the basket, up to the brim line.
+
+  // Add descriptions of each puzzle
+
+  This listing is part of the Printable Puzzle Project (see below).
+
+  ### Printing Instructions
+
+  ${ppp-boilerplate}
+
+  Happy puzzling!
