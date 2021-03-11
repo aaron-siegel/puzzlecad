@@ -267,7 +267,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 
                 // If the facing cell *is* defined but is from a different component, then
                 // we need to render a space-filler.
-                if (lookup3(burr, facing_cell) > 0 && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
+                if (is_nonzero(lookup3(burr, facing_cell)) && lookup3(burr, facing_cell) != lookup3(burr, cell)) {
                     
                     // Space-filler is 2*insets wide in the facing direction, and (scale - 2*insets - bevel/2)
                     // in the orthogonal directions. This ensures that the corners exactly meet the bevel line
@@ -283,9 +283,9 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 // duplicates.
                 if (face < 5)
                 for (other_face=[face+1:5]) {
-                    if (lookup3(burr, facing_cell) > 0 &&
-                        lookup3(burr, cell + directions[other_face]) > 0 &&
-                        lookup3(burr, facing_cell + directions[other_face]) > 0 &&
+                    if (is_nonzero(lookup3(burr, facing_cell)) &&
+                        is_nonzero(lookup3(burr, cell + directions[other_face])) &&
+                        is_nonzero(lookup3(burr, facing_cell + directions[other_face])) &&
                         ( lookup3(burr, facing_cell) != lookup3(burr, cell) ||
                           lookup3(burr, cell + directions[other_face]) != lookup3(burr, cell) ||
                           lookup3(burr, facing_cell + directions[other_face]) != lookup3(burr, cell)

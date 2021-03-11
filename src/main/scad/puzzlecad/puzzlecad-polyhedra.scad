@@ -413,6 +413,7 @@ function has_beveling() =
     !is_undef($burr_bevel_adjustments);
     
 function is_positive_bevel(bevel) =
+    is_undef(bevel) ? undef :
     let (bevel_or_pair = to_2_vector(bevel))
     bevel_or_pair[0] >= 0.01 || bevel_or_pair[1] >= 0.01;
 

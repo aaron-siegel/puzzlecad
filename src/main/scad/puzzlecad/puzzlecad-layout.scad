@@ -172,8 +172,8 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
 
 function is_joint_location(layers, offset, x, y, z) =
       layers[z][y][x][0] > 0 && layers[z + offset][y][x][0] > 0 &&
-    !(layers[z][y-1][x][0] > 0 && layers[z][y+1][x][0] > 0 && layers[z + offset][y-1][x][0] > 0 && layers[z + offset][y+1][x][0] > 0) &&
-    !(layers[z][y][x-1][0] > 0 && layers[z][y][x+1][0] > 0 && layers[z + offset][y][x-1][0] > 0 && layers[z + offset][y][x+1][0] > 0);
+    !(is_nonzero(layers[z][y-1][x][0]) && is_nonzero(layers[z][y+1][x][0]) && is_nonzero(layers[z + offset][y-1][x][0]) && is_nonzero(layers[z + offset][y+1][x][0])) &&
+    !(is_nonzero(layers[z][y][x-1][0]) && is_nonzero(layers[z][y][x+1][0]) && is_nonzero(layers[z + offset][y][x-1][0]) && is_nonzero(layers[z + offset][y][x+1][0]));
 
 function to_blank_layer(layer) =
     [ for (yslice = layer)

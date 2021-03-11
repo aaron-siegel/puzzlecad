@@ -257,6 +257,9 @@ function union_of_number_lists(list1, list2, i = 0, j = 0) =
 
 /***** Misc *****/
 
+// Returns true if x is defined and not equal to 0.
+function is_nonzero(x) = !is_undef(x) && x != 0;
+
 function argmin(list, i = 0, cur_argmin = undef, cur_min = undef) =
       i >= len(list) ? cur_argmin
     : is_undef(cur_argmin) || list[i] < cur_min ? argmin(list, i + 1, i, list[i])
