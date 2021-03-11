@@ -270,6 +270,9 @@ include <puzzlecad.scad>
 
 // label_voffset    optional vertical offset to apply to the label (works the same way as above).
 
+// label_font       OpenSCAD font specification for the label (such as "Arial"). The default is
+//                  "Liberation Sans", which is also the OpenSCAD default.
+
 // ======================================
 // DIAGONAL GEOMETRY
 
@@ -339,9 +342,15 @@ include <puzzlecad.scad>
 ], $burr_scale = 32, $burr_inset = 0, $post_rotate = [0, 45, 0]);
 
 // That [0, 45, 0] is standard OpenSCAD notation for "rotate 45 degrees around the y axis".
-
 // I find it easiest to model puzzles in their "natural" orientation, then add $post_rotate at
 // the end.
+
+// Finally, a common subset of diagonal geometry involves cubes that are "sliced" along a 45
+// degree axis. Starting with version 2.2, puzzlecad provides a nice shorthand:
+*burr_piece("x{components=sz-x-}", $burr_scale = 20, $burr_inset = 0);
+
+// The component "sz-x-" should be read as "the cube slice with complete faces on the z- and
+// x- sides". It is equivalent to {z-,x-,y-z-,y-x-,y+z-,y+x-} (but much easier to write).
 
 // ======================================
 // DIAGONAL JOINTS
@@ -384,12 +393,87 @@ include <puzzlecad.scad>
 // the rectilinear case.
 
 // ======================================
+// BOXES
+
+// Puzzlecad includes a module to generate boxes for packing puzzles. The input is similar to
+// burr_piece, but output will have the shape of a box whose wall thickness is controlled by a
+// separate parameter (and is typically much thinner $burr_scale). Here's a simple example:
+// an empty, unobstructed 3x3x3 box.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    ".....|.....|.....|.....|....."
+], $burr_scale = 17, $box_wall_thickness = 6);
+
+// Note the empty layer at the end of the box array. This is to ensure that the top layer is
+// interpreted as a layer of voxels, rather than box walls (since the box walls would be rendered
+// thinner). This will become clearer after a few more examples.
+
+// Here's an example with an enclosed top and a corner opening.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|xx...|xx...|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6);
+
+// Of course, it won't be printable due to overhang, but packing_box accepts connector
+// annotations and the $auto_layout parameter, with the same meanings as burr_piece.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|xx...|xx...|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6, $auto_layout = true);
+
+// Notice that packing_box generates a different type of connector. Snap joints would be too
+// brittle to work with typical box dimensions, so packing_box generates "guide pins" instead.
+// The box cap can then be attached with superglue, with the guide pins ensuring a precise
+// alignment.
+
+// packing_box can also generate box walls with a thatched pattern to provide semi-transparency.
+// This is convenient with heavily obstructed boxes, for which it is convenient to have visibility
+// into the box during the solve. To generate thatched walls, simply replace each "x" with a "+"
+// symbol. Here's a real example, Stewart Coffin's Slot Machine. Try it with and without
+// $auto_layout:
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x+..x|x+++x|x+++x|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6, $auto_layout = false);
+
+// packing_box is also useful for modeling certain obstructed tray puzzles, by setting $burr_scale
+// to a vector. Here's the tray from Coffin's Fourteen Steps. Notice how $box_wall_thickness and
+// $box_inset are also vectors, in order to provide fine-grained control over the dimensions and
+// tolerances.
+*packing_box([
+    "xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx",
+    "xxxxxxx|x.....x|x.....x|x.....x|x.....x|x.....x|xxxxxxx",
+    "xxxxxxx|x++...x|x+++..x|x+++..x|x+++++x|x+++++x|xxxxxxx"
+], $burr_scale = [16, 16, 5.6], $box_wall_thickness = [8, 8, 3],
+   $box_inset = [0.07, 0.07, 0.3], $plate_width = 200, $auto_layout = true);
+   
+// One more feature: the annotation {circle=radius} puts a circular opening at the specified
+// location. Here's an example, the box from Coffin's design Looking Glass.
+*packing_box([
+    "xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx",
+    "xxxxxxx|x......|x......|x.....x|x.....x|x.....x|xxxxxxx",
+    "xxxxxxx|x+++++x|x+++++x|x+++{circle=1}++x|x+++++x|x+++++x|xxxxxxx"
+], $burr_scale = [16, 16, 5.6], $box_wall_thickness = [8, 8, 3],
+   $box_inset = [0.07, 0.07, 0.3], $plate_width = 200, $auto_layout = true);
+
+// ======================================
 // 2D AND TRAY PUZZLES
 
-// All of the above models are composed of adjoined cubes ("polycubes") that assemble or interlock
-// to form a three-dimensional rectilinear shape. Another common puzzle type is the "tray-packing"
-// puzzle, in which a set of two-dimensional pieces must be fitted into a flat opening. Puzzlecad
-// provides built-in support for models of this type.
+// As noted above, packing_box is sometimes useful for modeling puzzles with obstructed trays.
+// Puzzlecad also includes a separate module, packing_tray, that includes some additional features
+// specifically for unobstructed, purely 2D "tray-packing" puzzles.
 
 // It's particularly easy to model polyominoes in puzzlecad; just specify $burr_scale as a *vector*
 // rather than a single number. Here's the L-Pentomino as an example. Setting $burr_scale to
