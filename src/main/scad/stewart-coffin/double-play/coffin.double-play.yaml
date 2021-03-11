@@ -1,0 +1,21 @@
+thing-id: 4784803
+name: "Double Play - Tray-packing puzzle by Stewart Coffin (STC #187)"
+tags: [puzzle]
+images: [cover.jpg, pieces.jpg]
+targets: [pieces, tray]
+description: |
+  Pack six pieces into an obstructed tray.
+
+  _Double Play_ is one of many tray-packing puzzles by Stewart Coffin. This one is mainly for Coffin completists; it's a fun puzzle, but doesn't quite rise to the level of originality and challenge of similar designs such as ${link:coffin.decoy}.
+
+  The top of the tray is modeled with a semi-transparent thatched pattern, so that you can more easily see what's happening inside. The pattern is purely aesthetic and is not relevant to the puzzle itself.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.tray.stl`. After printing, you will first need to assemble the tray, before attempting to solve the puzzle. The tray has four glue holes, one in each corner, and the tray cap has four pegs that fit into the glue holes. Put a drop of super glue into each glue hole, mount the tray cap securely onto the tray, and wait for the glue to dry. Then you're ready to attempt the puzzle!
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

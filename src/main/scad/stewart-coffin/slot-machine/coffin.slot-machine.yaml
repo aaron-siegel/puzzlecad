@@ -1,0 +1,21 @@
+thing-id: 4783258
+name: "Slot Machine - Packing puzzle by Stewart Coffin (STC #185)"
+tags: [puzzle, 3D_puzzle]
+images: [cover.jpg, pieces.jpg]
+targets: [pieces, box]
+description: |
+  Pack seven pieces into an obstructed 3x3x3 box.
+
+  _Slot Machine_ looks like an innocent little packing puzzle, but it is far more challenging than it appears! The pieces must be maneuvered in a carefully choreographed sequence through a tiny 1x2 opening. Just figuring out where they're supposed to go is no easy feat, and that's only half the battle... you will need careful deductive reasoning and a lot of patience to solve this one.
+
+  The top of the box is modeled with a semi-transparent thatched pattern, so that you can more easily see what's happening inside. The pattern is purely aesthetic and is not relevant to the puzzle itself.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.pieces.stl` and `${name}.box.stl`. After printing, you will first need to assemble the box, before attempting to solve the puzzle. The box cap has four glue holes, one in each corner, and the box frame has four pegs that fit into the glue holes. Put a drop of super glue into each glue hole, mount the cap securely onto the box, and wait for the glue to dry. Then you're ready to attempt the puzzle!
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
