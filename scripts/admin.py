@@ -346,7 +346,8 @@ def bundle_puzzlecad(version, run_tests = True):
 	shutil.copy2('../src/main/scad/puzzlecad.scad', '../out/dist')
 	shutil.copy2('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
 	shutil.copy2('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
-	shutil.rmtree('../out/dist/puzzlecad')
+	if (os.path.exists('../out/dist/puzzlecad')):
+		shutil.rmtree('../out/dist/puzzlecad')
 	shutil.copytree('../src/main/scad/puzzlecad', '../out/dist/puzzlecad')
 	
 	print('Creating archive ...')
