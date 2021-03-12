@@ -1,8 +1,9 @@
-thing-id: 4185289
+thing-id: 0
 name: "Akaki's Picnic -- A packing puzzle series by Akaki Kuumeri"
 tags: [puzzle, 3D_puzzle]
-images: [chocolate.jpg]
-targets: [basket, chocolate, wine, vegetable, fruit, subway, egg, ice_cream, cake, coffee, sandwich, salmiakki, chicken, hamburger]
+images: [all.jpg, chocolate.jpg, wine.jpg, vegetable.jpg, fruit.jpg, subway.jpg, egg.jpg, ice_cream.jpg, cake.jpg, coffee.jpg, sandwich.jpg, salmiakki.jpg, chicken.jpg, hamburger]
+targets: [chocolate, wine, vegetable, fruit, subway, egg, ice_cream, cake, coffee, sandwich, salmiakki, chicken, hamburger]
+aux_files: [akakis-picnic-basket.stl, akakis-picnic-basket-handle.stl]
 description: |
   Akaki's Picnic is a series of packing puzzles. Pack the pieces into a basket with a special handle.
 
@@ -10,11 +11,36 @@ description: |
 
   Each puzzle has the same goal: pack all the pieces into the basket, up to the brim line.
 
-  // Add descriptions of each puzzle
+  Start with Cake Basket, the easiest design. Next you can try Egg Basket and Hamburger Basket, or try and solve them all in the order listen below.
+
+  ### List of puzzles by difficulty
+
+  Easy
+  Cake Basket Three symmetric pieces. This is the easiest design.
+  Ice Cream Basket  An easy puzzle, but it has one movement that is not used in any of the other designs.
+  Fruit Basket  This puzzle fills the whole 27-block space, and only require a simple rotation to solve.
+  Vegetable Basket  Only linear moves are required to solve this puzzle. *Note! This puzzle has a second solution, where there are visible holes on the top surface.
+  Medium
+  Hamburger Basket  This is my favorite one, because I constantly get disoriented with the confusingly shaped pieces in the puzzle. It is the only one I can never remember the solution to.
+  Salmiakki Basket  The key to this puzzle is how to position the two small identical pieces.
+  Subway Basket One of the pieces travels in an unexpected direction.
+  Coffee Basket The large coffee cup piece is easy to place in the basket, but what to do with the long coffee mixer sticks?
+  Difficult
+  Egg Basket  The largest piece in this puzzle is hard enough to get in the basket on its own, but can you fit the surrounding pieces in the basket too?
+  Sandwich basket 
+  Chicken Basket  The large chicken wing piece does a surprising movement.
+  Chocolate Basket  Think hard about the order you pack these pieces in the basket.
+  Wine Basket This is the hardest design. Might require some dexterity.
 
   This listing is part of the Printable Puzzle Project (see below).
 
   ### Printing Instructions
+
+  All files can be printed without supports.
+
+  Print akakis-picnic-basket.stl and akakis-picnic-basket-handle.stl. Glue the handle to the basket with superglue.
+
+  Some of the puzzle designs have snap connectors. You must snap the pieces together before attempting the puzzle. Use glue if neccessary.
 
   ${ppp-boilerplate}
 

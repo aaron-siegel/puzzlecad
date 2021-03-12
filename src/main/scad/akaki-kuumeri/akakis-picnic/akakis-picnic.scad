@@ -24,7 +24,6 @@ $joint_inset = 0.015;
 
 // Uncomment one of the following lines to render that component.
 
-*basket();
 *chocolate();
 *wine();
 *vegetable();
@@ -227,31 +226,4 @@ module hamburger() {
         ["...|...|...","x..|...|...","x..|x{label_text=          Hamburger,label_orient=z-x+,label_hoffset=0.2,label_scale=0.35}x{label_text=Basket          ,label_orient=y+x+,label_hoffset=0.2,label_scale=0.35}x|..x"]
         
         ],  $auto_layout = true);
-}
-
-module basket() {
-    //This is a rudimentary basket model. I recommend you use the attached STL file instead.
-    $basket_wall_thickness = 3;
-    $basket_bottom_thickness = 2;
-
-    union() {
-        difference() {
-            //outer cube of the basket box:
-            cube(size = [$burr_scale * 3 + $basket_wall_thickness * 2, $burr_scale * 3 + $basket_wall_thickness * 2, $burr_scale * 3 + $basket_bottom_thickness], center = false);
-            //inside hollow of basket:
-            translate([$basket_wall_thickness - $burr_inset, $basket_wall_thickness - $burr_inset , $basket_bottom_thickness - $burr_inset])
-                cube(size = $burr_scale * 3 + $burr_inset * 2, center = false);
-        }
-
-
-        //basket handle top:
-        translate([$burr_scale*1.05 + $basket_wall_thickness, 0, $basket_bottom_thickness + $burr_scale*4 + $burr_inset])
-            cube([$burr_scale*0.9, $burr_scale*3 + $basket_wall_thickness * 2, $burr_scale*0.2]);
-        //basket handle sides:
-        translate([$burr_scale*1.05 + $basket_wall_thickness, 0, $burr_scale*3])
-            cube([$burr_scale*0.9, $basket_wall_thickness-$burr_inset, $basket_bottom_thickness + $burr_scale+$burr_inset]);
-
-        translate([$burr_scale*1.05 + $basket_wall_thickness, $burr_scale* 3 + $basket_wall_thickness + $burr_inset, $basket_bottom_thickness + $burr_scale*3])
-            cube([$burr_scale*0.9, $basket_wall_thickness-$burr_inset, $burr_scale+$burr_inset]);
-    }
 }
