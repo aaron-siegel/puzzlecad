@@ -69,7 +69,9 @@ module wine() {
 
 module vegetable() {
     burr_plate([
-
+    
+    //This puzzle has two solutions. The solution with no voids visible on top is the canonical solution.
+    
         ["...|...|xx.","...|...|x{label_text=  Basket,label_orient=y-z-,label_hoffset=0.2,label_scale=0.3}..","x{label_text=       Vegetable,label_orient=z-y+,label_hoffset=0.2,label_scale=0.3}x.|x..|x.."],
     
         ["...|.x{label_text=       Akaki,label_orient=x+z+,label_hoffset=0.2,label_scale=0.35}.|...","...|.x.|...","..x|.xx|..."],
