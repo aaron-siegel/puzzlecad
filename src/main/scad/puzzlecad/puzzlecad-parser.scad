@@ -209,3 +209,7 @@ function bit_of(n, exponent) = floor(n / pow(2, exponent)) % 2;
 
 function copies(n, burr) = n == 0 ? [] : concat(copies(n-1, burr), [burr]);
     
+function dups(v, r, i = 0) =
+  i < len(v)
+    ? dups(v, concat(r, [for (x = [0:1:v[i][1] - 1]) r[v[i][0]]]), i + 1)
+    : r;
