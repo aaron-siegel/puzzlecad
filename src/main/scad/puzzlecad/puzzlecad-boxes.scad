@@ -44,7 +44,7 @@ module packing_box(box_spec) {
     
 }
 
-module packing_box_r(layout_box_infos,  i = 0, y = 0, x = 0, row_depth = 0) {
+module packing_box_r(layout_box_infos, i = 0, y = 0, x = 0, row_depth = 0) {
     
     scale_vec = vectorize($burr_scale);
     thickness_vec = vectorize($box_wall_thickness);
@@ -288,6 +288,38 @@ module packing_box_base(box_spec) {
         
     }
     
+    // Render the interior. To do this, we render box_info as an ordinary burr structure and intersect it
+    // with the interior hull of the box. For efficiency, we first filter box_info down to a substructure
+    // containingly only "relevant" voxels. A voxel is relevant if it is either:
+    // - part of the interior, or
+    // - a side voxel and face-adjacent to a nonempty interior voxel, or
+    // - an edge voxel and edge-adjacent to a nonempty interior voxel, or
+    // - a corner voxel and corner-adjacent to a nonempty interior voxel.
+    
+    burr_info = [
+        for (x = [0:dim.x-1]) [
+            for (y = [0:dim.y-1]) [
+                for (z = [0:dim.z-1])
+                    is_relevant_to_interior([x, y, z]) ? box_info[x][y][z] : [0]
+            ]
+        ]
+    ];
+    
+    intersection() {
+        
+        translate(thickness_vec - scale_vec / 2)
+        burr_piece_base(burr_info, $burr_inset = is_undef($box_cutout_inset) ? $box_inset : $box_cutout_inset);
+        
+        translate(has_nonempty_bottom ? [0, 0, 0] : -[0, 0, thickness_vec.z])
+        translate(thickness_vec - cutout_inset_vec - iota_vec)
+        cube(interior_hull + cutout_inset_vec * 2 + 2 * iota_vec);
+        
+    }
+    
+    function is_relevant_to_interior(cell) =
+        let (boundary_dirs = [ for (dir = directions) if (is_undef(lookup3(box_info, cell + dir))) dir])
+        len(boundary_dirs) == 0 ? true : lookup3(box_info, cell - sum(boundary_dirs))[0] > 0;
+
 }
 
 function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 0.75);
