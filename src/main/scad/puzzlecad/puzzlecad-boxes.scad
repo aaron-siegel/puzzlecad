@@ -137,28 +137,65 @@ module packing_box_base(box_spec) {
             options = aux[x][y][z];
             connect = lookup_kv(options, "connect");
             circle_radius = atof(lookup_kv(options, "circle"));
+            components = strtok(lookup_kv(options, "components"), ",");
+            
+            face =
+                x == 0 ? "x-"
+              : y == 0 ? "y-"
+              : z == 0 ? "z-"
+              : x == dim.x - 1 ? "x+"
+              : y == dim.y - 1 ? "y+"
+              : z == dim.z - 1 ? "z+"
+              : undef;
             
             face_axis =
                 x == 0 || x == dim.x - 1 ? 0
               : y == 0 || y == dim.y - 1 ? 1
               : z == 0 || z == dim.z - 1 ? 2
               : -1;
-
+            
             horiz_unit = face_axis == 0 ? [0, 0, 1] : face_axis == 1 ? [1, 0, 0] : [1, 0, 0];
             vert_unit = face_axis == 0 ? [0, 1, 0] : face_axis == 1 ? [0, 0, 1] : [0, 1, 0];
             
             if (face_axis >= 0) {
                 if (layout[x][y][z] != 24 && layout[x][y][z] != 15 && layout[x][y][z] != 27) {
+                    // Empty cell; cut out the entire voxel
                     translate(cell_offset[x][y][z] - inset_vec)
                     cube(cell_size[x][y][z] + inset_vec * 2);
                 }
                 if (!is_undef(circle_radius)) {
+                    // Cut out a circle
                     face_scale = min(scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]);
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
                     rotate(face_axis == 0 ? [0, -90, 0] : face_axis == 1 ? [90, 0, 0] : [0, 0, 0])
                     cylinder(r = circle_radius * face_scale, h = thickness_vec[face_axis] + 0.01, center = true, $fn = 64);
                 }
+                if (!is_undef(components)) {
+                    face_index = index_of(cube_face_names, face);
+                    for (edge_index = [0:3]) {
+                        if (!list_contains(components, cube_edge_names[face_index][edge_index])) {
+                            edge_rot = cube_edge_pre_rotations[edge_index];
+                            rot = cube_face_rotations[face_index];
+                            abs_dir = cw(directions[face_index], directions[face_index]);
+                            translate(cell_offset[x][y][z])
+                            translate(scale_vec.x * 0.5 * ([1, 1, 1] - abs_dir))
+                            translate($box_wall_thickness * 0.5 * abs_dir)
+                            rotate(rot)
+                            rotate(edge_rot)
+                            translate([0, 0, iota * -1])
+                            linear_extrude($box_wall_thickness + iota * 2, center = true)
+                            polygon([
+                                [0, -2 * $box_inset],
+                                [-scale_vec.x / 2 - $box_inset, scale_vec.x / 2 - $box_inset],
+                                [-scale_vec.x / 2 - $box_inset, scale_vec.x / 2 + $box_inset],
+                                [scale_vec.x / 2 + $box_inset, scale_vec.x / 2 + $box_inset],
+                                [scale_vec.x / 2 + $box_inset, scale_vec.x / 2 - $box_inset]
+                            ]);
+                        }
+                    }
+                }
                 if (layout[x][y][z] == 27) {
+                    // Cut out a thatched pattern
                     face_scale = [scale_vec[(face_axis + 1) % 3], scale_vec[(face_axis + 2) % 3]];
                     cutout_scale = sqrt(1 - $thatch_density) / ($thatch_fineness * sqrt(2));
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
@@ -243,8 +280,6 @@ module packing_box_base(box_spec) {
         }
         
     }
-    
-    echo(zyx_to_xyz(box_info));
 
     // Add male guide pins
     translate([0, 0, -cell_offset[0][0][min(nonempty_layers)].z])
