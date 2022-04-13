@@ -226,6 +226,32 @@ include <puzzlecad.scad>
 // provides a great deal of flexibility in how the puzzle joints are laid out.
 
 // ======================================
+// DETACHED CONNECTORS
+
+// puzzlecad 2.3 introduces an option to print "detached" male connectors. This is most easily
+// demonstrated with an example:
+
+*burr_plate([["x..|xxx{connect=mz+y+,clabel=A}"], ["x{connect=fz+y+,clabel=A}|x"]],
+  $detached_joints = true);
+
+// Note this is identical to the first example from the previous section; the only difference is
+// that we set $detached_joints = true. Instead of a male joint, puzzlecad renders "connect=mz+y+"
+// as a second female joint, and separately generates a strut that can be used to connect them.
+
+// The advantage of using detached joints is that the connectors are printed horizontally, making
+// them substantially stronger. This is particularly useful in applications involving complex
+// pieces with sensitive connection points.
+
+// $detached_joints can also be used in combination with $auto_layout; here is the same piece
+// rendered with both $auto_layout = true and $detached_joints = true:
+
+*burr_piece(["x..|xxx|...", "...|..x|..x"], $auto_layout = true, $detached_joints = true);
+
+// If you want to manually generate an individual connector, use detached_male_connector():
+
+*detached_male_connector();
+
+// ======================================
 // SQUARE CONNECTORS
 
 // An additional type of connector is available in puzzlecad - the "square snap joint". The
@@ -234,10 +260,14 @@ include <puzzlecad.scad>
 // puzzlecad, but they're still there if you want to use them.
 
 // To render a square snap joint, simply omit the second orientation coordinate. Like so:
+
 *burr_plate([["x..|xxx{connect=mz+,clabel=Ay-}"], ["x{connect=fz+,clabel=Ay-}|x"]]);
 
 // Note that you now have to specify an orientation for the clabel; the square connectors are
 // symmetric, so it's otherwise ambiguous where to render the label.
+
+// NOTE: As of puzzlecad 2.3, square connectors are deprecated, and various new features (such
+// as detached joints) will not work properly with them.
 
 // ======================================
 // LABELS

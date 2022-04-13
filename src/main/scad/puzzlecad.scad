@@ -66,6 +66,7 @@ $diag_joint_position = 0.1;
 
 $unit_beveled = false;
 $auto_layout = false;
+$detached_joints = false;
 $post_rotate = [0, 0, 0];
 
 // Optional parameters that can be used to increase

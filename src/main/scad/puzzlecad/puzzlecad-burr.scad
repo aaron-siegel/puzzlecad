@@ -58,6 +58,21 @@ module burr_plate(burr_specs, num_copies = 1) {
     
     burr_plate_r(expanded_burr_infos);
     
+    if ($detached_joints) {
+        // If using $detached_joints, we need to render the detached joints separately.
+        male_joint_count = sum([
+          for (burr_info = expanded_burr_infos, layer = burr_info, row = layer, voxel = row)
+          let (connect = lookup_kv(voxel[1], "connect"))
+          connect[0] == "m" ? 1 : 0
+        ]);
+        if (male_joint_count > 0) {
+            for (i = [0:male_joint_count-1]) {
+                translate([(i + 0.5) * $burr_scale, -1 * ($burr_scale / 2 + $plate_sep), 0])
+                detached_male_connector();
+            }
+        }
+    }
+    
 }
 
 module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
@@ -227,9 +242,10 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 
                 translate(cw(scale_vec, [x,y,z])) {
                     
-                    if (connect[0] == "m")
+                    if (connect[0] == "m" && !$detached_joints)
                         male_connector_cutout(orient);
-                    else if (connect[0] == "f")
+                    else if (connect[0] == "f" || connect[0] == "m")
+                        // If using $detached_joints, we also render "m" connectors as "f"
                         female_connector(orient, clabel[0], substr(clabel, 1, 2));
                     else if (connect[0] == "d" && connect[1] == "m")
                         male_diag_snap_connector_cutout(orient, twist = connect[6] == "~");
@@ -320,7 +336,7 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             connect = connect_list[i];
             clabel = clabel_list[i];
             
-            if (connect[0] == "m") {
+            if (connect[0] == "m" && !$detached_joints) {
                 translate(cw(scale_vec, [x, y, z]))
                 male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
             } else if (connect[0] == "d" && connect[1] == "m") {
@@ -739,6 +755,20 @@ module male_connector(orient, label, explicit_label_orient) {
         translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 3])
         rotate([0, 90, 0])
         cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+    }
+    
+}
+
+module detached_male_connector() {
+    
+    size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2;
+    total_length = size - 0.35;
+    translate([0, 0, size / 2])
+    rotate([90, 0, 0]) {
+        tapered_pentagon([size, size, total_length], center = false, clipped = true);
+        translate([0, 0, iota])
+        mirror([0, 0, 1])
+        tapered_pentagon([size, size, total_length], center = false, clipped = true);
     }
     
 }
