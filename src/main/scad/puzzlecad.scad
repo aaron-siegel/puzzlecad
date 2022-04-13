@@ -42,7 +42,7 @@ include <puzzlecad/puzzlecad-2d.scad>
 
 // Version ID for version check.
 
-puzzlecad_version = "2.2";
+puzzlecad_version = "2.3";
 
 // Default values for scale, inset, bevel, etc.:
 

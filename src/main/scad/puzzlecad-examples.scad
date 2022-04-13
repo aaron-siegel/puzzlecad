@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -465,6 +465,15 @@ include <puzzlecad.scad>
 // The box cap can then be attached with superglue, with the guide pins ensuring a precise
 // alignment.
 
+// Diagonal cuts can be introduced by specifying directional "components", similar to how pieces
+// modeled in diagonal geometry are specified (as described above).
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxx{components={x-,z-}}..|x....|x...x{components={y+,z-}}|x...x|xxxxx",
+    "xx...|xx...|xxx{components={x-,y+}}..|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6);
+
 // packing_box can also generate box walls with a thatched pattern to provide semi-transparency.
 // This is convenient with heavily obstructed boxes, for which it is convenient to have visibility
 // into the box during the solve. To generate thatched walls, simply replace each "x" with a "+"
@@ -488,7 +497,7 @@ include <puzzlecad.scad>
     "xxxxxxx|x++...x|x+++..x|x+++..x|x+++++x|x+++++x|xxxxxxx"
 ], $burr_scale = [16, 16, 5.6], $box_wall_thickness = [8, 8, 3],
    $box_inset = [0.07, 0.07, 0.3], $plate_width = 200, $auto_layout = true);
-   
+
 // One more feature: the annotation {circle=radius} puts a circular opening at the specified
 // location. Here's an example, the box from Coffin's design Looking Glass.
 *packing_box([
