@@ -243,8 +243,11 @@ module packing_box_base(box_spec) {
         }
         
     }
+    
+    echo(zyx_to_xyz(box_info));
 
     // Add male guide pins
+    translate([0, 0, -cell_offset[0][0][min(nonempty_layers)].z])
     for (z = [0:dim.z-1], y = [0:dim.y-1], x = [0:dim.x-1]) {
         
         options = aux[x][y][z];
@@ -305,6 +308,7 @@ module packing_box_base(box_spec) {
         ]
     ];
     
+    translate([0, 0, -cell_offset[0][0][min(nonempty_layers)].z])
     intersection() {
         
         translate(thickness_vec - scale_vec / 2)
