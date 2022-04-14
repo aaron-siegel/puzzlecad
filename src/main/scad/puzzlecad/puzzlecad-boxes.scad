@@ -182,8 +182,7 @@ module packing_box_base(box_spec) {
                             translate($box_wall_thickness * 0.5 * abs_dir)
                             rotate(rot)
                             rotate(edge_rot)
-                            translate([0, 0, iota * -1])
-                            linear_extrude($box_wall_thickness + iota * 2, center = true)
+                            linear_extrude($box_wall_thickness + iota * 2000, center = true)
                             polygon([
                                 [0, -2 * $box_inset],
                                 [-scale_vec.x / 2 - $box_inset, scale_vec.x / 2 - $box_inset],
