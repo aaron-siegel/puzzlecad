@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -32,8 +32,7 @@
 
 package org.puzzlecad;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.io.*;
 
 import static org.puzzlecad.XmpuzzleFile.GRID_TYPE_RECTILINEAR;
 
@@ -80,14 +79,25 @@ public class XmpuzzleToScad {
         out.println("// You can freely edit this file to make changes to the model structure or parameters.");
         out.println();
 
-        out.println("require_puzzlecad_version(\"2.0\");");
-        out.println();
-        if (file.gridType == GRID_TYPE_RECTILINEAR) {
-            out.println("$burr_scale = " + defaultScale() + ";");
-            out.println("$auto_layout = true;");
+        if (arguments.header == null) {
+            // Generate a header
+            out.println("require_puzzlecad_version(\"2.0\");");
+            out.println();
+            if (file.gridType == GRID_TYPE_RECTILINEAR) {
+                out.println("$burr_scale = " + defaultScale() + ";");
+                out.println("$auto_layout = true;");
+            } else {
+                out.println("$burr_scale = 27;");
+            }
         } else {
-            out.println("$burr_scale = 27;");
+            BufferedReader reader = new BufferedReader(new FileReader(arguments.header));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                out.println(line);
+            }
+            reader.close();
         }
+
         out.println();
 
         out.println("burr_plate([");
