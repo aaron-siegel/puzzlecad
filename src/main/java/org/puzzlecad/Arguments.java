@@ -36,9 +36,10 @@ public class Arguments {
 
     int[] filterByColor;
     String filename;
+    String header;
     boolean stdout;
 
-    public Arguments(String[] args) throws Exception {
+    public Arguments(String[] args) {
 
         for (int i = 0; i < args.length; i++) {
 
@@ -60,6 +61,14 @@ public class Arguments {
                 } else if (args[i].equals("--stdout")) {
 
                     stdout = true;
+
+                } else if (args[i].equals("--header")) {
+
+                    if (header == null && i + 1 < args.length) {
+                        header = args[i+1];
+                    } else {
+                        throw new InvalidCliException();
+                    }
 
                 } else {
 
