@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -36,9 +36,10 @@ public class Arguments {
 
     int[] filterByColor;
     String filename;
+    String header;
     boolean stdout;
 
-    public Arguments(String[] args) throws Exception {
+    public Arguments(String[] args) {
 
         for (int i = 0; i < args.length; i++) {
 
@@ -60,6 +61,15 @@ public class Arguments {
                 } else if (args[i].equals("--stdout")) {
 
                     stdout = true;
+
+                } else if (args[i].equals("--header")) {
+
+                    if (header == null && i + 1 < args.length) {
+                        header = args[i+1];
+                        i++;
+                    } else {
+                        throw new InvalidCliException();
+                    }
 
                 } else {
 

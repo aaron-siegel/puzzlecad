@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -226,6 +226,32 @@ include <puzzlecad.scad>
 // provides a great deal of flexibility in how the puzzle joints are laid out.
 
 // ======================================
+// DETACHED CONNECTORS
+
+// puzzlecad 2.3 introduces an option to print "detached" male connectors. This is most easily
+// demonstrated with an example:
+
+*burr_plate([["x..|xxx{connect=mz+y+,clabel=A}"], ["x{connect=fz+y+,clabel=A}|x"]],
+  $detached_joints = true);
+
+// Note this is identical to the first example from the previous section; the only difference is
+// that we set $detached_joints = true. Instead of a male joint, puzzlecad renders "connect=mz+y+"
+// as a second female joint, and separately generates a strut that can be used to connect them.
+
+// The advantage of using detached joints is that the connectors are printed horizontally, making
+// them substantially stronger. This is particularly useful in applications involving complex
+// pieces with sensitive connection points.
+
+// $detached_joints can also be used in combination with $auto_layout; here is the same piece
+// rendered with both $auto_layout = true and $detached_joints = true:
+
+*burr_piece(["x..|xxx|...", "...|..x|..x"], $auto_layout = true, $detached_joints = true);
+
+// If you want to manually generate an individual connector, use detached_male_connector():
+
+*detached_male_connector();
+
+// ======================================
 // SQUARE CONNECTORS
 
 // An additional type of connector is available in puzzlecad - the "square snap joint". The
@@ -234,10 +260,14 @@ include <puzzlecad.scad>
 // puzzlecad, but they're still there if you want to use them.
 
 // To render a square snap joint, simply omit the second orientation coordinate. Like so:
+
 *burr_plate([["x..|xxx{connect=mz+,clabel=Ay-}"], ["x{connect=fz+,clabel=Ay-}|x"]]);
 
 // Note that you now have to specify an orientation for the clabel; the square connectors are
 // symmetric, so it's otherwise ambiguous where to render the label.
+
+// NOTE: As of puzzlecad 2.3, square connectors are deprecated, and various new features (such
+// as detached joints) will not work properly with them.
 
 // ======================================
 // LABELS
@@ -269,6 +299,9 @@ include <puzzlecad.scad>
 //                  text on the line exactly halfway between the cell and its neighbor to the right.
 
 // label_voffset    optional vertical offset to apply to the label (works the same way as above).
+
+// label_font       OpenSCAD font specification for the label (such as "Arial"). The default is
+//                  "Liberation Sans", which is also the OpenSCAD default.
 
 // ======================================
 // DIAGONAL GEOMETRY
@@ -339,9 +372,15 @@ include <puzzlecad.scad>
 ], $burr_scale = 32, $burr_inset = 0, $post_rotate = [0, 45, 0]);
 
 // That [0, 45, 0] is standard OpenSCAD notation for "rotate 45 degrees around the y axis".
-
 // I find it easiest to model puzzles in their "natural" orientation, then add $post_rotate at
 // the end.
+
+// Finally, a common subset of diagonal geometry involves cubes that are "sliced" along a 45
+// degree axis. Starting with version 2.2, puzzlecad provides a nice shorthand:
+*burr_piece("x{components=sz-x-}", $burr_scale = 20, $burr_inset = 0);
+
+// The component "sz-x-" should be read as "the cube slice with complete faces on the z- and
+// x- sides". It is equivalent to {z-,x-,y-z-,y-x-,y+z-,y+x-} (but much easier to write).
 
 // ======================================
 // DIAGONAL JOINTS
@@ -384,12 +423,96 @@ include <puzzlecad.scad>
 // the rectilinear case.
 
 // ======================================
+// BOXES
+
+// Puzzlecad includes a module to generate boxes for packing puzzles. The input is similar to
+// burr_piece, but output will have the shape of a box whose wall thickness is controlled by a
+// separate parameter (and is typically much thinner $burr_scale). Here's a simple example:
+// an empty, unobstructed 3x3x3 box.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    ".....|.....|.....|.....|....."
+], $burr_scale = 17, $box_wall_thickness = 6);
+
+// Note the empty layer at the end of the box array. This is to ensure that the top layer is
+// interpreted as a layer of voxels, rather than box walls (since the box walls would be rendered
+// thinner). This will become clearer after a few more examples.
+
+// Here's an example with an enclosed top and a corner opening.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|xx...|xx...|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6);
+
+// Of course, it won't be printable due to overhang, but packing_box accepts connector
+// annotations and the $auto_layout parameter, with the same meanings as burr_piece.
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|x....|x....|x...x|xxxxx",
+    "xx...|xx...|xx...|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6, $auto_layout = true);
+
+// Notice that packing_box generates a different type of connector. Snap joints would be too
+// brittle to work with typical box dimensions, so packing_box generates "guide pins" instead.
+// The box cap can then be attached with superglue, with the guide pins ensuring a precise
+// alignment.
+
+// Diagonal cuts can be introduced by specifying directional "components", similar to how pieces
+// modeled in diagonal geometry are specified (as described above).
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxx{components={x-,z-}}..|x....|x...x{components={y+,z-}}|x...x|xxxxx",
+    "xx...|xx...|xxx{components={x-,y+}}..|xxxxx|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6);
+
+// packing_box can also generate box walls with a thatched pattern to provide semi-transparency.
+// This is convenient with heavily obstructed boxes, for which it is convenient to have visibility
+// into the box during the solve. To generate thatched walls, simply replace each "x" with a "+"
+// symbol. Here's a real example, Stewart Coffin's Slot Machine. Try it with and without
+// $auto_layout:
+*packing_box([
+    "xxxxx|xxxxx|xxxxx|xxxxx|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x...x|x...x|x...x|xxxxx",
+    "xxxxx|x+..x|x+++x|x+++x|xxxxx"
+], $burr_scale = 17, $box_wall_thickness = 6, $auto_layout = false);
+
+// packing_box is also useful for modeling certain obstructed tray puzzles, by setting $burr_scale
+// to a vector. Here's the tray from Coffin's Fourteen Steps. Notice how $box_wall_thickness and
+// $box_inset are also vectors, in order to provide fine-grained control over the dimensions and
+// tolerances.
+*packing_box([
+    "xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx",
+    "xxxxxxx|x.....x|x.....x|x.....x|x.....x|x.....x|xxxxxxx",
+    "xxxxxxx|x++...x|x+++..x|x+++..x|x+++++x|x+++++x|xxxxxxx"
+], $burr_scale = [16, 16, 5.6], $box_wall_thickness = [8, 8, 3],
+   $box_inset = [0.07, 0.07, 0.3], $plate_width = 200, $auto_layout = true);
+
+// One more feature: the annotation {circle=radius} puts a circular opening at the specified
+// location. Here's an example, the box from Coffin's design Looking Glass.
+*packing_box([
+    "xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx|xxxxxxx",
+    "xxxxxxx|x......|x......|x.....x|x.....x|x.....x|xxxxxxx",
+    "xxxxxxx|x+++++x|x+++++x|x+++{circle=1}++x|x+++++x|x+++++x|xxxxxxx"
+], $burr_scale = [16, 16, 5.6], $box_wall_thickness = [8, 8, 3],
+   $box_inset = [0.07, 0.07, 0.3], $plate_width = 200, $auto_layout = true);
+
+// ======================================
 // 2D AND TRAY PUZZLES
 
-// All of the above models are composed of adjoined cubes ("polycubes") that assemble or interlock
-// to form a three-dimensional rectilinear shape. Another common puzzle type is the "tray-packing"
-// puzzle, in which a set of two-dimensional pieces must be fitted into a flat opening. Puzzlecad
-// provides built-in support for models of this type.
+// As noted above, packing_box is sometimes useful for modeling puzzles with obstructed trays.
+// Puzzlecad also includes a separate module, packing_tray, that includes some additional features
+// specifically for unobstructed, purely 2D "tray-packing" puzzles.
 
 // It's particularly easy to model polyominoes in puzzlecad; just specify $burr_scale as a *vector*
 // rather than a single number. Here's the L-Pentomino as an example. Setting $burr_scale to

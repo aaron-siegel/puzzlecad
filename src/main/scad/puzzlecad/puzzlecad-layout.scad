@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -32,21 +32,21 @@
 
 /******* Auto-layout capabilities *******/
 
-function auto_layout_plate(burr_infos, next_joint_letter = 0, i = 0, result = []) =
+function auto_layout_plate(burr_infos, next_joint_letter = 0, allowed_rotations = layout_rotation_dirs, i = 0, result = []) =
       i >= len(burr_infos) ? result
     : let (
-          piece_layout_info = auto_layout(burr_infos[i], next_joint_letter),
+          piece_layout_info = auto_layout(burr_infos[i], next_joint_letter, allowed_rotations),
           piece_layout = piece_layout_info[0],
           new_next_joint_letter = piece_layout_info[1]
       )
-      auto_layout_plate(burr_infos, new_next_joint_letter, i + 1, concat(result, piece_layout));
+      auto_layout_plate(burr_infos, new_next_joint_letter, allowed_rotations, i + 1, concat(result, piece_layout));
 
 // Returns a structure [result, next_joint_letter]
 
-function auto_layout(burr_info, next_joint_letter = 0) =
+function auto_layout(burr_info, next_joint_letter = 0, allowed_rotations = layout_rotation_dirs) =
     let (
         layers = zyx_to_xyz(burr_info),
-        layout = auto_layout_r(layers, next_joint_letter, layout_rotation_dirs),
+        layout = auto_layout_r(layers, next_joint_letter, allowed_rotations),
         new_components = layout[0],
         new_next_joint_letter = layout[1])
     [ [ for (component = new_components) zyx_to_xyz(component) ], new_next_joint_letter ];
@@ -54,7 +54,7 @@ function auto_layout(burr_info, next_joint_letter = 0) =
 function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
     let (
         rotated_layers = [ for (dir = allowed_rotations) zyx_to_xyz(rotate_burr_info(zyx_to_xyz(layers), dir)) ],
-        layout_components = [ for (rl = rotated_layers) dissect_components(rl, next_joint_letter) ],
+        layout_components = [ for (rl = rotated_layers) dissect_components(rl, next_joint_letter, allowed_rotations) ],
         badness_scores = [ for (components_info = layout_components) let (components = components_info[0])
             1e6 * sum([ for (component = components) multi_female_joint_count(component) ])
                 + 1e4 * len(components)
@@ -65,7 +65,7 @@ function auto_layout_r(layers, next_joint_letter, allowed_rotations) =
     )
     layout_components[index_of_optimum];
 
-function dissect_components(layers, next_joint_letter) =
+function dissect_components(layers, next_joint_letter, allowed_rotations) =
     let (first_occupied_layer = first_occupied_layer(layers))
       first_occupied_layer >= len(layers) ? [[], next_joint_letter]
     : let (first_uncovered_layer = first_uncovered_layer(layers, first_occupied_layer + 1))
@@ -89,7 +89,11 @@ function dissect_components(layers, next_joint_letter) =
             else
                 layers[z]
             ])
-        let (remainder_layout = auto_layout_r(remainder, new_next_joint_letter, ["z+", "z-"]))
+        let (remainder_layout = auto_layout_r(
+                remainder,
+                new_next_joint_letter,
+                list_contains(allowed_rotations, "z-") ? ["z+", "z-"] : ["z+"]
+            ))
         [concat([base_component], remainder_layout[0]), remainder_layout[1]];
 
 function first_occupied_layer(layers, z = 0) =
@@ -168,8 +172,8 @@ function auto_layout_joints(layers, next_joint_letter, z, type) =
 
 function is_joint_location(layers, offset, x, y, z) =
       layers[z][y][x][0] > 0 && layers[z + offset][y][x][0] > 0 &&
-    !(layers[z][y-1][x][0] > 0 && layers[z][y+1][x][0] > 0 && layers[z + offset][y-1][x][0] > 0 && layers[z + offset][y+1][x][0] > 0) &&
-    !(layers[z][y][x-1][0] > 0 && layers[z][y][x+1][0] > 0 && layers[z + offset][y][x-1][0] > 0 && layers[z + offset][y][x+1][0] > 0);
+    !(is_nonzero(layers[z][y-1][x][0]) && is_nonzero(layers[z][y+1][x][0]) && is_nonzero(layers[z + offset][y-1][x][0]) && is_nonzero(layers[z + offset][y+1][x][0])) &&
+    !(is_nonzero(layers[z][y][x-1][0]) && is_nonzero(layers[z][y][x+1][0]) && is_nonzero(layers[z + offset][y][x-1][0]) && is_nonzero(layers[z + offset][y][x+1][0]));
 
 function to_blank_layer(layer) =
     [ for (yslice = layer)

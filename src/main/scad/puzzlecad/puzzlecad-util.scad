@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -256,6 +256,9 @@ function union_of_number_lists(list1, list2, i = 0, j = 0) =
     : concat([list2[j]], union_of_number_lists(list1, list2, i, j + 1));
 
 /***** Misc *****/
+
+// Returns true if x is defined and not equal to 0.
+function is_nonzero(x) = !is_undef(x) && x != 0;
 
 function argmin(list, i = 0, cur_argmin = undef, cur_min = undef) =
       i >= len(list) ? cur_argmin

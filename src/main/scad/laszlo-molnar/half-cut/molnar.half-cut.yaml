@@ -1,0 +1,21 @@
+thing-id: 4766223
+name: "Half Cut - Packing puzzle by László Molnár"
+tags: [puzzle, 3D_puzzle]
+images: [cover.jpg, packed.jpg]
+targets: [box, pieces]
+description: |
+  Pack six oddly-shaped pieces into a 3x3x3 box, so that no gaps are visible at the box top (see photo).
+
+  _Half Cut_ is an intriguing take on the well-worn genre of 3x3x3 packing puzzles. It's reminiscent of classic puzzles such as Stewart Coffin's similarly-named ${link:coffin.half-hour}, but with a twist: each of the six pieces has a half-cube removed from it along a diagonal axis. The result is an unusual and confusing packing challenge that manages to feel both familiar and unique.
+
+  ### Printing Instructions
+
+  Print one copy each of `${name}.box.stl` and `${name}.pieces.stl`. (If you prefer, you could also print it without the box and simply solve it as a free-form challenge to assemble the pieces into a 3x3x3 cube with one face solid.)
+
+  This model uses "snap joints" on one of the pieces so that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${laszlo-molnar-bio}
+
+  Happy puzzling!

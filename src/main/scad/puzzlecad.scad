@@ -10,10 +10,10 @@
   Puzzlecad code repository:
   https://github.com/aaron-siegel/puzzlecad
 
-  puzzlecad is (c) 2019-2020 Aaron Siegel and is distributed under
+  puzzlecad is (c) 2019-2022 Aaron Siegel and is distributed under
   the MIT license. This means you may use or modify puzzlecad for any
   purposes, including commercial purposes, provided that you include
-  the attribution "puzzlecad is (c) 2019-2020 Aaron Siegel" in any
+  the attribution "puzzlecad is (c) 2019-2022 Aaron Siegel" in any
   distributions or derivatives of puzzlecad, along with a copy of
   the MIT license.
 
@@ -38,26 +38,36 @@ include <puzzlecad/puzzlecad-layout.scad>
 include <puzzlecad/puzzlecad-burr.scad>
 include <puzzlecad/puzzlecad-burr-stick.scad>
 include <puzzlecad/puzzlecad-notched-stick.scad>
+include <puzzlecad/puzzlecad-boxes.scad>
 include <puzzlecad/puzzlecad-2d.scad>
 
 // Version ID for version check.
 
-puzzlecad_version = "2.2";
+puzzlecad_version = "2.3";
 
 // Default values for scale, inset, bevel, etc.:
 
 $burr_scale = 11.15;
 $burr_inset = 0.07;
 $burr_bevel = 0.5;
+
+$box_wall_thickness = 6;
+$box_inset = 0.2;
+$box_cutout_inset = undef;
+$box_bevel = 0.5;
+
 $plate_width = 180;
 $plate_depth = 180;
 $plate_sep = 6;
+
 $joint_inset = 0.015;
 $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
+
 $unit_beveled = false;
 $auto_layout = false;
+$detached_joints = false;
 $post_rotate = [0, 0, 0];
 
 // Optional parameters that can be used to increase
