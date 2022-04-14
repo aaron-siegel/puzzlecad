@@ -66,6 +66,7 @@ public class Arguments {
 
                     if (header == null && i + 1 < args.length) {
                         header = args[i+1];
+                        i++;
                     } else {
                         throw new InvalidCliException();
                     }
