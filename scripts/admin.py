@@ -8,7 +8,15 @@ import yaml
 import os
 import subprocess
 import shutil
+import markdown
+
 from glob import glob
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
 # Get config from user dir
 
@@ -36,9 +44,9 @@ args = parser.parse_args()
 def process_command(args):
 
 	if args.command == 'get-token':
-	
+
 		get_access_token()
-		
+
 	elif args.command == 'build':
 	
 		build_stls(args.cmdargs[0])
@@ -68,6 +76,17 @@ def process_command(args):
 		if access_token == '':
 			raise Exception("You must specify an access token. Use the get-token command to obtain one.")
 		delete_thing(access_token, args.cmdargs[0])
+
+	elif args.command == 'open-printables-session':
+
+		driver = webdriver.Chrome()
+		driver.get("https://www.printables.com/model/171148/edit")
+		print(driver.session_id + " " + driver.command_executor._url)
+		return driver
+
+	elif args.command == "update-printables-model":
+
+		update_printables_model(args.cmdargs[0], args.cmdargs[1], args.cmdargs[2])
 		
 	elif args.command == 'test':
 	
@@ -101,13 +120,13 @@ def print_thing_description(thing_name):
 
 	yaml_path = resolve_thing(thing_name)
 	contents = load_yaml_file(yaml_path)
-	description = substitute_globals(contents['description'], thing_name)
+	description = substitute_globals(contents['description'], thing_name, 'thingiverse')
 	print(description)
 	
 def delete_thing(access_token, thing_id):
 
 	thingiverse_delete(f'things/{thing_id}', access_token)
-	
+
 def update_thing(access_token, thing_name, targets_str):
 
 	targets = targets_str.split(',')
@@ -116,7 +135,7 @@ def update_thing(access_token, thing_name, targets_str):
 	contents = load_yaml_file(yaml_path)
 	name = contents['name']
 	thing_id = contents['thing-id']
-	description = substitute_globals(contents['description'], thing_name)
+	description = substitute_globals(contents['description'], thing_name, 'thingiverse')
 	
 	print(f'Updating thing "{name}" from file {yaml_path} ...')
 		
@@ -192,6 +211,79 @@ def resolve_thing(thing_name):
 		raise Exception(f'Thing not found: {thing_name}')
 		
 	return yaml_path[0]
+
+###### printables.com instrumentation
+
+def create_driver_session(session_id, executor_url):
+
+	# Save the original function, so we can revert our patch
+	org_command_execute = RemoteWebDriver.execute
+
+	def new_command_execute(self, command, params=None):
+		if command == "newSession":
+			# Mock the response
+			return {'success': 0, 'value': None, 'sessionId': session_id}
+		else:
+			return org_command_execute(self, command, params)
+
+	# Patch the function before creating the driver object
+	RemoteWebDriver.execute = new_command_execute
+
+	new_driver = webdriver.Remote(command_executor=executor_url, desired_capabilities={})
+	new_driver.session_id = session_id
+
+	# Replace the patched function with original function
+	RemoteWebDriver.execute = org_command_execute
+
+	return new_driver
+
+def set_element_by_id(driver, id, text):
+	element = WebDriverWait(driver, 10).until(
+		EC.presence_of_element_located((By.ID, id))
+	)
+	element.clear()
+	element.send_keys(text)
+
+def update_printables_model(session_id, executor_url, thing_name):
+
+	yaml_path = resolve_thing(thing_name)
+	contents = load_yaml_file(yaml_path)
+	name = contents['name']
+	model_id = contents['printables-model-id']
+	description = substitute_globals(contents['description'], thing_name, 'printables')
+	summary = description.partition('\n')[0]
+
+	split_name = name.split(" - ")
+	description_title = f'## {name}' if len(split_name) <= 1 else f'## {split_name[0]}\n\n### {split_name[1]}'
+	expanded_description = f'\n{description_title}\n{description}'
+	revised_description = re.sub('\n#', '\n##', expanded_description)
+
+	print(f'Updating printables model "{name}" from file {yaml_path} ...')
+
+	driver = create_driver_session(session_id, executor_url)
+	driver.get(f"https://www.printables.com/model/{model_id}/edit")
+
+	set_element_by_id(driver, "print-name", name)
+	set_element_by_id(driver, "summary", summary)
+	category_element = driver.find_element_by_xpath("//ng-select[@formcontrolname = 'category']")
+	category_element.click()
+	item_element = driver.find_element_by_xpath("//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")
+	item_element.click()
+
+	script = f"""
+	  const domEditableElement = document.querySelector( '.ck-editor__editable' );
+	  const editorInstance = domEditableElement.ckeditorInstance;
+	  editorInstance.setData(`{markdown_to_html(revised_description)}`);"""
+	print(revised_description)
+	print(script)
+	driver.execute_script(script)
+	publish_element = driver.find_element_by_xpath("//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
+	publish_element.click()
+
+def markdown_to_html(text):
+	return markdown.markdown(text)
+
+##### Basic utilities
 
 def load_yaml_file(yaml_file):
 
@@ -285,7 +377,7 @@ def zip_stls(modularized_base_name, page_count):
 		if exit_status != 0:
 			raise Exception(f'Failed on target {modularized_base_name}.')
 
-def substitute_globals(description, thing_name):
+def substitute_globals(description, thing_name, site):
 
 	# This is somewhat inefficient but should be fine at small scale.
 	
@@ -297,10 +389,16 @@ def substitute_globals(description, thing_name):
 			link_name = key[5:]
 			link_yaml_path = resolve_thing(link_name)
 			link_contents = load_yaml_file(link_yaml_path)
-			link_thing_id = link_contents['thing-id']
 			link_title = link_contents['name']
 			link_split_title = link_title.split(" - ")
-			replacement = f'[{link_split_title[0]}](https://www.thingiverse.com/thing:{link_thing_id})'
+			if site == 'thingiverse':
+				link_thing_id = link_contents['thing-id']
+				replacement = f'[{link_split_title[0]}](https://www.thingiverse.com/thing:{link_thing_id})'
+			elif site == 'printables':
+				link_model_id = link_contents['printables-model-id']
+				replacement = f'[{link_split_title[0]}](https://www.printables.com/model/{link_model_id})'
+			else:
+				raise Exception(f'Unknown site: {site}')
 		elif key in globals:
 			replacement = globals[key]
 		else:
