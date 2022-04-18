@@ -18,7 +18,7 @@
 
 include <puzzlecad.scad>
 
-require_puzzlecad_version("2.2");
+require_puzzlecad_version("2.4");
 
 $notched_stick_scale = 50;          // in mm
 $notched_stick_tolerance = 0.25;    // in mm
@@ -27,8 +27,8 @@ $notched_stick_tolerance = 0.25;    // in mm
 *elbow_dowel();
 *free_dowel();
 
-hex_radius = sqrt(1/24);    // relative to scale
-dowel_radius = 0.08;        // relative to scale
+hex_radius = sqrt(1/24);    // relative to scale; the "magic number" for locked nest et al
+dowel_radius = 0.08;        // relative to scale; an arbitrary number that gives good results
 stick_length = 1.5;         // relative to scale
 thread_depth = hex_radius * 0.6;
 

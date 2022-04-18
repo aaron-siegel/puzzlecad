@@ -3,7 +3,6 @@ name: "Cuckoo Nest - Interlocking puzzle by Stewart Coffin (STC #21)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
 targets: [hex_sticks, elbow_dowel, free_dowel]
-aux_files: [coffin.star-of-david.assembly-instructions.pdf]
 description: |
   Assemble the seven pieces into the interlocking nest shape shown in the photo.
 
@@ -11,7 +10,7 @@ description: |
 
   ### Printing Instructions
 
-  Print one copy of `${name}.hex-sticks.stl`, five copies of `${name}.elbow-dowel.stl`, and one copy of `${name}.free-dowel.stl`. The dowels are oriented vertically in order to produce smooth cylinders; you might wish to print them with a raft or brim for stability (although I've had success printing them directly on the bed with no brim). To get the contrasting effect shown in the photo, print the sticks and dowels in different filament colors.
+  Print one copy of `${name}.hex-sticks.stl`, five copies of `${name}.elbow-dowel.stl`, and one copy of `${name}.free-dowel.stl`. The dowels are intentionally oriented vertically in order to produce smooth cylinders; printing horizontally with supports gives poor results. You might wish to print them with a raft or brim for stability (although I've had success printing them directly on the bed with no brim). To get the contrasting effect shown in the photo, print the sticks and dowels in different filament colors.
 
   After printing, first assemble the pieces before attempting to solve the puzzle. Five of the pieces are "elbow pieces" that have a dowel permanently attached to a hexagonal stick. To assemble the elbow pieces, screw the threaded dowel segments into the the corresponding threaded holes into the hexagonal sticks. Each threaded hole is marked on the inside with one or three dots. Screw a short dowel segment into each hole with one dot and a long dowel segment into each hole with three dots. (One of the hexagonal sticks has no threaded hole, and correspondingly, one of the dowels is a single solid cylinder with no threads.)
 
