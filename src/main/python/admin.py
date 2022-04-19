@@ -30,8 +30,8 @@ openscad_bin = config['puzzlecad']['OpenscadBin']
 access_token = config['puzzlecad']['AccessToken']
 thingiverse_timeout = 60
 
-libs_dir = '../src/main/scad'
-output_dir = '../out'
+libs_dir = '../scad'
+output_dir = '../../out'
 os.environ['OPENSCADPATH'] = libs_dir
 
 parser = argparse.ArgumentParser()
@@ -204,8 +204,8 @@ def update_thing(access_token, thing_name, targets_str):
 
 def resolve_thing(thing_name):
 
-	print(f'../src/main/scad/**/{thing_name}.yaml')
-	yaml_path = glob(f'../src/main/scad/**/{thing_name}.yaml', recursive = True)
+	print(f'{libs_dir}/**/{thing_name}.yaml')
+	yaml_path = glob(f'{libs_dir}/**/{thing_name}.yaml', recursive = True)
 	
 	if len(yaml_path) == 0:
 		raise Exception(f'Thing not found: {thing_name}')
@@ -419,13 +419,13 @@ def bundle_puzzlecad(version, run_tests = True):
 	
 	print(f'Bundling puzzlecad version {version} ...')
 	
-	os.makedirs('../out/dist', exist_ok = True)
+	os.makedirs(f'{output_dir}/dist', exist_ok = True)
 
 	print('Building java components ...')
-	os.makedirs('../out/java', exist_ok = True)
+	os.makedirs(f'{output_dir}/java', exist_ok = True)
 	result = subprocess.run(
 		['javac', 'org/puzzlecad/XmpuzzleToScad.java', '-d', '../../../out/java', '-source', '1.6', '-target', '1.6'],
-		cwd = '../src/main/java'
+		cwd = '../java'
 		)
 	if result.returncode != 0:
 		print('Failed!')
@@ -434,31 +434,31 @@ def bundle_puzzlecad(version, run_tests = True):
 	print('Building jar ...')
 	result = subprocess.run(
 		['jar', 'cfm', '../dist/bt2scad.jar', '../../src/main/java/manifest', '.'],
-		cwd = '../out/java'
+		cwd = f'{output_dir}/java'
 		)
 	if result.returncode != 0:
 		print('Failed!')
 		return
 
 	print('Copying to distribution dir ...')
-	shutil.copy2('../src/main/scad/puzzlecad.scad', '../out/dist')
-	shutil.copy2('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
-	shutil.copy2('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
-	if (os.path.exists('../out/dist/puzzlecad')):
-		shutil.rmtree('../out/dist/puzzlecad')
+	shutil.copy2(f'{libs_dir}/puzzlecad.scad', f'{output_dir}/dist')
+	shutil.copy2(f'{libs_dir}/puzzlecad-examples.scad', f'{output_dir}/dist')
+	shutil.copy2(f'{libs_dir}/dist/half-hour-example.scad', f'{output_dir}/dist')
+	if (os.path.exists(f'{output_dir}/dist/puzzlecad')):
+		shutil.rmtree(f'{output_dir}/dist/puzzlecad')
 	shutil.copytree(
-		'../src/main/scad/puzzlecad',
-		'../out/dist/puzzlecad',
+		f'{libs_dir}/puzzlecad',
+		f'{output_dir}/dist/puzzlecad',
 		ignore = shutil.ignore_patterns('.*')		# Ignore .DS_Store and such cruft
 	)
 	
 	print('Creating archive ...')
-	dist_files = [ os.path.relpath(file, '../out/dist') for file in glob('../out/dist/*') ]
-	if (os.path.exists(f'../out/puzzlecad-{version}.zip')):
-		os.remove(f'../out/puzzlecad-{version}.zip')
+	dist_files = [ os.path.relpath(file, f'{output_dir}/dist') for file in glob(f'{output_dir}/dist/*') ]
+	if (os.path.exists(f'{output_dir}/puzzlecad-{version}.zip')):
+		os.remove(f'{output_dir}/puzzlecad-{version}.zip')
 	subprocess.run(
 		['zip', '-r', f'../puzzlecad-{version}.zip'] + dist_files,
-		cwd = '../out/dist'
+		cwd = f'{output_dir}/dist'
 		)
 	if result.returncode != 0:
 		print('Failed!')
@@ -468,18 +468,18 @@ def bundle_puzzlecad(version, run_tests = True):
 
 def run_puzzlecad_tests():
 
-    print('Running puzzlecad tests ...')
-    exit_status = os.system(f'{openscad_bin} -o ../out/puzzlecad-tests.stl ../src/main/scad/puzzlecad-tests.scad')
-    if exit_status == 0:
-        print('Tests succeeded.')
-    else:
-        print('Tests failed!')
-    return exit_status
+	print('Running puzzlecad tests ...')
+	exit_status = os.system(f'{openscad_bin} -o {output_dir}/puzzlecad-tests.stl {libs_dir}/puzzlecad-tests.scad')
+	if exit_status == 0:
+		print('Tests succeeded.')
+	else:
+		print('Tests failed!')
+	return exit_status
 
 def upload_puzzlecad(version, run_tests = True):
 
 	bundle_puzzlecad(version, run_tests)
-	thingiverse_post_file(3198014, f'../out/puzzlecad-{version}.zip')
+	thingiverse_post_file(3198014, f'{output_dir}/puzzlecad-{version}.zip')
 
 def thingiverse_get(endpoint, access_token):
 
@@ -591,7 +591,6 @@ def run_test(access_token):
 
 	thingiverse_delete(f'things/3198014/files/7668891', access_token)
 
-globals = load_yaml_file('../src/main/scad/globals.yaml')
+globals = load_yaml_file(f'{libs_dir}/globals.yaml')
 
 process_command(args)
-
