@@ -10,7 +10,7 @@ configurations:
 description: |
   Assemble the four pieces into the unusual shape shown in the photo.
   
-  _Multi-Grain Burr_ is surprisingly difficult despite having only four pieces, due to the unusual shape of the assembly. It is a larger variant of Coffin's [Three-Piece Block](https://www.thingiverse.com/thing:3363882); if you're unfamiliar with this type of puzzle, I'd recommend starting with _Three-Piece Block_ instead.
+  _Multi-Grain Burr_ is surprisingly difficult despite having only four pieces, due to the unusual shape of the assembly. It is a larger variant of Coffin's ${link:coffin.three-piece-block}; if you're unfamiliar with this type of puzzle, I'd recommend starting with _Three-Piece Block_ instead.
 
   UPDATED June 2020 with a new design. The new design is functionally identical to the old one, but its appearance is considerably more faithful to Coffin's intentions.
   

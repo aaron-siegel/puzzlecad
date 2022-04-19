@@ -7,7 +7,7 @@ targets: [bases, tip]
 description: |
   Assemble six unusually shaped pieces into the polyhedral shape shown in the cover photo.
 
-  _Twelve Point_ is a lovely interlocking design by Stewart Coffin. It has the same assembled shape as his related design [Vega](https://www.thingiverse.com/thing:4178068), but the assembly is substantially more difficult: the six pieces of _Twelve Point_ are all distinct, and they assemble in one way only. This one has an intricate mathematical structure that is a joy to discover. Highly recommended to fans of Coffin's polyhedral puzzles.
+  _Twelve Point_ is a lovely interlocking design by Stewart Coffin. It has the same assembled shape as his related design ${link:coffin.vega}, but the assembly is substantially more difficult: the six pieces of _Twelve Point_ are all distinct, and they assemble in one way only. This one has an intricate mathematical structure that is a joy to discover. Highly recommended to fans of Coffin's polyhedral puzzles.
 
   ### Printing Instructions
 
