@@ -5,8 +5,6 @@ tags: [puzzle]
 images: [tray.jpg, tray-with-lid.jpg]
 targets: [pieces, tray, lid]
 description: |
-  UPDATED 12/15/19: The original version of this model incorporated Coffin's 2018 revisions to this design. I've switched the model to use Coffin's original 2001 design; see below for details.
-
   Fit all five pieces into the rectangular opening.
   
   _Christmas 2001_ ${stewart-coffin-tray-packing}

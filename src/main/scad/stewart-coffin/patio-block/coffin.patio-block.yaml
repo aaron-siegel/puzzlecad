@@ -16,8 +16,6 @@ description: |
     
     If you enjoy this puzzle, you might also try Coffin's related design ${link:coffin.cube-16}, an interlocking puzzle based on the same idea of joining 1x2x2 blocks.
 
-    UPDATED June 2020 with a new design and larger pieces.
-
     ### Printing Instructions
 
     Print either `coffin.patio-block.stl` _or_ `coffin.patio-block-smaller.stl`. I prefer the larger version, but the smaller one will use around 40% less material. Optionally, you may also print a box to hold the pieces in place in their solved state when not in use (as shown in the cover photo) - be sure to use the box model whose size matches the pieces you print.

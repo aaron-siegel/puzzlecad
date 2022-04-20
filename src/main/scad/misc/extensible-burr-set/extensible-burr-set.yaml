@@ -33,8 +33,6 @@ configurations:
   - {name: 'tray-8x6-250', code: 'tray_8x6(tray_inset = 0.25);', targets: ''}
   - {name: 'tray-10x7-250', code: 'tray_10x7(tray_inset = 0.25);', targets: ''}
 description: |
-  UPDATED February 2021 a redesigned tray, a new "even more burr set", and a few errata (see below).
-
   This is a modular collection of pieces for making classic six-piece burr puzzles. It encompasses several well-known burr sets, modeled with identical dimensions to make them interchangeable. You can print one or more individual sets, a "comprehensive" set that includes 125 pieces, and/or individual combinations of pieces as necessary. Models are also included for trays that can store the pieces in a convenient display (see photos).
 
   Six-piece burr puzzles are among the oldest and best-known interlocking puzzles in the world. A good [overview of this type of puzzle](http://robspuzzlepage.com/interlocking.htm#trad) is given by Rob Stegmann on his puzzle pages; Stegmann also provides 284 specific examples. In the Extensible Burr Set, each burr piece is printed with an identifying number (its "Kaenel number") stamped on the end; this numbering scheme is identical to Stegmann's, so his puzzle pages can be used as a handy reference for making puzzles out of this set.
