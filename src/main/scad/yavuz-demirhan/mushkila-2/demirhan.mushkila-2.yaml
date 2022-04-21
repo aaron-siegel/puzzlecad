@@ -4,6 +4,7 @@ name: "Mushkila 2 - Packing puzzle by Yavuz Demirhan"
 tags: [puzzle, 3D_puzzle]
 images: [box-and-pieces.jpg, box.jpg, partially-packed.jpg]
 targets: [pieces, box, cap]
+summary: Pack six pieces into a rectangular box with an obstructed opening.
 description: |
     Pack six pieces into a rectangular box with an obstructed opening. When the puzzle is properly solved, the pieces will fit entirely within the box and will not protrude through the opening. This is a clever design that will appeal to both novice and experienced puzzlers.
     
