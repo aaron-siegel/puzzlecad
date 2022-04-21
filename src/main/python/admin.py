@@ -204,7 +204,7 @@ def update_thing(access_token, thing_name, targets_str):
 
 def resolve_thing(thing_name):
 
-	print(f'{libs_dir}/**/{thing_name}.yaml')
+	#print(f'{libs_dir}/**/{thing_name}.yaml')
 	yaml_path = glob(f'{libs_dir}/**/{thing_name}.yaml', recursive = True)
 	
 	if len(yaml_path) == 0:
@@ -251,34 +251,37 @@ def update_printables_model(session_id, executor_url, thing_name):
 	name = contents['name']
 	model_id = contents['printables-model-id']
 	description = substitute_globals(contents['description'], thing_name, 'printables')
-	summary = description.partition('\n')[0]
+	summary = contents['summary'] if 'summary' in contents else description.partition('\n')[0]
 
 	split_name = name.split(" - ")
 	description_title = f'## {name}' if len(split_name) <= 1 else f'## {split_name[0]}\n\n### {split_name[1]}'
 	expanded_description = f'\n{description_title}\n{description}'
 	revised_description = re.sub('\n#', '\n##', expanded_description)
 
-	print(f'Updating printables model "{name}" from file {yaml_path} ...')
-
 	driver = create_driver_session(session_id, executor_url)
-	driver.get(f"https://www.printables.com/model/{model_id}/edit")
+	model_url = f"https://www.printables.com/model/{model_id}"
+
+	print(f'Updating printables model "{name}" from file {yaml_path} at {model_url} ...')
+
+	driver.get(f"{model_url}/edit")
 
 	set_element_by_id(driver, "print-name", name)
 	set_element_by_id(driver, "summary", summary)
-	category_element = driver.find_element_by_xpath("//ng-select[@formcontrolname = 'category']")
+	category_element = driver.find_element(By.XPATH, "//ng-select[@formcontrolname = 'category']")
 	category_element.click()
-	item_element = driver.find_element_by_xpath("//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")
+	item_element = driver.find_element(By.XPATH, "//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")
 	item_element.click()
 
 	script = f"""
 	  const domEditableElement = document.querySelector( '.ck-editor__editable' );
 	  const editorInstance = domEditableElement.ckeditorInstance;
 	  editorInstance.setData(`{markdown_to_html(revised_description)}`);"""
-	print(revised_description)
-	print(script)
+	#print(revised_description)
+	#print(script)
 	driver.execute_script(script)
-	publish_element = driver.find_element_by_xpath("//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
+	publish_element = driver.find_element(By.XPATH, "//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
 	publish_element.click()
+	WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//span[normalize-space(.)='Download']")))
 
 def markdown_to_html(text):
 	return markdown.markdown(text)

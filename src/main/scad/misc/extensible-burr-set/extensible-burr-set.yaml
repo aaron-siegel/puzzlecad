@@ -5,6 +5,7 @@ tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [tray.jpg,assembled.jpg,partially-assembled.jpg,one-piece.jpg,many-pieces.jpg]
 targets: [--]
 aux_files: []
+summary: A modular collection of pieces for making classic six-piece burr puzzles.
 configurations:
   - {name: 'example-60', code: '$burr_inset = 0.06; burr_set(example, page_number = $page);', pages: 1, targets: ''}
   - {name: 'notchables-60', code: '$burr_inset = 0.06; burr_set(notchables, page_number = $page);', pages: 7, targets: ''}

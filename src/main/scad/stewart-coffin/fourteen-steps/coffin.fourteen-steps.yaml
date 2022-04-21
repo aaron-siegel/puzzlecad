@@ -7,7 +7,7 @@ targets: [pieces, tray]
 description: |
   Pack six pieces into an obstructed tray.
 
-  _Fourteen Steps_ is one of many tray-packing puzzles by Stewart Coffin. This one is mainly for Coffin completists; it's a fun puzzle, but doesn't quite rise to the level of originality and challenge of similar designs such as ${link:coffin.decoy}. Coffin rates it as easier than Decoy or ${link:coffin.double-play}.
+  _Fourteen Steps_ is one of many tray-packing puzzles by Stewart Coffin. This one is mainly for Coffin completists; it's a fun puzzle, but doesn't quite rise to the level of originality and challenge of similar designs such as ${link:coffin.decoy}. Coffin rates it as easier than Decoy.
 
   The top of the tray is modeled with a semi-transparent thatched pattern, so that you can more easily see what's happening inside. The pattern is purely aesthetic and is not relevant to the puzzle itself.
 
