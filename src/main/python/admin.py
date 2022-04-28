@@ -31,7 +31,7 @@ access_token = config['puzzlecad']['AccessToken']
 thingiverse_timeout = 60
 
 libs_dir = '../scad'
-output_dir = '../../out'
+output_dir = '../../../out'
 os.environ['OPENSCADPATH'] = libs_dir
 
 parser = argparse.ArgumentParser()
@@ -86,7 +86,7 @@ def process_command(args):
 
 	elif args.command == "update-printables-model":
 
-		update_printables_model(args.cmdargs[0], args.cmdargs[1], args.cmdargs[2])
+		update_printables_model(args.cmdargs[0], args.cmdargs[1], args.cmdargs[2], '' if (len(args.cmdargs) < 4) else args.cmdargs[3])
 		
 	elif args.command == 'test':
 	
@@ -244,9 +244,10 @@ def set_element_by_id(driver, id, text):
 	element.clear()
 	element.send_keys(text)
 
-def update_printables_model(session_id, executor_url, thing_name):
+def update_printables_model(session_id, executor_url, thing_name, targets):
 
 	yaml_path = resolve_thing(thing_name)
+	dir = os.path.dirname(yaml_path)
 	contents = load_yaml_file(yaml_path)
 	name = contents['name']
 	model_id = contents['printables-model-id']
@@ -276,12 +277,26 @@ def update_printables_model(session_id, executor_url, thing_name):
 	  const domEditableElement = document.querySelector( '.ck-editor__editable' );
 	  const editorInstance = domEditableElement.ckeditorInstance;
 	  editorInstance.setData(`{markdown_to_html(revised_description)}`);"""
-	#print(revised_description)
-	#print(script)
 	driver.execute_script(script)
-	publish_element = driver.find_element(By.XPATH, "//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
-	publish_element.click()
-	WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//span[normalize-space(.)='Download']")))
+
+	if 'images' in targets:
+
+		zip_name = f"~/_images-upload-{thing_name}.zip"
+		images_str = " ".join(os.path.join(dir, filename) for filename in contents['images'])
+		os.system(f"zip -j {zip_name} {images_str}")
+		print(f'Ready to upload {zip_name}.')
+		browse_button = driver.find_element(By.XPATH, "//label[normalize-space(.)='Browse']")
+		browse_button.click()
+		WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.CLASS_NAME, "processing-info")))
+		WebDriverWait(driver, 120).until(EC.invisibility_of_element_located((By.CLASS_NAME, "processing-info")))
+		print('Done uploading! Reorganize photos now & publish manually.')
+		os.system(f"rm {zip_name}")
+
+	if not targets:
+		# Publish automatically if no images/files specified.
+		publish_element = driver.find_element(By.XPATH, "//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
+		publish_element.click()
+		WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//span[normalize-space(.)='Download']")))
 
 def markdown_to_html(text):
 	return markdown.markdown(text)
@@ -596,4 +611,4 @@ def run_test(access_token):
 
 globals = load_yaml_file(f'{libs_dir}/globals.yaml')
 
-process_command(args)
+result = process_command(args)
