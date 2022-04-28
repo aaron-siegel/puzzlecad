@@ -1,4 +1,5 @@
 thing-id: 4185288
+printables-model-id: 171060
 name: "Triagonal Agony - Packing puzzle by László Molnár"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
@@ -6,7 +7,7 @@ targets: [box, cap, pieces_version_1, pieces_version_2, pieces_version_3]
 description: |
   Pack six pieces into a box with two curiously shaped triangular openings.
 
-  _Triagonal Agony_ is one of a series of challenging packing puzzles by László Molnár. This one is quite hard. You have been warned! If you want a gentler introduction to Molnár's puzzles, check out our recommendations in the [László Molnár puzzles](https://www.thingiverse.com/asiegel/collections/laszlo-molnar-puzzles) collection.
+  _Triagonal Agony_ is one of a series of challenging packing puzzles by László Molnár. This one is quite hard. You have been warned! If you want a gentler introduction to Molnár's puzzles, check out our recommendations in the [László Molnár puzzles](https://www.puzzlehub.org/puzzles/l%C3%A1szl%C3%B3-moln%C3%A1r) collection.
 
   There are actually three _Triagonal Agony_ puzzles that all use the same box. All three are included here. _Triagonal Agony 2_ is the one that has traditionally been published under the name "Triagonal Agony", and László has generously made the designs for _Triagonal Agony 1_ and _Triagonal Agony 3_ available as well! They all use the same box, so if you like, you can print just one copy of the box to use with all three sets of pieces. (If you do this, I recommend printing each set of pieces in a different filament color, to avoid confusion.) Triagonal Agony 1 is a bit easier than the others, since two of its pieces are non-unique.
 

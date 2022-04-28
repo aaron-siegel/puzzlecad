@@ -1,4 +1,5 @@
 thing-id: 4208015
+printables-model-id: 171054
 name: "Pillars of Hercules - Assembly puzzle by Stewart Coffin (STC #78)"
 tags: [puzzle, 3D_puzzle]
 images: [cover.jpg, pieces.jpg, box.jpg]
@@ -13,7 +14,7 @@ description: |
 
   Coffin himself was a bit dismissive of this design, writing "for all that extra trouble to make, hardly worth it," perhaps contributing to its relative obscurity. Yet while it is indeed quite difficult to produce using traditional woodworking techniques, it is an extremely easy print! In my opinion, printing a copy is certainly worthwhile, and hopefully 3D printing can help many others enjoy this rare and creative design.
 
-  Other Coffin designs that use the same concept include [Pieces-of-Eight](https://www.thingiverse.com/thing:4208010), [Triple Cross](https://www.thingiverse.com/thing:4230238), and [Design No. 78-A](https://www.thingiverse.com/thing:4208016) (the latter a sort of sequel to this one).
+  Other Coffin designs that use the same concept include ${link:coffin.pieces-of-eight}, ${link:coffin.triple-cross}, and ${link:coffin.78-a} (the latter a sort of sequel to this one).
 
   ### Printing Instructions
 

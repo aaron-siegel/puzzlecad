@@ -1,4 +1,5 @@
 thing-id: 4195866
+printables-model-id: 171066
 name: "Triumph Companion - Interlocking puzzle by Stewart Coffin (STC #15-B)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
@@ -7,7 +8,7 @@ configurations:
   - {name: '', code: '', targets: ''}
   - {name: 'larger', code: '$burr_scale = 32;', targets: ''}
 description: |
-  _Triumph Companion_ is a sequel of sorts to Coffin's related design [Triumph](https://www.thingiverse.com/thing:4195865). Like _Triumph_, it consists of six pieces that assemble in various ways to form interesting polyhedral structures. Coffin wrote of this puzzle:
+  _Triumph Companion_ is a sequel of sorts to Coffin's related design ${link:coffin.triumph}. Like _Triumph_, it consists of six pieces that assemble in various ways to form interesting polyhedral structures. Coffin wrote of this puzzle:
 
   "Details on the _Triumph Companion_, if they ever existed, seem to have become lost. Perhaps that makes it all the more fun. ... My old notes indicate that it has eight symmetrical solutions, but I can find no description of them, so we leave it to the curious reader to fashion a working model and figure them out. I am guessing that the name suggests the possibility of combining it with _Triumph_ pieces to create yet more sculptural possibilities."
 

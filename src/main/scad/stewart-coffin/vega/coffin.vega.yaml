@@ -1,4 +1,5 @@
 thing-id: 4178068
+printables-model-id: 171068
 name: "Vega - Interlocking puzzle by Stewart Coffin (STC #46)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
@@ -6,7 +7,7 @@ targets: [base, tip]
 description: |
     Assemble six identical pieces into the polyhedral shape shown in the cover photo.
 
-    _Vega_ is an interlocking design by Stewart Coffin that is as much polyhedral sculpture as puzzle. The mechanism of assembly is identical to Coffin's earlier [Sirius](https://www.thingiverse.com/thing:4122252) and other related designs, so _Vega_ will not provide much of an assembly challenge to the experienced puzzle solver. Once assembled, though, it is a magnificent display piece - geometric sculptural art that comes apart.
+    _Vega_ is an interlocking design by Stewart Coffin that is as much polyhedral sculpture as puzzle. The mechanism of assembly is identical to Coffin's earlier ${link:coffin.sirius} and other related designs, so _Vega_ will not provide much of an assembly challenge to the experienced puzzle solver. Once assembled, though, it is a magnificent display piece - geometric sculptural art that comes apart.
     
     ### Printing Instructions
     

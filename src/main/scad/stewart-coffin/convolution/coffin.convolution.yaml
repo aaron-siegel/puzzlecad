@@ -1,4 +1,5 @@
 thing-id: 3351526
+printables-model-id: 171112
 name: "Convolution - Interlocking puzzle by Stewart Coffin (STC #30)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg, closeup.jpg]
@@ -9,9 +10,7 @@ configurations:
 description: |
     Assemble the seven pieces into a 4x4x4 cube.
     
-    This is one of Stewart Coffin's classic designs. It was a pioneering 4x4x4 interlocking cube - a puzzle genre that has become extremely successful over the years - and it still holds up as a brilliant and beautiful design, a fine challenge with some surprising movements. Coffin considers it inferior to his later designs [Involution](https://www.thingiverse.com/thing:3360935) and especially [Involute](https://www.thingiverse.com/thing:3351486), but it remains popular today and is an essential part of his canon.
-    
-    UPDATED March 2020 with a new design and larger size.
+    This is one of Stewart Coffin's classic designs. It was a pioneering 4x4x4 interlocking cube - a puzzle genre that has become extremely successful over the years - and it still holds up as a brilliant and beautiful design, a fine challenge with some surprising movements. Coffin considers it inferior to his later designs ${link:coffin.involution} and especially ${link:coffin.involute}, but it remains popular today and is an essential part of his canon.
 
     ### Printing Instructions
     

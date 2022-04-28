@@ -1,4 +1,5 @@
 thing-id: 4220026
+printables-model-id: 171059
 name: "Superstar / Third Stellation - Interlocking puzzle by Stewart Coffin (STC #50)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg, one-piece.jpg]
@@ -6,7 +7,7 @@ targets: [solid, fivecolor_bases, fivecolor_tips_1, fivecolor_tips_2, fivecolor_
 description: |
   Assemble the six pieces into the polyhedral shape shown in the cover photo. If properly assembled with colors aligned as shown, _Superstar_ creates the appearance of triangular sticks running continuously through the length of the puzzle, although this is an illusion: the individual pieces are formed entirely from half-stick segments.
 
-  _Superstar_ is related to Coffin's earlier designs [Sirius](https://www.thingiverse.com/thing:4122252) and [Nova](https://www.thingiverse.com/thing:4130743). All three use the same essential assembly mechanism, but with increasingly rich ornamentation: mathematically, _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, _Nova_ the second stellation, and _Superstar_ the third.
+  _Superstar_ is related to Coffin's earlier designs ${link:coffin.sirius} and ${link:coffin.nova}. All three use the same essential assembly mechanism, but with increasingly rich ornamentation: mathematically, _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, _Nova_ the second stellation, and _Superstar_ the third.
 
   If you've already done _Sirius_ or _Nova_, don't expect a radically new solving experience out of this one, but it does make for a striking polyhedral sculpture that completes the "trilogy" in a satisfying way. Coffin wrote:
 

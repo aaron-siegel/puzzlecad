@@ -1,4 +1,5 @@
 thing-id: 4183212
+printables-model-id: 171063
 name: "L-I-Vator I - Packing puzzle by László Molnár"
 tags: [puzzle, 3D_puzzle]
 images: [pieces.jpg]
@@ -8,7 +9,7 @@ description: |
 
   _L-I-Vator I_ is one of a series of challenging packing puzzles by László Molnár. This one is of intermediate difficulty by the standards of Molnár's packing puzzles, which by most other standards means "quite hard". If you're up for a challenge, it will be a fun and rewarding print.
 
-  If you like this puzzle, be sure to check out its sequel, [L-I-Vator II](https://www.thingiverse.com/thing:4183224). The two L-I-Vator puzzles use the same box, so you can print just one copy of the box to use with both sets of pieces. (If you do this, I recommend printing the two sets of pieces in different filament colors, to avoid confusion.) Several other Molnár designs are published in our [László Molnár puzzles](https://www.thingiverse.com/asiegel/collections/laszlo-molnar-puzzles) collection.
+  If you like this puzzle, be sure to check out its sequel, ${link:molnar.l-i-vator-ii}. The two L-I-Vator puzzles use the same box, so you can print just one copy of the box to use with both sets of pieces. (If you do this, I recommend printing the two sets of pieces in different filament colors, to avoid confusion.) Several other Molnár designs are published in our [László Molnár puzzles](https://www.puzzlehub.org/puzzles/l%C3%A1szl%C3%B3-moln%C3%A1r) collection.
 
   Yu Chih Chang contributed models and photographs to this listing.
 

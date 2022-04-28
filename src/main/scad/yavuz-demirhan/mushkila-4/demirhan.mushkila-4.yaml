@@ -1,12 +1,14 @@
 thing-id: 4127229
+printables-model-id: 171075
 name: "Mushkila 4 - Packing puzzle by Yavuz Demirhan"
 tags: [puzzle, 3D_puzzle]
 images: [box-and-pieces.jpg, box.jpg]
 targets: [pieces_color_1, pieces_color_2, box, cap]
+summary: Pack six pieces into a rectangular box with an obstructed opening, so that only the lighter piece color is visible.
 description: |
     Pack six pieces into a rectangular box with an obstructed opening, in such a way that only the lighter piece color is visible. When the puzzle is properly solved, the pieces will fit entirely within the box and will not protrude through the opening, and the darker piece color will be entirely hidden. This is a clever design that will appeal to both novice and experienced puzzlers.
     
-    Demirhan's related puzzles [Mushkila 2](https://www.thingiverse.com/thing:3829902) and [Mushkila 3](https://www.thingiverse.com/thing:4127215) use the exact same box design, so if you print either of them in addition to this one, you can print the box just once and use it interchangeably with different sets of pieces.
+    Demirhan's related puzzles ${link:demirhan.mushkila-2} and ${link:demirhan.mushkila-3} use the exact same box design, so if you print either of them in addition to this one, you can print the box just once and use it interchangeably with different sets of pieces.
 
     ### Printing Instructions
 

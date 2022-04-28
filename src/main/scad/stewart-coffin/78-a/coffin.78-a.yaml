@@ -1,4 +1,5 @@
 thing-id: 4208016
+printables-model-id: 171053
 name: "Design No. 78-A - Assembly puzzle by Stewart Coffin (STC #78-A)"
 tags: [puzzle, 3D_puzzle]
 images: [cover.jpg, pieces.jpg]
@@ -9,11 +10,11 @@ configurations:
 description: |
   Assemble the six pieces into a 3x3x3 cube.
 
-  _Design No. 78-A_ is a sort of sequel to Coffin's related design [Pillars of Hercules](https://www.thingiverse.com/thing:4208015). Like _Pillars of Hercules_, it is based on an unusual dissection of the cube into half-cubes, this time with all six pieces containing a dissected component.
+  _Design No. 78-A_ is a sort of sequel to Coffin's related design ${link:coffin.pillars-of-hercules}. Like _Pillars of Hercules_, it is based on an unusual dissection of the cube into half-cubes, this time with all six pieces containing a dissected component.
 
   This design is an obscure one and has rarely been produced. Coffin himself had little to say about it, remarking only that "If the three [composite] pieces are joined together at the start, the puzzle cannot be assembled." Despite its neglect, it's a fine and unique design, and I had a lot of fun solving it. Recommended to anyone interested in exploring the byways of Coffin's catalog.
 
-  Aside from _Pillars of Hercules_, other Coffin designs that use the same concept include [Pieces-of-Eight](https://www.thingiverse.com/thing:4208010) and [Triple Cross](https://www.thingiverse.com/thing:4230238).
+  Aside from _Pillars of Hercules_, other Coffin designs that use the same concept include ${link:coffin.pieces-of-eight} and ${link:coffin.triple-cross}.
 
   ### Printing Instructions
 

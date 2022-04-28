@@ -1,4 +1,5 @@
 thing-id: 3435733
+printables-model-id: 171097
 name: "Patio Block - Interlocking puzzle by Stewart Coffin (STC #82)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled-in-box.jpg, pieces.jpg, assembled.jpg]
@@ -14,8 +15,6 @@ description: |
     "Start by joining 1x2x2 blocks all ten possible ways. Now put aside the two that are rectangular solids. Try fitting the other eight into a 4x4x4 box until you become convinced that it is impossible. Try eliminating one and duplicating another until they not only fit but do so with interesting symmetry."
     
     If you enjoy this puzzle, you might also try Coffin's related design ${link:coffin.cube-16}, an interlocking puzzle based on the same idea of joining 1x2x2 blocks.
-
-    UPDATED June 2020 with a new design and larger pieces.
 
     ### Printing Instructions
 
