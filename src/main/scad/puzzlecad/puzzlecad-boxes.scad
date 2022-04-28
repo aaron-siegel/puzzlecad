@@ -36,12 +36,12 @@ $thatch_thickness = 3;
 $thatch_boundary_width = 1.5;
 
 module packing_box(box_spec) {
-    
+
     box_info = to_burr_info(box_spec, $unit_beveled = false);
     layout_box_infos = $auto_layout ? auto_layout_plate([box_info], allowed_rotations = ["z+"]) : [box_info];
-    
+
     packing_box_r(layout_box_infos);
-    
+
 }
 
 module packing_box_r(layout_box_infos, i = 0, y = 0, x = 0, row_depth = 0) {
@@ -135,7 +135,7 @@ module packing_box_base(box_spec) {
             
             cell = [x, y, z];
             options = aux[x][y][z];
-            connect = lookup_kv(options, "connect");
+            connects = strtok(lookup_kv(options, "connect"), ",");
             circle_radius = atof(lookup_kv(options, "circle"));
             components = strtok(lookup_kv(options, "components"), ",");
             
@@ -252,7 +252,7 @@ module packing_box_base(box_spec) {
             
             // Cutouts for female guide pins
                         
-            if (!is_undef(connect)) {
+            for (connect = connects) {
                 
                 assert(is_valid_connect_annotation(connect, allow_diagonal = false), str("Invalid box connector: ", connect));
                 if (connect[0] == "f") {
@@ -264,7 +264,7 @@ module packing_box_base(box_spec) {
                     
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
                     rotate(rot)
-                    translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 2.14])
+                    translate([0, 0, cell_size[x][y][z][face_axis] / 2 - guide_pin_height(cell_scale) - 0.14])
                     cylinder(r = guide_pin_radius(cell_scale) + 0.2, h = guide_pin_height(cell_scale) + 0.15, $fn = 32);
                     
                 }
@@ -285,21 +285,23 @@ module packing_box_base(box_spec) {
     for (z = [0:dim.z-1], y = [0:dim.y-1], x = [0:dim.x-1]) {
         
         options = aux[x][y][z];
-        connect = lookup_kv(options, "connect");
+        connects = strtok(lookup_kv(options, "connect"), ",");
         circle_radius = atof(lookup_kv(options, "circle"));
 
-        if (!is_undef(connect) && connect[0] == "m") {
-            
-            orient = substr(connect, 1, 2);
-            rot = cube_face_rotation(orient);
-            face_axis = orient[0] == "x" ? 0 : orient[0] == "y" ? 1 : 2;
-            cell_scale = min(cell_size[x][y][z][(face_axis + 1) % 3], cell_size[x][y][z][(face_axis + 2) % 3]);
-            
-            translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
-            rotate(rot)
-            translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 0.01])
-            cylinder(r = guide_pin_radius(cell_scale), h = guide_pin_height(cell_scale), $fn = 32);
-            
+        for (connect = connects) {
+            if (connect[0] == "m") {
+                
+                orient = substr(connect, 1, 2);
+                rot = cube_face_rotation(orient);
+                face_axis = orient[0] == "x" ? 0 : orient[0] == "y" ? 1 : 2;
+                cell_scale = min(cell_size[x][y][z][(face_axis + 1) % 3], cell_size[x][y][z][(face_axis + 2) % 3]);
+                
+                translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
+                rotate(rot)
+                translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 0.01])
+                cylinder(r = guide_pin_radius(cell_scale), h = guide_pin_height(cell_scale), $fn = 32);
+                
+            }
         }
         
         if (layout[x][y][z] > 0 && !is_undef(circle_radius)) {
@@ -360,6 +362,11 @@ module packing_box_base(box_spec) {
 
 }
 
-function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 0.75);
+// In the typical range of cell_scale = 6 (ordinarily equal to $box_wall_thickness), the radius will be
+// cell_scale / 3. But we also ensure that it never be larger than 3 (applicable for cell_scale > 9),
+// and we also ensure that there is always at least 1 mm of buffer around the hole (applicable for
+// cell_scale < 6).
+function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 1);
 
-function guide_pin_height(cell_scale) = min(2, guide_pin_radius(cell_scale) * 2);
+// Height of the guide pins is equal to radius, but never more than 2.
+function guide_pin_height(cell_scale) = min(2, guide_pin_radius(cell_scale));
