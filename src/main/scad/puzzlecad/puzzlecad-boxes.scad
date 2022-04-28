@@ -264,7 +264,7 @@ module packing_box_base(box_spec) {
                     
                     translate(cell_offset[x][y][z] + cell_size[x][y][z] / 2)
                     rotate(rot)
-                    translate([0, 0, cell_size[x][y][z][face_axis] / 2 - 2.14])
+                    translate([0, 0, cell_size[x][y][z][face_axis] / 2 - guide_pin_height(cell_scale) - 0.14])
                     cylinder(r = guide_pin_radius(cell_scale) + 0.2, h = guide_pin_height(cell_scale) + 0.15, $fn = 32);
                     
                 }
@@ -362,6 +362,11 @@ module packing_box_base(box_spec) {
 
 }
 
-function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 0.75);
+// In the typical range of cell_scale = 6 (ordinarily equal to $box_wall_thickness), the radius will be
+// cell_scale / 3. But we also ensure that it never be larger than 3 (applicable for cell_scale > 9),
+// and we also ensure that there is always at least 1 mm of buffer around the hole (applicable for
+// cell_scale < 6).
+function guide_pin_radius(cell_scale) = min(3, cell_scale / 3, cell_scale / 2 - 1);
 
-function guide_pin_height(cell_scale) = min(2, guide_pin_radius(cell_scale) * 2);
+// Height of the guide pins is equal to radius, but never more than 2.
+function guide_pin_height(cell_scale) = min(2, guide_pin_radius(cell_scale));
