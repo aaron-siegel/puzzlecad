@@ -8,7 +8,15 @@ import yaml
 import os
 import subprocess
 import shutil
+import markdown
+
 from glob import glob
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
 # Get config from user dir
 
@@ -22,8 +30,8 @@ openscad_bin = config['puzzlecad']['OpenscadBin']
 access_token = config['puzzlecad']['AccessToken']
 thingiverse_timeout = 60
 
-libs_dir = '../src/main/scad'
-output_dir = '../out'
+libs_dir = '../scad'
+output_dir = '../../../out'
 os.environ['OPENSCADPATH'] = libs_dir
 
 parser = argparse.ArgumentParser()
@@ -36,9 +44,9 @@ args = parser.parse_args()
 def process_command(args):
 
 	if args.command == 'get-token':
-	
+
 		get_access_token()
-		
+
 	elif args.command == 'build':
 	
 		build_stls(args.cmdargs[0])
@@ -68,6 +76,17 @@ def process_command(args):
 		if access_token == '':
 			raise Exception("You must specify an access token. Use the get-token command to obtain one.")
 		delete_thing(access_token, args.cmdargs[0])
+
+	elif args.command == 'open-printables-session':
+
+		driver = webdriver.Chrome()
+		driver.get("https://www.printables.com/model/171148/edit")
+		print(driver.session_id + " " + driver.command_executor._url)
+		return driver
+
+	elif args.command == "update-printables-model":
+
+		update_printables_model(args.cmdargs[0], args.cmdargs[1], args.cmdargs[2], '' if (len(args.cmdargs) < 4) else args.cmdargs[3])
 		
 	elif args.command == 'test':
 	
@@ -101,13 +120,13 @@ def print_thing_description(thing_name):
 
 	yaml_path = resolve_thing(thing_name)
 	contents = load_yaml_file(yaml_path)
-	description = substitute_globals(contents['description'], thing_name)
+	description = substitute_globals(contents['description'], thing_name, 'thingiverse')
 	print(description)
 	
 def delete_thing(access_token, thing_id):
 
 	thingiverse_delete(f'things/{thing_id}', access_token)
-	
+
 def update_thing(access_token, thing_name, targets_str):
 
 	targets = targets_str.split(',')
@@ -116,7 +135,7 @@ def update_thing(access_token, thing_name, targets_str):
 	contents = load_yaml_file(yaml_path)
 	name = contents['name']
 	thing_id = contents['thing-id']
-	description = substitute_globals(contents['description'], thing_name)
+	description = substitute_globals(contents['description'], thing_name, 'thingiverse')
 	
 	print(f'Updating thing "{name}" from file {yaml_path} ...')
 		
@@ -185,13 +204,104 @@ def update_thing(access_token, thing_name, targets_str):
 
 def resolve_thing(thing_name):
 
-	print(f'../src/main/scad/**/{thing_name}.yaml')
-	yaml_path = glob(f'../src/main/scad/**/{thing_name}.yaml', recursive = True)
+	#print(f'{libs_dir}/**/{thing_name}.yaml')
+	yaml_path = glob(f'{libs_dir}/**/{thing_name}.yaml', recursive = True)
 	
 	if len(yaml_path) == 0:
 		raise Exception(f'Thing not found: {thing_name}')
 		
 	return yaml_path[0]
+
+###### printables.com instrumentation
+
+def create_driver_session(session_id, executor_url):
+
+	# Save the original function, so we can revert our patch
+	org_command_execute = RemoteWebDriver.execute
+
+	def new_command_execute(self, command, params=None):
+		if command == "newSession":
+			# Mock the response
+			return {'success': 0, 'value': None, 'sessionId': session_id}
+		else:
+			return org_command_execute(self, command, params)
+
+	# Patch the function before creating the driver object
+	RemoteWebDriver.execute = new_command_execute
+
+	new_driver = webdriver.Remote(command_executor=executor_url, desired_capabilities={})
+	new_driver.session_id = session_id
+
+	# Replace the patched function with original function
+	RemoteWebDriver.execute = org_command_execute
+
+	return new_driver
+
+def set_element_by_id(driver, id, text):
+	element = WebDriverWait(driver, 10).until(
+		EC.presence_of_element_located((By.ID, id))
+	)
+	element.clear()
+	element.send_keys(text)
+
+def update_printables_model(session_id, executor_url, thing_name, targets):
+
+	yaml_path = resolve_thing(thing_name)
+	dir = os.path.dirname(yaml_path)
+	contents = load_yaml_file(yaml_path)
+	name = contents['name']
+	model_id = contents['printables-model-id']
+	description = substitute_globals(contents['description'], thing_name, 'printables')
+	summary = contents['summary'] if 'summary' in contents else description.partition('\n')[0]
+
+	split_name = name.split(" - ")
+	description_title = f'## {name}' if len(split_name) <= 1 else f'## {split_name[0]}\n\n### {split_name[1]}'
+	expanded_description = f'\n{description_title}\n{description}'
+	revised_description = re.sub('\n#', '\n##', expanded_description)
+
+	driver = create_driver_session(session_id, executor_url)
+	model_url = f"https://www.printables.com/model/{model_id}"
+
+	print(f'Updating printables model "{name}" from file {yaml_path} at {model_url} ...')
+
+	driver.get(f"{model_url}/edit")
+
+	set_element_by_id(driver, "print-name", name)
+	set_element_by_id(driver, "summary", summary)
+	category_element = driver.find_element(By.XPATH, "//ng-select[@formcontrolname = 'category']")
+	category_element.click()
+	item_element = driver.find_element(By.XPATH, "//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")
+	item_element.click()
+
+	script = f"""
+	  const domEditableElement = document.querySelector( '.ck-editor__editable' );
+	  const editorInstance = domEditableElement.ckeditorInstance;
+	  editorInstance.setData(`{markdown_to_html(revised_description)}`);"""
+	driver.execute_script(script)
+
+	if 'images' in targets:
+
+		zip_name = f"~/_images-upload-{thing_name}.zip"
+		images_str = " ".join(os.path.join(dir, filename) for filename in contents['images'])
+		os.system(f"zip -j {zip_name} {images_str}")
+		print(f'Ready to upload {zip_name}.')
+		browse_button = driver.find_element(By.XPATH, "//label[normalize-space(.)='Browse']")
+		browse_button.click()
+		WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.CLASS_NAME, "processing-info")))
+		WebDriverWait(driver, 120).until(EC.invisibility_of_element_located((By.CLASS_NAME, "processing-info")))
+		print('Done uploading! Reorganize photos now & publish manually.')
+		os.system(f"rm {zip_name}")
+
+	if not targets:
+		# Publish automatically if no images/files specified.
+		publish_element = driver.find_element(By.XPATH, "//button[normalize-space(.)='Save draft' or normalize-space(.)='Publish now']")
+		publish_element.click()
+		WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//span[normalize-space(.)='Download']")))
+
+def markdown_to_html(text):
+	return markdown.markdown(text)
+
+##### Basic utilities
 
 def load_yaml_file(yaml_file):
 
@@ -285,7 +395,7 @@ def zip_stls(modularized_base_name, page_count):
 		if exit_status != 0:
 			raise Exception(f'Failed on target {modularized_base_name}.')
 
-def substitute_globals(description, thing_name):
+def substitute_globals(description, thing_name, site):
 
 	# This is somewhat inefficient but should be fine at small scale.
 	
@@ -297,10 +407,16 @@ def substitute_globals(description, thing_name):
 			link_name = key[5:]
 			link_yaml_path = resolve_thing(link_name)
 			link_contents = load_yaml_file(link_yaml_path)
-			link_thing_id = link_contents['thing-id']
 			link_title = link_contents['name']
 			link_split_title = link_title.split(" - ")
-			replacement = f'[{link_split_title[0]}](https://www.thingiverse.com/thing:{link_thing_id})'
+			if site == 'thingiverse':
+				link_thing_id = link_contents['thing-id']
+				replacement = f'[{link_split_title[0]}](https://www.thingiverse.com/thing:{link_thing_id})'
+			elif site == 'printables':
+				link_model_id = link_contents['printables-model-id']
+				replacement = f'[{link_split_title[0]}](https://www.printables.com/model/{link_model_id})'
+			else:
+				raise Exception(f'Unknown site: {site}')
 		elif key in globals:
 			replacement = globals[key]
 		else:
@@ -321,13 +437,13 @@ def bundle_puzzlecad(version, run_tests = True):
 	
 	print(f'Bundling puzzlecad version {version} ...')
 	
-	os.makedirs('../out/dist', exist_ok = True)
+	os.makedirs(f'{output_dir}/dist', exist_ok = True)
 
 	print('Building java components ...')
-	os.makedirs('../out/java', exist_ok = True)
+	os.makedirs(f'{output_dir}/java', exist_ok = True)
 	result = subprocess.run(
 		['javac', 'org/puzzlecad/XmpuzzleToScad.java', '-d', '../../../out/java', '-source', '1.6', '-target', '1.6'],
-		cwd = '../src/main/java'
+		cwd = '../java'
 		)
 	if result.returncode != 0:
 		print('Failed!')
@@ -336,31 +452,31 @@ def bundle_puzzlecad(version, run_tests = True):
 	print('Building jar ...')
 	result = subprocess.run(
 		['jar', 'cfm', '../dist/bt2scad.jar', '../../src/main/java/manifest', '.'],
-		cwd = '../out/java'
+		cwd = f'{output_dir}/java'
 		)
 	if result.returncode != 0:
 		print('Failed!')
 		return
 
 	print('Copying to distribution dir ...')
-	shutil.copy2('../src/main/scad/puzzlecad.scad', '../out/dist')
-	shutil.copy2('../src/main/scad/puzzlecad-examples.scad', '../out/dist')
-	shutil.copy2('../src/main/scad/dist/half-hour-example.scad', '../out/dist')
-	if (os.path.exists('../out/dist/puzzlecad')):
-		shutil.rmtree('../out/dist/puzzlecad')
+	shutil.copy2(f'{libs_dir}/puzzlecad.scad', f'{output_dir}/dist')
+	shutil.copy2(f'{libs_dir}/puzzlecad-examples.scad', f'{output_dir}/dist')
+	shutil.copy2(f'{libs_dir}/dist/half-hour-example.scad', f'{output_dir}/dist')
+	if (os.path.exists(f'{output_dir}/dist/puzzlecad')):
+		shutil.rmtree(f'{output_dir}/dist/puzzlecad')
 	shutil.copytree(
-		'../src/main/scad/puzzlecad',
-		'../out/dist/puzzlecad',
+		f'{libs_dir}/puzzlecad',
+		f'{output_dir}/dist/puzzlecad',
 		ignore = shutil.ignore_patterns('.*')		# Ignore .DS_Store and such cruft
 	)
 	
 	print('Creating archive ...')
-	dist_files = [ os.path.relpath(file, '../out/dist') for file in glob('../out/dist/*') ]
-	if (os.path.exists(f'../out/puzzlecad-{version}.zip')):
-		os.remove(f'../out/puzzlecad-{version}.zip')
+	dist_files = [ os.path.relpath(file, f'{output_dir}/dist') for file in glob(f'{output_dir}/dist/*') ]
+	if (os.path.exists(f'{output_dir}/puzzlecad-{version}.zip')):
+		os.remove(f'{output_dir}/puzzlecad-{version}.zip')
 	subprocess.run(
 		['zip', '-r', f'../puzzlecad-{version}.zip'] + dist_files,
-		cwd = '../out/dist'
+		cwd = f'{output_dir}/dist'
 		)
 	if result.returncode != 0:
 		print('Failed!')
@@ -370,18 +486,18 @@ def bundle_puzzlecad(version, run_tests = True):
 
 def run_puzzlecad_tests():
 
-    print('Running puzzlecad tests ...')
-    exit_status = os.system(f'{openscad_bin} -o ../out/puzzlecad-tests.stl ../src/main/scad/puzzlecad-tests.scad')
-    if exit_status == 0:
-        print('Tests succeeded.')
-    else:
-        print('Tests failed!')
-    return exit_status
+	print('Running puzzlecad tests ...')
+	exit_status = os.system(f'{openscad_bin} -o {output_dir}/puzzlecad-tests.stl {libs_dir}/puzzlecad-tests.scad')
+	if exit_status == 0:
+		print('Tests succeeded.')
+	else:
+		print('Tests failed!')
+	return exit_status
 
 def upload_puzzlecad(version, run_tests = True):
 
 	bundle_puzzlecad(version, run_tests)
-	thingiverse_post_file(3198014, f'../out/puzzlecad-{version}.zip')
+	thingiverse_post_file(3198014, f'{output_dir}/puzzlecad-{version}.zip')
 
 def thingiverse_get(endpoint, access_token):
 
@@ -493,7 +609,6 @@ def run_test(access_token):
 
 	thingiverse_delete(f'things/3198014/files/7668891', access_token)
 
-globals = load_yaml_file('../src/main/scad/globals.yaml')
+globals = load_yaml_file(f'{libs_dir}/globals.yaml')
 
-process_command(args)
-
+result = process_command(args)

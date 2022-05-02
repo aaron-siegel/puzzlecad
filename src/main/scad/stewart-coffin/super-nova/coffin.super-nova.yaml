@@ -1,10 +1,11 @@
 thing-id: 4130744
+printables-model-id: 171069
 name: "Super Nova - Interlocking puzzle by Stewart Coffin (STC #14)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
 targets: [tips, bases]
 description: |
-    Assemble the six pieces into the polyhedral shape shown on the cover photo. This is a considerably more difficult variant of Coffin's earlier design [Nova](https://www.thingiverse.com/thing:4130743). Like _Nova_, it is an extension of the basic [Sirius](https://www.thingiverse.com/thing:4122252) geometry. But whereas _Nova_ extends _Sirius_ symmetrically, _Super Nova_ is badly asymmetric, making the assembly much less obvious and more confusing.
+    Assemble the six pieces into the polyhedral shape shown on the cover photo. This is a considerably more difficult variant of Coffin's earlier design ${link:coffin.nova}. Like _Nova_, it is an extension of the basic ${link:coffin.sirius} geometry. But whereas _Nova_ extends _Sirius_ symmetrically, _Super Nova_ is badly asymmetric, making the assembly much less obvious and more confusing.
 
     Coffin wrote of this puzzle: "It has the same assembled shape as Nova #8 - the second stellation of the rhombic dodecahedron. With six dissimilar non-symmetrical pieces, now it becomes more of a puzzle." There are two distinct solutions; see if you can find them both!
     

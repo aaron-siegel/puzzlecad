@@ -1,4 +1,5 @@
 thing-id: 4130743
+printables-model-id: 171070
 name: "Nova - Interlocking puzzle by Stewart Coffin (STC #8)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg, one-piece.jpg]
@@ -6,11 +7,11 @@ targets: [solid, fivecolor_bases, fivecolor_tips_1, fivecolor_tips_2, fivecolor_
 description: |
     Assemble the six pieces into the polyhedral shape shown in the cover photo.
     
-    _Nova_ is derived from Coffin's earlier design [Sirius](https://www.thingiverse.com/thing:4122252) by adding additional ornamentation. The essential puzzle mechanism is the same, though _Nova_ has an especially striking appearance: mathematically, the assembled _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, while _Nova_ has the shape of the second stellation. Coffin wrote: "The six identical pieces of _Nova_ assemble easily to form the second stellation of the rhombic dodecahedron. ... [I]t is more of a polyhedral sculpture than a puzzle."
+    _Nova_ is derived from Coffin's earlier design ${link:coffin.sirius} by adding additional ornamentation. The essential puzzle mechanism is the same, though _Nova_ has an especially striking appearance: mathematically, the assembled _Sirius_ has the shape of the first stellation of the rhombic dodecahedron, while _Nova_ has the shape of the second stellation. Coffin wrote: "The six identical pieces of _Nova_ assemble easily to form the second stellation of the rhombic dodecahedron. ... [I]t is more of a polyhedral sculpture than a puzzle."
     
     A polyhedral scuplture, then, and a fine one at that! If printed accurately in five colors (see below), it forms a striking display piece, with a variety of symmetric arrangements possible. In Coffin's words: "There are several ways of assembling these pieces in color symmetry .... The simplest and most obvious is with each of the eight hexagonal dimples a solid color, with like colors opposite [this is the one shown in the photo]. Another way is with four triangles of a solid color. The most elegant is with four hexagonal rings of solid color intersecting each other around the outside. The other ways are left for the curious reader to discover."
     
-    For a more challenging assembly puzzle in the same shape, you can try printing Coffin's later variant [Super Nova](https://www.thingiverse.com/thing:4130744).
+    For a more challenging assembly puzzle in the same shape, you can try printing Coffin's later variant ${link:coffin.super-nova}.
     
     ### Printing Instructions
     

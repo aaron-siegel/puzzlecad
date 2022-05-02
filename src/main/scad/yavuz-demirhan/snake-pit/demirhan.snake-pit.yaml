@@ -1,0 +1,21 @@
+thing-id: 3829907
+printables-model-id: 171082
+name: "Snake Pit - Packing puzzle by Yavuz Demirhan"
+tags: [puzzle, 3D_puzzle]
+images: [box-and-pieces.jpg, box.jpg, partially-packed.jpg]
+targets: [pieces, box, cap]
+summary: Pack eight pieces into a rectangular box with an obstructed opening.
+description: |
+  Pack eight pieces into a rectangular box with an obstructed opening. When the puzzle is properly solved, the pieces will fit entirely within the box and will not protrude through the opening. (One of the photos shows several pieces placed inside the box.) This is a clever design that will appeal to both novice and experienced puzzlers.
+
+  ### Printing Instructions
+
+  There are three STL files. Print four copies of `${name}.pieces.stl` (for a total of eight pieces) and one copy each of `${name}.box.stl` and `${name}.cap.stl`.
+
+  ${box-assembly-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${yavuz-demirhan-bio}
+
+  Happy puzzling!

@@ -1,4 +1,5 @@
 thing-id: 3480298
+printables-model-id: 171095
 name: "Cube-16 - Interlocking puzzle by Stewart Coffin (STC #205)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg]
@@ -7,11 +8,11 @@ configurations:
     - {name: '', code: '', targets: ''}
     - {name: 'smaller', code: '$burr_scale = 12.75; $burr_bevel = 1;', targets: ''}
 description: |
-    Assemble the five pieces into a 4x4x4 cube. This is an interlocking puzzle based on the same ideas as Coffin's earlier [Patio Block](https://www.thingiverse.com/thing:3435733). In Coffin's words: "It represents a conversion of Patio Block #82 from an eight-piece box-packing problem to a five piece interlocking cube."
+    Assemble the five pieces into a 4x4x4 cube.
+
+    This is an interlocking puzzle based on the same ideas as Coffin's earlier ${link:coffin.patio-block}. In Coffin's words: "It represents a conversion of Patio Block #82 from an eight-piece box-packing problem to a five piece interlocking cube."
     
-    This is one of Coffin's more obscure designs, often overlooked in favor of his better-known interlocking cube puzzles such as [Convolution](https://www.thingiverse.com/thing:3351526). If it doesn't quite rise to the level of genius of Coffin's greatest designs, this is nonetheless an excellent puzzle, fun but not too difficult, and well worth the effort to print.
-    
-    UPDATED February 2020 with a new design and larger size.
+    This is one of Coffin's more obscure designs, often overlooked in favor of his better-known interlocking cube puzzles such as ${link:coffin.convolution}. If it doesn't quite rise to the level of genius of Coffin's greatest designs, this is nonetheless an excellent puzzle, fun but not too difficult, and well worth the effort to print.
 
     ### Printing Instructions
     

@@ -1,12 +1,14 @@
 thing-id: 3829902
+printables-model-id: 171079
 name: "Mushkila 2 - Packing puzzle by Yavuz Demirhan"
 tags: [puzzle, 3D_puzzle]
 images: [box-and-pieces.jpg, box.jpg, partially-packed.jpg]
 targets: [pieces, box, cap]
+summary: Pack six pieces into a rectangular box with an obstructed opening.
 description: |
     Pack six pieces into a rectangular box with an obstructed opening. When the puzzle is properly solved, the pieces will fit entirely within the box and will not protrude through the opening. This is a clever design that will appeal to both novice and experienced puzzlers.
     
-    Demirhan's related puzzles [Mushkila 3](https://www.thingiverse.com/thing:4127215) and [Mushkila 4](https://www.thingiverse.com/thing:4127229) use the exact same box design, so if you print either of them in addition to this one, you can print the box just once and use it interchangeably with different sets of pieces.
+    Demirhan's related puzzles ${link:demirhan.mushkila-3} and ${link:demirhan.mushkila-4} use the exact same box design, so if you print either of them in addition to this one, you can print the box just once and use it interchangeably with different sets of pieces.
 
     ### Printing Instructions
 

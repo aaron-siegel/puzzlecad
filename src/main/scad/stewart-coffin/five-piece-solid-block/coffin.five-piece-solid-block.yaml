@@ -1,4 +1,5 @@
 thing-id: 4246783
+printables-model-id: 171052
 name: "Five-Piece Solid Block - Assembly puzzle by Stewart Coffin (STC #78-C)"
 tags: [puzzle, 3D_puzzle]
 images: [assembled.jpg, pieces.jpg, box.jpg]
@@ -9,7 +10,7 @@ configurations:
 description: |
   Assemble the five pieces into a 3x3x3 cube.
 
-  _Five-Piece Solid Block_ is among Coffin's more obscure 3x3x3 cube assembly puzzles. It can be viewed as intermediate between [Half-Hour](https://www.thingiverse.com/thing:3355035) (which has six pieces) and [Coffin's Quartet](https://www.thingiverse.com/thing:3351549) (which has four), and it is surely the least well-known of the three.
+  _Five-Piece Solid Block_ is among Coffin's more obscure 3x3x3 cube assembly puzzles. It can be viewed as intermediate between ${link:coffin.half-hour} and ${link:coffin.coffins-quartet} (which has four), and it is surely the least well-known of the three.
 
   Coffin made several attempts to find a five-piece interlocking 3x3x3 cube, and _Five-Piece Solid Block_ is his best effort. Whereas _Coffin's Quartet_ is fully (indeed serially) interlocking, and _Half-Hour_ does not interlock at all, _Five-Piece Solid Block_, in Coffin's words, "is not quite interlocking but nearly so."
 
