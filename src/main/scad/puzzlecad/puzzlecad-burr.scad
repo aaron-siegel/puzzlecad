@@ -242,7 +242,6 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 suffixes = connector_suffixes(connect);
                 
                 is_diagonal = list_contains(prefixes, "d");
-                is_glue = list_contains(prefixes, "g");
                 
                 is_valid_clabel =
                     is_undef(clabel) ||
@@ -366,10 +365,9 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             suffixes = connector_suffixes(connect);
             
             is_diagonal = list_contains(prefixes, "d");
-            is_glue = list_contains(prefixes, "g");
             
             if (is_diagonal) {
-                if (type == "m" && (is_glue || !$detached_joints)) {
+                if (type == "m" && !$detached_joints) {
                     translate(cw(scale_vec, [x, y, z]))
                     male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = list_contains(suffixes, "~"));
                 }
@@ -881,11 +879,11 @@ module male_diag_snap_connector_cutout(orient, twist = false) {
 module male_diag_snap_connector_tip(length) {
 
     beveled_prism(
-        [[0, $joint_inset / $burr_scale],
-         [-1/2 * $diag_joint_scale + sqrt(2) * $joint_inset / $burr_scale, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale],
-         [1/2 * $diag_joint_scale - sqrt(2) * $joint_inset / $burr_scale, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale]],
+        [[0, $joint_inset],
+         [-1/2 * $diag_joint_scale * $burr_scale + sqrt(2) * $joint_inset, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset],
+         [1/2 * $diag_joint_scale * $burr_scale - sqrt(2) * $joint_inset, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset]],
         length,
-        $burr_bevel = 1.5 / $burr_scale,
+        $burr_bevel = 1.5,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
         $burr_outer_z_bevel = undef,
@@ -904,7 +902,7 @@ module male_diag_snap_connector(orient, label, twist = false) {
     eta = atan(sqrt(2)/2);
     
     joint_length = $burr_scale / 5;
-    
+
     scale($burr_scale)
     translate(twist_translate)
     rotate(rot)
@@ -915,9 +913,11 @@ module male_diag_snap_connector(orient, label, twist = false) {
         difference() {
             
             if ($short_joints) {
-                male_diag_snap_connector_tip((joint_length + 1.25) / $burr_scale);
+                scale(1 / $burr_scale)
+                male_diag_snap_connector_tip(joint_length + 1.25);
             } else {
-                male_diag_snap_connector_tip((joint_length * 2 + 1) / $burr_scale);
+                scale(1 / $burr_scale)
+                male_diag_snap_connector_tip(joint_length * 2 + 1);
             }
             
             if (label) {
@@ -960,10 +960,9 @@ module male_diag_snap_connector(orient, label, twist = false) {
 module detached_male_diag_connector() {
     
     joint_length = $burr_scale / 5;
-    scale($burr_scale)
-    translate([0, 0, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale])
+    translate([0, 0, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset])
     rotate([-90, 0, 0]) {
-        male_diag_snap_connector_tip(joint_length * 2 / $burr_scale);
+        male_diag_snap_connector_tip(joint_length * 2);
     }
     
 }
