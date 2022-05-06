@@ -881,9 +881,9 @@ module male_diag_snap_connector_cutout(orient, twist = false) {
 module male_diag_snap_connector_tip(length) {
 
     beveled_prism(
-        [[0, $joint_inset / $burr_scale / $diag_joint_scale],
-         [-1/2 + sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale],
-         [1/2 - sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale]] * $diag_joint_scale,
+        [[0, $joint_inset / $burr_scale],
+         [-1/2 * $diag_joint_scale + sqrt(2) * $joint_inset / $burr_scale, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale],
+         [1/2 * $diag_joint_scale - sqrt(2) * $joint_inset / $burr_scale, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale]],
         length,
         $burr_bevel = 1.5 / $burr_scale,
         $burr_outer_x_bevel = undef,
