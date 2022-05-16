@@ -1,10 +1,9 @@
-thing-id: 0
+thing-id: 5387334
 printables-model-id: 206641
 name: "Extended Altekruse Puzzle Set"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: []
-targets: []
-aux_files: []
+images: [38-piece-assembly.jpeg, 24-piece-assembly.jpeg, 36-piece-assembly.jpeg, unusual-constructions.png]
+targets: [piece_2_left, piece_2_right, piece_3, piece_4_left, piece_4_right, piece_5, piece_6_left, piece_6_right, piece_7]
 description: |
   A modular set of puzzle pieces that can form various extensions of the classic Altekruse design.
   

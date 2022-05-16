@@ -21,6 +21,11 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.1");
 
 $burr_scale = 6.5;
+$burr_inset = 0.07;
+$burr_bevel = 0.5;
+
+// Uncomment one of the following to render a standard Altekruse piece
+// in length 2 through 7.
 
 *piece_2_left();
 *piece_2_right();
@@ -28,6 +33,21 @@ $burr_scale = 6.5;
 *piece_4_left();
 *piece_4_right();
 *piece_5();
+*piece_6_left();
+*piece_6_right();
+*piece_7();
+
+// The following module can be used to render standard pieces of arbitrary
+// length. parity = 0 for right-handed, 1 for left-handed. (The parity is
+// significant only for even-length pieces.)
+
+*piece(8, parity = 1);
+
+// Use the following module for generalized Altekruse pieces. The string
+// encodes a pattern of notches: d, f, b, u for down, front, back, up,
+// referring to the location of the solid part of the groove.
+
+*burr_piece(generalized_altekruse("bdf"));   // "fdb" would give the mirror image
 
 module piece_2_left() { piece(2, parity = 1); }
 module piece_2_right() { piece(2, parity = 0); }
@@ -35,6 +55,9 @@ module piece_3() { piece(3); }
 module piece_4_left() { piece(4, parity = 1); }
 module piece_4_right() { piece(4, parity = 0); }
 module piece_5() { piece(5); }
+module piece_6_left() { piece(6, parity = 1); }
+module piece_6_right() { piece(6, parity = 0); }
+module piece_7() { piece(7); }
 
 module piece(length, parity = 0) {
 
