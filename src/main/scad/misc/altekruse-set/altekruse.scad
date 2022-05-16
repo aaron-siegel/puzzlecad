@@ -42,3 +42,21 @@ module piece(length, parity = 0) {
     burr_piece(generalized_altekruse(spec_string, outer_width = 1));
     
 }
+
+module diagram_1() {
+    
+    piece_3();
+    
+}
+
+module diagram_2() {
+    
+    piece_2_right();
+    translate([0, -$burr_scale * 6, 0])
+    piece_3();
+    translate([0, -$burr_scale * 12, 0])
+    piece_4_right();
+    translate([0, -$burr_scale * 18, 0])
+    piece_5();
+    
+}
