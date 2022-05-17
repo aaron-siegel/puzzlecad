@@ -7,7 +7,7 @@ targets: [hex_sticks, elbow_dowel, free_dowel]
 description: |
   Assemble the seven pieces into the interlocking nest shape shown in the photo.
 
-  This classic puzzle is Coffin's first design involving interlocking hexagonal sticks and dowels. There is one "free" stick/dowel pair, and the remainder are permanently joined into various "elbow pieces" as shown in the photos. The confusing geometry of _Cuckoo Nest_, and the slight variations in the manner in which the dowel pieces are constructed, make for a satisfying challenge, despite the small number of pieces involved. If you enjoy this one, you might also try ${coffin.locked_nest}, which ups the difficulty.
+  This classic puzzle is Coffin's first design involving interlocking hexagonal sticks and dowels. There is one "free" stick/dowel pair, and the remainder are permanently joined into various "elbow pieces" as shown in the photos. The confusing geometry of _Cuckoo Nest_, and the slight variations in the manner in which the dowel pieces are constructed, make for a satisfying challenge, despite the small number of pieces involved. If you enjoy this one, you might also try ${link:coffin.locked-nest}, which ups the difficulty.
 
   ### Printing Instructions
 

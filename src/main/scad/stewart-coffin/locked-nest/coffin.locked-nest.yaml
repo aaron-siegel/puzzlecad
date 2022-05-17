@@ -7,7 +7,7 @@ targets: [free_stick, elbow_stick, free_dowel, elbow_dowel]
 description: |
   Assemble the 18 or 20 pieces (depending on variant - see below) into the interlocking shape shown in the photo.
 
-  _Locked Nest_ is Stewart Coffin's second design involving interlocking hexagonal sticks and dowels, a follow-up to ${coffin:cuckoo-nest}. Although _Locked Nest_ has only three basic types of pieces - free sticks, free dowels, and five (or six) identical "elbow pieces" (shown in the photo) - it represents a considerable step up in difficulty from _Cuckoo Nest_. The finished assembly has a striking geometric appearance.
+  _Locked Nest_ is Stewart Coffin's second design involving interlocking hexagonal sticks and dowels, a follow-up to ${link:coffin.cuckoo-nest}. Although _Locked Nest_ has only three basic types of pieces - free sticks, free dowels, and five (or six) identical "elbow pieces" (shown in the photo) - it represents a considerable step up in difficulty from _Cuckoo Nest_. The finished assembly has a striking geometric appearance.
 
   ### Printing Instructions
 
