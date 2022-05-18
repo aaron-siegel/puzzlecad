@@ -1,0 +1,44 @@
+thing-id: 5388153
+printables-model-id: 171148
+name: "Victor - Interlocking puzzle by Stewart Coffin (STC #201)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpeg, pieces.jpeg, coordinate-disassembly.jpeg, hint.png]
+targets: [pieces, solution_aid]
+description: |
+
+  Assemble the six pieces into the polyhedral shape shown in the photo.
+
+  _Victor_ is a polyhedral puzzle descended from earlier Coffin designs such as ${link:coffin.star-of-david}, _Rosebud_, and _Combination Lock_: Coffin wrote that "[i]t can be regarded as the _Combination Lock #128_, modified to have polyhedral symmetry by lengthening some parts." It is quite difficult, involving six complex, dissimilar pieces, and with six-way coordinate motion required for the assembly. (One of the photos shows the striking appearance of the coordinate assembly in progress.)
+
+  Coffin included a solution hint with his description of the puzzle, which I have copied below. Unless you are very brave, highly experienced with this sort of puzzle, and much better at puzzle solving than I am, you will want to use the solution hint. _Victor_ is still quite challenging even _with_ Coffin's hints, and if you're new to Coffin's polyhedral puzzles, I strongly recommend starting with one of the others (${link:coffin.triumph} is a nice one; or see the [Stewart Coffin Puzzles](https://www.puzzlehub.org/puzzles/stewart-coffin) page for links to all of them).
+  
+  Special thanks to Christoph Lohe for sharing a BurrTools file that made this model much easier to develop.
+
+  ### Printing Instructions
+
+  Print one copy of `${name}.pieces.stl`. No supports needed. You do not need to print `${name}.solution-aid.stl` unless you need additional help with the solution (beyond Coffin's hints); see the Solution Hints below for details.
+
+  This model uses a snap joint for one of the pieces to ensure that it can be printed without supports. ${snap-joints-boilerplate}
+
+  ### Solution Hints
+
+  I have included Coffin's solution hint diagram as one of the photos, which assigns to each of the six pieces a letter, spelling R-E-D-S-O-X. In Coffin's words:
+
+  "Assembly involves coordinate motion of all six dissimilar non-symmetrical pieces. As at least some aid to the difficult assembly, the pieces are marked R-E-D-S-O-X. To assemble, form a subassembly of pieces R-E-D clockwise. Then insert piece S opposite D, then O opposite R (only place it can go). To insert the last piece X, carefully expand the monster almost to the point of collapse and very carefully wiggle X into place."
+
+  I find that the final step of "wiggling" piece X into place is extremely difficult. If you get to that point and you're struggling with it, you may wish to print `${name}.solution-aid.stl`. It's another copy of piece X, but broken into two components with a joint. This makes it much easier to complete the final step of the assembly:
+
+  * First assemble the R-E-D subassembly.
+  * Then set the smaller component of the X piece (the one with the female joint connector) into its proper place.
+  * Now adjoin pieces S and O to the assembly as usual.
+  * Finally, simply snap the larger X piece component into place, completing the assembly without coordinate motion.
+
+  Once you have a working assembled puzzle, you can experiment with the disassembly and get a feel for what is required for a "proper" assembly with the original, solid X piece.
+
+  Good luck.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

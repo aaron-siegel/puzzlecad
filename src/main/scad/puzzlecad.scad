@@ -64,6 +64,7 @@ $joint_inset = 0.015;
 $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
+$short_joints = false;
 
 $unit_beveled = false;
 $auto_layout = false;

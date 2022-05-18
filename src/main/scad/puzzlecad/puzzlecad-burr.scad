@@ -63,12 +63,12 @@ module burr_plate(burr_specs, num_copies = 1) {
         male_joint_count = sum([
           for (burr_info = expanded_burr_infos, layer = burr_info, row = layer, voxel = row)
           let (connect = lookup_kv(voxel[1], "connect"))
-          connect[0] == "m" ? 1 : 0
+          connector_type(connect) == "m" && connector_prefixes(connect) == "" ? 1 : 0
         ]);
         male_diag_joint_count = sum([
           for (burr_info = expanded_burr_infos, layer = burr_info, row = layer, voxel = row)
           let (connect = lookup_kv(voxel[1], "connect"))
-          connect[0] == "d" && connect[1] == "m" ? 1 : 0
+          connector_type(connect) == "m" && connector_prefixes(connect) == "d" ? 1 : 0
         ]);
         if (male_joint_count > 0) {
             for (i = [0:male_joint_count-1]) {
@@ -236,8 +236,12 @@ module burr_piece_base(burr_spec, test_poly = undef) {
 
                 assert(is_valid_connect_annotation(connect), str("Invalid connector: ", connect));
                 
-                type = connect[0] == "d" ? connect[1] : connect[0];
-                orient = connect[0] == "d" ? substr(connect, 2, 4) : substr(connect, 1, 4);
+                prefixes = connector_prefixes(connect);
+                type = connector_type(connect);
+                orient = connector_orient(connect);
+                suffixes = connector_suffixes(connect);
+                
+                is_diagonal = list_contains(prefixes, "d");
                 
                 is_valid_clabel =
                     is_undef(clabel) ||
@@ -253,16 +257,23 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 
                 translate(cw(scale_vec, [x,y,z])) {
                     
-                    if (connect[0] == "m" && !$detached_joints)
-                        male_connector_cutout(orient);
-                    else if (connect[0] == "f" || connect[0] == "m")
-                        // If using $detached_joints, we also render "m" connectors as "f"
-                        female_connector(orient, clabel[0], substr(clabel, 1, 2));
-                    else if (connect[0] == "d" && connect[1] == "m" && !$detached_joints)
-                        male_diag_snap_connector_cutout(orient, twist = connect[6] == "~");
-                    else if (connect[0] == "d" && (connect[1] == "f" || connect[1] == "m"))
-                        // If using $detached_joints, we also render "m" connectors as "f"
-                        female_diag_snap_connector(orient, clabel, twist = connect[6] == "~");
+                    if (is_diagonal) {
+                        if (type == "m" && !$detached_joints) {
+                            if (!$short_joints)
+                                male_diag_snap_connector_cutout(orient, twist = list_contains(suffixes, "~"));
+                        } else {
+                            // If using $detached_joints, we also render "m" connectors as "f"
+                            female_diag_snap_connector(orient, clabel, twist = list_contains(suffixes, "~"));
+                        }
+                    } else {
+                        // Rectilinear joint.
+                        if (type == "m" && !$detached_joints) {
+                            male_connector_cutout(orient);
+                        } else {
+                            // If using $detached_joints, we also render "m" connectors as "f"
+                            female_connector(orient, clabel[0], substr(clabel, 1, 2));
+                        }
+                    }
                     
                 }
                 
@@ -341,19 +352,30 @@ module burr_piece_base(burr_spec, test_poly = undef) {
         connect_list = strtok(connect_str, ",");
         clabel_str = lookup_kv(aux[x][y][z], "clabel");
         clabel_list = strtok(clabel_str, ",");
-         
+        
         if (connect_list)
         for (i = [0:len(connect_list)-1]) {
             
             connect = connect_list[i];
             clabel = clabel_list[i];
+        
+            prefixes = connector_prefixes(connect);
+            type = connector_type(connect);
+            orient = connector_orient(connect);
+            suffixes = connector_suffixes(connect);
             
-            if (connect[0] == "m" && !$detached_joints) {
-                translate(cw(scale_vec, [x, y, z]))
-                male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
-            } else if (connect[0] == "d" && connect[1] == "m" && !$detached_joints) {
-                translate(cw(scale_vec, [x, y, z]))
-                male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = connect[6] == "~");
+            is_diagonal = list_contains(prefixes, "d");
+            
+            if (is_diagonal) {
+                if (type == "m" && !$detached_joints) {
+                    translate(cw(scale_vec, [x, y, z]))
+                    male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = list_contains(suffixes, "~"));
+                }
+            } else {
+                if (type == "m" && !$detached_joints) {
+                    translate(cw(scale_vec, [x, y, z]))
+                    male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
+                }
             }
             
         }
@@ -857,11 +879,11 @@ module male_diag_snap_connector_cutout(orient, twist = false) {
 module male_diag_snap_connector_tip(length) {
 
     beveled_prism(
-        [[0, $joint_inset / $burr_scale / $diag_joint_scale],
-         [-1/2 + sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale],
-         [1/2 - sqrt(2) * $joint_inset / $burr_scale / $diag_joint_scale, sqrt(2)/2 - $joint_inset / $burr_scale / $diag_joint_scale]] * $diag_joint_scale,
+        [[0, $joint_inset],
+         [-1/2 * $diag_joint_scale * $burr_scale + sqrt(2) * $joint_inset, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset],
+         [1/2 * $diag_joint_scale * $burr_scale - sqrt(2) * $joint_inset, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset]],
         length,
-        $burr_bevel = 1.5 / $burr_scale,
+        $burr_bevel = 1.5,
         $burr_outer_x_bevel = undef,
         $burr_outer_y_bevel = undef,
         $burr_outer_z_bevel = undef,
@@ -880,7 +902,7 @@ module male_diag_snap_connector(orient, label, twist = false) {
     eta = atan(sqrt(2)/2);
     
     joint_length = $burr_scale / 5;
-    
+
     scale($burr_scale)
     translate(twist_translate)
     rotate(rot)
@@ -890,7 +912,13 @@ module male_diag_snap_connector(orient, label, twist = false) {
         
         difference() {
             
-            male_diag_snap_connector_tip((joint_length * 2 + 1) / $burr_scale);
+            if ($short_joints) {
+                scale(1 / $burr_scale)
+                male_diag_snap_connector_tip(joint_length + 1.25);
+            } else {
+                scale(1 / $burr_scale)
+                male_diag_snap_connector_tip(joint_length * 2 + 1);
+            }
             
             if (label) {
                 
@@ -906,20 +934,24 @@ module male_diag_snap_connector(orient, label, twist = false) {
             
         }
 
-        translate([0, sqrt(2)/2 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
-        rotate([-90, 0, 0])
-        translate([0, 0, -0.5 / $burr_scale])
-        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
-        
-        translate([$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
-        rotate([90, 0, theta])
-        translate([0, 0, -0.5 / $burr_scale])
-        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+        if (!$short_joints) {
+            
+            translate([0, sqrt(2)/2 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+            rotate([-90, 0, 0])
+            translate([0, 0, -0.5 / $burr_scale])
+            cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+            
+            translate([$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+            rotate([90, 0, theta])
+            translate([0, 0, -0.5 / $burr_scale])
+            cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
 
-        translate([-$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
-        rotate([90, 0, -theta])
-        translate([0, 0, -0.5 / $burr_scale])
-        cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+            translate([-$diag_joint_scale/4, sqrt(2)/4 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
+            rotate([90, 0, -theta])
+            translate([0, 0, -0.5 / $burr_scale])
+            cylinder(h = ($joint_cutout + 1) / $burr_scale, r = 1 / $burr_scale, $fn = 32);
+            
+        }
     
     }
     
@@ -928,13 +960,9 @@ module male_diag_snap_connector(orient, label, twist = false) {
 module detached_male_diag_connector() {
     
     joint_length = $burr_scale / 5;
-    scale($burr_scale)
-    translate([0, 0, sqrt(2)/2 * $diag_joint_scale - $joint_inset / $burr_scale])
+    translate([0, 0, sqrt(2)/2 * $diag_joint_scale * $burr_scale - $joint_inset])
     rotate([-90, 0, 0]) {
-        male_diag_snap_connector_tip(joint_length * 2 / $burr_scale);
-        //translate([0, 0, iota])
-        //mirror([0, 0, 1])
-        //male_diag_snap_connector_tip([size, size, total_length], center = false, clipped = true);
+        male_diag_snap_connector_tip(joint_length * 2);
     }
     
 }
@@ -1103,6 +1131,26 @@ module puzzle_label(options, scale_vec) {
     }
 
 }
+
+function connector_prefixes(spec) = parse_connector_spec(spec)[0];
+
+function connector_type(spec) = parse_connector_spec(spec)[1];
+
+function connector_orient(spec) = parse_connector_spec(spec)[2];
+
+function connector_suffixes(spec) = parse_connector_spec(spec)[3];
+
+function parse_connector_spec(spec) =
+    let (result = parse_connector_spec_2(spec))
+    assert(!is_undef(result), str("Invalid connector: ", spec))
+    result;
+
+function parse_connector_spec_2(spec, i = 0) =
+      i == len(spec) ? undef
+    : spec[i] == "m" || spec[i] == "f"
+    ? let (suffix_pos = spec[len(spec) - 1] == "~" ? len(spec) - 1 : len(spec))
+      [substr(spec, 0, i), spec[i], substr(spec, i + 1, suffix_pos - i - 1), substr(spec, suffix_pos, len(spec) - suffix_pos)]
+    : parse_connector_spec_2(spec, i + 1);
 
 /******* Bounding box computation *******/
 

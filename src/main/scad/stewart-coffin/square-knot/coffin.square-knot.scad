@@ -21,32 +21,28 @@ include <puzzlecad.scad>
 require_puzzlecad_version("2.1");
 
 $burr_scale = 8;
+$burr_inset = 0.07;
+$burr_bevel = 0.5;
+outer_width = 2;
 
 *piece();
-*left_handed_reverse_piece();
-*right_handed_reverse_piece();
-*classical_altekruse_piece();
+*piece_reverse_left();
+*piece_reverse_right();
 
 module piece() {
 
-    burr_piece(generalized_altekruse("dbd", outer_width = 2));
+    burr_piece(generalized_altekruse("dbd", outer_width));
     
 }
 
-module left_handed_reverse_piece() {
+module piece_reverse_left() {
     
-    burr_piece(generalized_altekruse("bdf", outer_width = 2));
-    
-}
-
-module right_handed_reverse_piece() {
-    
-    burr_piece(generalized_altekruse("fdb", outer_width = 2));
+    burr_piece(generalized_altekruse("bdf", outer_width));
     
 }
 
-module classical_altekruse_piece() {
+module piece_reverse_right() {
     
-    burr_piece(generalized_altekruse("dbd"));
+    burr_piece(generalized_altekruse("fdb", outer_width));
     
 }
