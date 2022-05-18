@@ -130,7 +130,11 @@ def delete_thing(access_token, thing_id):
 def update_thing(access_token, thing_name, targets_str):
 
 	targets = targets_str.split(',')
-	
+
+	if 'files' in targets:
+		# Build the STLs first before uploading anything
+		build_stls(thing_name)
+
 	yaml_path = resolve_thing(thing_name)
 	contents = load_yaml_file(yaml_path)
 	name = contents['name']
@@ -138,12 +142,7 @@ def update_thing(access_token, thing_name, targets_str):
 	description = substitute_globals(contents['description'], thing_name, 'thingiverse')
 	
 	print(f'Updating thing "{name}" from file {yaml_path} ...')
-		
-	if 'files' in targets:
-	
-		# Build the STLs first before uploading anything
-		build_stls(thing_name)
-		
+
 	split_name = name.split(" - ")
 	description_title = f'## {name}' if len(split_name) <= 1 else f'## {split_name[0]}\n\n### {split_name[1]}'
 	
@@ -237,14 +236,20 @@ def create_driver_session(session_id, executor_url):
 
 	return new_driver
 
-def set_element_by_id(driver, id, text):
+def set_element(driver, bySpec, text):
 	element = WebDriverWait(driver, 10).until(
-		EC.presence_of_element_located((By.ID, id))
+		EC.presence_of_element_located(bySpec)
 	)
 	element.clear()
 	element.send_keys(text)
 
-def update_printables_model(session_id, executor_url, thing_name, targets):
+def update_printables_model(session_id, executor_url, thing_name, targets_str):
+
+	targets = targets_str.split(',')
+
+	if 'files' in targets:
+		# Build the STLs first before uploading anything
+		build_stls(thing_name)
 
 	yaml_path = resolve_thing(thing_name)
 	dir = os.path.dirname(yaml_path)
@@ -266,12 +271,18 @@ def update_printables_model(session_id, executor_url, thing_name, targets):
 
 	driver.get(f"{model_url}/edit")
 
-	set_element_by_id(driver, "print-name", name)
-	set_element_by_id(driver, "summary", summary)
+	set_element(driver, (By.ID, "print-name"), name)
+	set_element(driver, (By.ID, "summary"), summary)
 	category_element = driver.find_element(By.XPATH, "//ng-select[@formcontrolname = 'category']")
 	category_element.click()
+	WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, "//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")))
 	item_element = driver.find_element(By.XPATH, "//div[@role='option'][normalize-space(.)='Puzzles & Brain-teasers']")
 	item_element.click()
+	#license_element = driver.find_element(By.XPATH, "//ng-select[@formcontrolname = 'license']")
+	#license_element.click()
+	#WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, "//span[normalize-space(.)='Creative Commons — Attribution  — Noncommercial  —  NoDerivatives']")))
+	#license_item_element = driver.find_element(By.XPATH, "//span[normalize-space(.)='Creative Commons — Attribution  — Noncommercial  —  NoDerivatives']")
+	#license_item_element.click()
 
 	script = f"""
 	  const domEditableElement = document.querySelector( '.ck-editor__editable' );
@@ -279,18 +290,32 @@ def update_printables_model(session_id, executor_url, thing_name, targets):
 	  editorInstance.setData(`{markdown_to_html(revised_description)}`);"""
 	driver.execute_script(script)
 
-	if 'images' in targets:
+	if 'images' in targets or 'files' in targets:
 
-		zip_name = f"~/_images-upload-{thing_name}.zip"
-		images_str = " ".join(os.path.join(dir, filename) for filename in contents['images'])
-		os.system(f"zip -j {zip_name} {images_str}")
-		print(f'Ready to upload {zip_name}.')
+		images_zip_name = f"~/_images-upload-{thing_name}.zip"
+		files_zip_name = f"~/_files-upload-{thing_name}.zip"
+
+		if 'images' in targets:
+			images_str = " ".join(os.path.join(dir, filename) for filename in contents['images'])
+			os.system(f"zip -j {images_zip_name} {images_str}")
+
+		if 'files' in targets:
+			paths = prepare_files(yaml_path, contents)
+			paths_str = " ".join(paths)
+			os.system(f"zip -j {files_zip_name} {paths_str}")
+
+		print(f'Ready to upload.')
 		browse_button = driver.find_element(By.XPATH, "//label[normalize-space(.)='Browse']")
 		browse_button.click()
 		WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.CLASS_NAME, "processing-info")))
 		WebDriverWait(driver, 120).until(EC.invisibility_of_element_located((By.CLASS_NAME, "processing-info")))
 		print('Done uploading! Reorganize photos now & publish manually.')
-		os.system(f"rm {zip_name}")
+
+		if 'images' in targets:
+			os.system(f"rm {images_zip_name}")
+
+		if 'files' in targets:
+			os.system(f"rm {files_zip_name}")
 
 	if not targets:
 		# Publish automatically if no images/files specified.
@@ -300,6 +325,36 @@ def update_printables_model(session_id, executor_url, thing_name, targets):
 
 def markdown_to_html(text):
 	return markdown.markdown(text)
+
+def prepare_files(yaml_path, contents):
+
+	paths = []
+
+	root = os.path.splitext(yaml_path)[0]
+	dir = os.path.dirname(yaml_path)
+	scad_path = root + ".scad"
+	paths.append(scad_path)
+	scad_file = os.path.basename(scad_path)
+	scad_root = os.path.splitext(scad_file)[0]
+
+	aux_files = contents['aux_files'] if 'aux_files' in contents else []
+	for aux_file in aux_files:
+		paths.append(os.path.join(dir, aux_file))
+
+	configurations = contents['configurations'] if 'configurations' in contents else [{'name': '', 'code': '', 'targets': ''}]
+
+	for configuration in configurations:
+		configuration_targets = contents['targets'] if configuration['targets'] == '' else configuration['targets']
+		for stl_target in configuration_targets:
+
+			stl_target_suffix = '' if stl_target == "--" else '.' + stl_target.replace("_", "-")
+			configuration_suffix = '' if configuration['name'] == '' else '.' + configuration['name'] if stl_target_suffix == '' else '-' + configuration['name']
+			modularized_name = f'{scad_root}{stl_target_suffix}{configuration_suffix}'
+			extension = 'zip' if 'pages' in configuration else 'stl'
+			stl_target_path = f'{output_dir}/{modularized_name}.{extension}'
+			paths.append(stl_target_path)
+
+	return paths
 
 ##### Basic utilities
 

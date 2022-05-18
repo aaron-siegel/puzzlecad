@@ -1,24 +1,32 @@
-thing-id: -1
+thing-id: 5388152
+printables-model-id: 208022
 name: "Sixticks - Interlocking puzzle by Stewart Coffin (STC #268)"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [assembled.jpg, pieces.jpg]
-targets: [piece]
+targets: [piece_left, piece_right]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 6.5; outer_width = 1;', targets: ''}
 description: |
-  Assemble 6 pieces into the interlocking configuration shown in the cover photo.
+  Assemble six pieces into the interlocking configuration shown in the cover photo.
   
-  _Sixticks_ is one of many variants that coffin published on the classic _Altekruse Puzzle_. Background material on this class of puzzles can be found in the description for Coffin's related ${link:coffin.square-knot} puzzle. Whereas the _Altekruse Puzzle_ (and _Square Knot_) use 12 identical pieces, _Sixticks_ uses just 6 pieces, the fewest of any Altekruse variant, in three mirror-image pairs.
+  _Sixticks_ is one of many variants that Coffin explored on the classic [Altekruse Puzzle](https://en.wikipedia.org/wiki/Altekruse_Puzzle). Whereas the original _Altekruse Puzzle_ uses 12 identical pieces, _Sixticks_ uses just 6 pieces, the fewest of any Altekruse variant.
   
-  Coffin wrote of this puzzle:
+  _Sixticks_ is much easier than other Altekruse variants. Assembling it is nearly trivial; yet Coffin still considered it interesting enough to merit attention. In the 2010s, he wrote:
   
   "I must have made at least one experimental model about 40 years ago and found that it had one symmetrical solution, plus a second that I call a 'ghost' solution, meaning that the pieces would fit together if only it were possible to assemble.
   
   "Recently I made another set of pieces to photograph, and of course to tinker with in case something of interest may have been overlooked. This time I discovered several solutions, including some that use five of one kind of piece and one of the other. ... I enlisted the help of two puzzle experts, Nick Baxter and Bill Cutler. ... In the end we all agreed that this little novelty is not nearly as simple as I had once supposed. So now I call it _Sixticks_ and belatedly assign a serial number."
+  
+  If you're looking for a more serious puzzle challenge, see the listings for Coffin's ${link:coffin.square-knot} and the ${link:altekruse}.
 
   ### Printing Instructions
 
-  Print three copies each of `coffin.left-handed-piece.stl` and `coffin.right-handed-piece.stl`. Use one filament color for the left-handed pieces and a different color for the right-handed pieces.
+  Print three copies each of `${name}.piece-left.stl` and `${name}.piece-right.stl`. Use one filament color for the left-handed pieces and a different color for the right-handed pieces.
   
-  If you want to make Coffin's variant assemblies described above, print two additional copies of `coffin.left-handed-piece.stl` (or `coffin.right-handed-piece.stl`; it doesn't matter which). The expanded set of eight pieces can make either the 3/3 or 5/1 configurations.
+  If you want to make Coffin's variant assemblies described above, print two additional copies of `${name}.piece-left.stl` (or `${name}.piece-right.stl`; it doesn't matter which). The expanded set of eight pieces can make either the 3/3 or 5/1 configurations.
+
+  Each piece type has a smaller version with the suffix `.smaller.stl`. The smaller versions are compatible in size with the ${link:altekruse}.
 
   ${ppp-boilerplate}
 
