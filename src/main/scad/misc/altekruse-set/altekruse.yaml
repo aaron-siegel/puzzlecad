@@ -2,8 +2,8 @@ thing-id: 4790801
 printables-model-id: 206641
 name: "Extended Altekruse Puzzle Set"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: [38-piece-assembly.jpeg, 24-piece-assembly.jpeg, 36-piece-assembly.jpeg, unusual-constructions.png]
-targets: [piece_2_left, piece_2_right, piece_3, piece_4_left, piece_4_right, piece_5, piece_6_left, piece_6_right, piece_7]
+images: [38-piece-assembly.jpeg, 12-piece-assembly.jpeg, 14-piece-assembly.jpeg, 24-piece-assembly.jpeg, 36-piece-assembly.jpeg, 20-piece-assembly.jpeg, unusual-constructions.png, 3-4-5.jpeg]
+targets: [piece_2_left, piece_2_right, piece_3, piece_4_left, piece_4_right, piece_5, piece_6_left, piece_6_right, piece_7, piece_3_reverse_left, piece_3_reverse_right]
 description: |
   A modular set of puzzle pieces that can form various extensions of the classic Altekruse design.
   
@@ -18,7 +18,7 @@ description: |
   
   Constructions can be made with 6 pieces of length 2; with 24 pieces of length 4; or with 36 pieces of length 5. In addition, the length-3 and length-5 versions have variants that use 14 and 38 pieces, respectively. The odd-length pieces are all identical in shape, whereas the even-length pieces come in mirror-image pairs.
   
-  The larger variants make particularly good puzzles: they should provide a satisfying challenge even to experienced puzzle solvers, but they have a lovely regular structure that makes them feasible to assemble without hints or computer aid. (The 6-piece length-2 variant is trivial, and is more toy than puzzle; still, completists might wish to print a copy.)
+  The larger variants make particularly good puzzles: they should provide a satisfying challenge even to experienced puzzle solvers, but they have a lovely regular structure that makes them feasible to assemble without hints or computer aid.
   
   If you're new to this type of puzzle, start with the basic 12- and/or 14-piece versions, then progress to the more difficult 24-, 36-, and 38-piece constructions. Still larger variants are possible, as are various rectangular constructions that "mix and match" pieces of different lengths. These and other generalizations are discussed in the _Further Explorations_ section below.
   
@@ -31,11 +31,11 @@ description: |
   
   ### Background
   
-  The original 12-piece Altekruse puzzle was patented in 1890 by one "W. Altekruse," usually presumed to be the German-born William Altekruse, who immigrated to the United States in 1844. It remains popular today, and it is widely available in mass-produced commercial editions (often without attribution to its inventor).
+  The original 12-piece Altekruse puzzle was patented in 1890 by one "W. Altekruse," usually presumed to be the Austrian-born William Altekruse, who immigrated to the United States in 1844. It remains popular today, and it is widely available in mass-produced commercial editions (often without attribution to its inventor).
   
   In the 1970s, the great puzzle designer Stewart Coffin crafted around 40 copies of the 12-piece Altekruse puzzle under the name _Square Knot_. Coffin tells the interesting story of the discovery of the 14-piece variant: "I used to make [_Square Knot_] in three contrasting fancy woods, one wood for each axis. Once when exhibiting at a craft show, I watched with considerable interest as a bright young girl named Marjorie Hoffman was amusing herself at my booth by trying to put one together in a strange new configuration. I later completed it and found to my surprise that it required fourteen pieces rather than twelve."
   
-  Coffin produced the 14-piece version as _Plus 2_. He continued to explore various Altekruse generalizations, including the 6-, 24-, 36-, and 38-piece extensions already discussed, but only the 6-piece version was given a name, ${link:coffin.sixticks}. Many additional constructions are possible, some of which Coffin hinted at in his writings; these are discussed in the _Further Explorations_ section below. 
+  Coffin produced the 14-piece version as _Plus 2_. (See the entry for ${link:coffin.square-knot} for more details.) He continued to explore various Altekruse generalizations, including the 6-, 24-, 36-, and 38-piece extensions already discussed, but only the 6-piece version was given a name, ${link:coffin.sixticks}. Many additional constructions are possible, some of which Coffin hinted at in his writings; these are discussed in the _Further Explorations_ section below. 
   
   ### Further Explorations
   
@@ -43,13 +43,13 @@ description: |
   
   In addition to these "standard" extensions, many other variants are possible:
   
-  * All of the length-_n_ Altekruse puzzles discussed above have the assembled shape of an _n_ x _n_ x _n_ cube. By mixing and matching various lengths, one can obtain rectangular constructions as well. One of the photos shows an example of a 3 x 3 x 5 construction. Irregular assemblies are possible too; another photo, reproduced from Coffin's writings, shows (in Coffin's words) "some of the many other interesting variations that are possible, without limit."
-  * Coffin identified an alternate construction for _Sixticks_ (the basic length-2 version), using one left-handed and five right-handed pieces, as opposed to the usual three of each. What other combinations are possible for the 24-piece length-4 puzzle, aside from the usual twelve of each? I do not know the answer.
-  * Finally, Coffin hinted at explorations involving new piece types, with patterns of notches distinct from any of the standard Altekruse pieces: "In the standard _Altekruse Puzzle_, each piece has three notches, with the two end notches facing in the same direction. There is a variation in which some pieces have notches facing in opposite directions.... Which combinations using such pieces are possible?" (See diagram below.)
+  * All of the length-_n_ Altekruse puzzles discussed above have the assembled shape of an _n_ x _n_ x _n_ cube. By mixing and matching various lengths, one can obtain rectangular constructions as well. One of the photos shows an example of a 3 x 3 x 5 construction made from 16 length-3 and 4 length-5 pieces. Irregular assemblies are possible too; another photo, reproduced from Coffin's writings, shows (in Coffin's words) "some of the many other interesting variations that are possible, without limit."
+  * Coffin identified an alternate construction for _Sixticks_ (the basic length-2 version), using one left-handed and five right-handed pieces, as opposed to the usual three of each. (See the listing for ${link:coffin.sixticks} for details.) What other combinations are possible for the 24-piece length-4 puzzle, aside from the usual twelve of each? I do not know the answer.
+  * Finally, Coffin hinted at explorations involving new piece types, with patterns of notches distinct from any of the standard Altekruse pieces: "In the standard _Altekruse Puzzle_, each piece has three notches, with the two end notches facing in the same direction. There is a variation in which some pieces have notches facing in opposite directions.... Which combinations using such pieces are possible?" (See diagram below.) Coffin answered this question for the classic 3 x 3 x 3 shape (see the listing for ${link:square-knot} for details); I am not aware of any experiments with larger variants.
 
   <img src="https://i.imgur.com/GAHUvXu.png" />
   
-  `altekruse.scad` may be used to generate sticks with any pattern of notches (see instructions inside the .scad file); perhaps some curious reader will be inclined to experiment with them. There is doubtless much more to be discovered about this fascinating series of puzzle.
+  The length-3 "reverse" pieces are published as `${name}.length-3-reverse-left.stl` and `${name}.length-3-reverse-right.stl`, and `altekruse.scad` may be used to generate sticks with any pattern of notches (see instructions inside the .scad file). Perhaps some curious reader will be inclined to experiment with them. There is doubtless much more to be discovered about this fascinating series of puzzle.
 
   ${ppp-boilerplate}
 

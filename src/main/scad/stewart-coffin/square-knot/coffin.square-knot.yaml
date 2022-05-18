@@ -1,14 +1,18 @@
-thing-id: 4255550
+thing-id: 5388195
+printables-model-id: 208056
 name: "Square Knot / Plus 2 - Interlocking puzzles by Stewart Coffin (STC #9 & #57)"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
 images: [assembly-12.jpg, assembly-14.jpg, pieces.jpg]
-targets: [piece, left_handed_piece, right_handed_piece, altekruse_piece]
+targets: [piece, piece_reverse_left, piece_reverse_right]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'smaller', code: '$burr_scale = 6.5; outer_width = 1;', targets: ''}
 description: |
-  Assemble 12 identical pieces into the interlocking configuration shown in the cover photo (_Square Knot_). For added challenge, assemble 14 such pieces into the separate configuration shown in the second photo (_Plus 2_). Additional challenges are discussed below.
+  Assemble 12 or 14 identical pieces into the interlocking configurations shown in the photos.
+  
+  The 12-piece version, published by Coffin as _Square Knot_ (STC #9), is the classic [Altekruse Puzzle](https://en.wikipedia.org/wiki/Altekruse_Puzzle), whose design has been known since at least 1890. If printed in three colors as shown, there is the additional challenge of discovering two distinct assemblies with different color symmetries.
 
-  _Square Knot_ is Coffin's take on a the classic _Altekruse Puzzle_. The basic idea appeared in an 1890 patent by the Austrian designer William Altekruse, and _Square Knot_ is almost identical to that design: the only difference is that the ends of the pieces are slightly elongated in _Square Knot_, making the assembly somewhat more challenging. If printed in three colors, there is the added challenge of discovering two distinct assemblies with different color symmetries.
-
-  Amazingly, an enlarged set of fourteen of the same identical pieces admits a different, larger assembly. Coffin published the 14-piece variant under the name _Plus 2_ (STC #57). He later described its discovery: "Once when exhibiting at a craft show, I watched with considerable interest as a bright young girl named Marjorie Hoffman was amusing herself at my booth by trying to put [_Square Knot_] together in a strange new configuration. I later completed it and found to my surprise that it required fourteen pieces rather than twelve."
+  An enlarged set of fourteen of the same identical pieces admits a different, larger assembly. Coffin published the 14-piece variant under the name _Plus 2_ (STC #57). He later described its discovery: "I used to make [_Square Knot_] in three contrasting fancy woods, one wood for each axis. Once when exhibiting at a craft show, I watched with considerable interest as a bright young girl named Marjorie Hoffman was amusing herself at my booth by trying to put one together in a strange new configuration. I later completed it and found to my surprise that it required fourteen pieces rather than twelve."
 
   Over the years Coffin continued to experiment with further variations on the Altekruse puzzle, proposing two additional types of Altekruse piece, the _left-handed reverse_ and _right-handed reverse_ pieces. Coffin wrote:
 
@@ -16,17 +20,17 @@ description: |
 
   "The 14-piece version may be constructed with 12 standard and two reverse, 10 standard and four reverse, or 8 standard and six reverse. In the version with six reverse pieces, the only combination which is impossible is with six identical reverse pieces."
 
-  Well then! Print yourself a set of 20 pieces as described below, and you can enjoy _Square Knot_, _Plus 2_, and all the variants described by Coffin. I've also included a model of the classical Altekruse piece (with standard-length tips), in case anyone should want to print it - but honestly, if you print _Square Knot_ there isn't much purpose.
+  Well then! Print yourself a set of 20 pieces as described below, and you can enjoy _Square Knot_, _Plus 2_, and all the variants described by Coffin.
 
-  But wait, there's more! Coffin also experimented with larger and smaller Altekruse variants, with 6, 24, 36, and 38 pieces, and hinted at others that are still larger. You can read about these variants in the entries for ${link:coffin.sixticks} and ${link:coffin.extended-square-knot}. Pieces for the larger and smaller variants are all printable to compatible scales, so can be combined with this set to form a variety of intermediate rectangular shapes as well, with seemingly endless opportunities for experimentation.
+  But wait, there's more! Coffin also explored larger and smaller Altekruse variants, with 6, 24, 36, and 38 pieces, and hinted at the existence of many more, surely including some that are yet undiscovered. You can read about (and print copies of) these variants in the entries for ${link:coffin.sixticks} and the ${link:altekruse}.
 
   ### Printing Instructions
 
-  To make the basic _Square Knot_ puzzle, print twelve copies of `coffin.square-knot.piece.stl`. To make _Plus 2_ as well, print fourteen copies instead. For the intended color configuration, print four copies in each of three colors (or 5/5/4 for the expanded _Plus 2_ set).
+  To make the basic _Square Knot_ puzzle, print twelve copies of `${name}.piece.stl`. For the intended color configuration, print four copies in each of three colors. If you want to construct _Plus 2_ as well, print two additional copies, one in each of two of the three colors.
 
-  For a full set of 20 pieces that can also make Coffin's "reverse piece" variants (as described above), print fourteen copies of `coffin.square-knot.piece.stl`, five copies of `coffin.square-knot.left-handed-reverse-piece.stl`, and one copy of `coffin.square-knot.right-handed-reverse-piece.stl`. [COLORS?]
-
-  Finally, if you wish to print the classical Altekruse puzzle, print twelve copies of `coffin.square-knot.classical-altekruse-piece.stl`. (As mentioned above, though, it doesn't have much to offer if you've already printed _Square Knot_.)
+  For a full set of 20 pieces that can also make Coffin's "reverse piece" variants (as described above), print fourteen copies of `${name}.piece.stl`, five copies of `${name}.piece-reverse-left.stl`, and one copy of `${name}.piece-reverse-right.stl`. It is left as an exercise to the reader (or another puzzle?) to determine which colors to use for the reverse pieces.
+  
+  Each piece type has a smaller version with the suffix `.smaller.stl`. The regular-sized versions are more faithful to Coffin's vision for this design; the smaller ones are compatible in size with the ${link:altekruse}.
 
   ${ppp-boilerplate}
 

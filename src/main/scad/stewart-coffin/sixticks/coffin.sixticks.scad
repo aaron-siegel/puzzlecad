@@ -20,19 +20,20 @@ include <puzzlecad.scad>
 
 require_puzzlecad_version("2.1");
 
-$burr_scale = 11.15;
+$burr_scale = 8;
 $burr_inset = 0.07;
+$burr_bevel = 0.5;
 
-*left_handed_piece();
-*right_handed_piece();
+*piece_left();
+*piece_right();
 
-module left_handed_piece() {
+module piece_left() {
     
     burr_piece(generalized_altekruse("bd"));
     
 }
 
-module right_handed_piece() {
+module piece_right() {
     
     burr_piece(generalized_altekruse("db"));
     
