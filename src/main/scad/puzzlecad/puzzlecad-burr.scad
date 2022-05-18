@@ -1149,7 +1149,7 @@ function parse_connector_spec_2(spec, i = 0) =
       i == len(spec) ? undef
     : spec[i] == "m" || spec[i] == "f"
     ? let (suffix_pos = spec[len(spec) - 1] == "~" ? len(spec) - 1 : len(spec))
-      [substr(spec, 0, i), spec[i], substr(spec, i + 1, suffix_pos), substr(spec, suffix_pos, len(spec))]
+      [substr(spec, 0, i), spec[i], substr(spec, i + 1, suffix_pos - i - 1), substr(spec, suffix_pos, len(spec) - suffix_pos)]
     : parse_connector_spec_2(spec, i + 1);
 
 /******* Bounding box computation *******/
