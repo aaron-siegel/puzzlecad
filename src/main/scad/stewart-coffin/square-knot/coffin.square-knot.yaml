@@ -2,7 +2,7 @@ thing-id: 5388195
 printables-model-id: 208056
 name: "Square Knot / Plus 2 - Interlocking puzzles by Stewart Coffin (STC #9 & #57)"
 tags: [puzzle, 3D_puzzle, burr_puzzle]
-images: [assembly-12.jpg, assembly-14.jpg, pieces.jpg]
+images: [assembly-14.jpg, assembly-12.jpg, pieces.jpg]
 targets: [piece, piece_reverse_left, piece_reverse_right]
 configurations:
   - {name: '', code: '', targets: ''}
@@ -30,7 +30,7 @@ description: |
 
   For a full set of 20 pieces that can also make Coffin's "reverse piece" variants (as described above), print fourteen copies of `${name}.piece.stl`, five copies of `${name}.piece-reverse-left.stl`, and one copy of `${name}.piece-reverse-right.stl`. It is left as an exercise to the reader (or another puzzle?) to determine which colors to use for the reverse pieces.
   
-  Each piece type has a smaller version with the suffix `.smaller.stl`. The regular-sized versions are more faithful to Coffin's vision for this design; the smaller ones are compatible in size with the ${link:altekruse}.
+  Each piece type has a smaller version with the suffix `-smaller.stl`. The regular-sized versions are more faithful to Coffin's vision for this design; the smaller ones are compatible in size with the ${link:altekruse}.
 
   ${ppp-boilerplate}
 
