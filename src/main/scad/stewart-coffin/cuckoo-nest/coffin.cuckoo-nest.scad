@@ -26,6 +26,7 @@ $notched_stick_tolerance = 0.25;    // in mm
 *hex_sticks();
 *elbow_dowel();
 *free_dowel();
+*free_dowel_tighter();
 
 hex_radius = sqrt(1/24);    // relative to scale; the "magic number" for locked nest et al
 dowel_radius = 0.08;        // relative to scale; an arbitrary number that gives good results
@@ -83,4 +84,10 @@ module free_dowel() {
     
     dowel(stick_length, dowel_radius, 0);
     
+}
+
+module free_dowel_tighter() {
+
+    free_dowel($notched_stick_tolerance = 0.02);
+
 }
