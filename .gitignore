@@ -3,3 +3,4 @@ out
 venv
 .idea
 main.iml
+src/main/scad/staging/

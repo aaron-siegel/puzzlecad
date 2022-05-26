@@ -1,0 +1,26 @@
+thing-id: 5389028
+printables-model-id: 207931
+name: "Cuckoo Nest - Interlocking puzzle by Stewart Coffin (STC #21)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, assembled-alt.jpg, pieces.jpg]
+targets: [hex_sticks, elbow_dowel, free_dowel, free_dowel_tighter]
+description: |
+  Assemble the seven pieces into the interlocking nest shape shown in the photo.
+
+  This classic puzzle is Coffin's first design involving interlocking hexagonal sticks and dowels. There is one "free" stick/dowel pair, and the remainder are permanently joined into various "elbow pieces" as shown in the photos. The confusing geometry of _Cuckoo Nest_, and the slight variations in the manner in which the dowel pieces are constructed, make for a satisfying challenge, despite the small number of pieces involved. If you enjoy this one, you might also try ${link:coffin.locked-nest}, which ups the difficulty.
+
+  ### Printing Instructions
+
+  Print one copy of `${name}.hex-sticks.stl`, five copies of `${name}.elbow-dowel.stl`, and one copy of `${name}.free-dowel.stl`. The dowels are intentionally oriented vertically in order to produce smooth cylinders; printing horizontally with supports gives poor results. You might wish to print them with a raft or brim for stability (although I've had success printing them directly on the bed with no brim). To get the contrasting effect shown in the photo, print the sticks and dowels in different filament colors.
+
+  After printing, first assemble the pieces before attempting to solve the puzzle. Five of the pieces are "elbow pieces" that have a dowel permanently attached to a hexagonal stick. To assemble the elbow pieces, screw the threaded dowel segments into the the corresponding threaded holes into the hexagonal sticks. Each threaded hole is marked on the inside with one or three dots. Screw a short dowel segment into each hole with one dot and a long dowel segment into each hole with three dots. (One of the hexagonal sticks has no threaded hole, and correspondingly, one of the dowels is a single solid cylinder with no threads.)
+
+  Once screwed together, the elbow pieces are intended to remain permanently joined (the screws are not part of the puzzle). If you'd like, put a generous drop of superglue into each hole before screwing in the dowels; this will ensure a strong, precise, permanent connection.
+  
+  If you find that the free dowel is too loose in the final assembly, you can try replacing it with the alternate (optional) `${name}.free-dowel-tighter.stl`.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!

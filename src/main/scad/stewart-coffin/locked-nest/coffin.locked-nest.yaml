@@ -1,0 +1,30 @@
+thing-id: 5388148
+printables-model-id: 207935
+name: "Locked Nest - Interlocking puzzle by Stewart Coffin (STC #22)"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, piece.jpg]
+targets: [free_stick, elbow_stick, free_dowel, elbow_dowel]
+description: |
+  Assemble the 18 or 20 pieces (depending on variant - see below) into the interlocking shape shown in the photo.
+
+  _Locked Nest_ is Stewart Coffin's second design involving interlocking hexagonal sticks and dowels, a follow-up to ${link:coffin.cuckoo-nest}. Although _Locked Nest_ has only three basic types of pieces - free sticks, free dowels, and five (or six) identical "elbow pieces" (shown in the photo) - it represents a considerable step up in difficulty from _Cuckoo Nest_. The finished assembly has a striking geometric appearance.
+
+  ### Printing Instructions
+
+  For the original, easier version, print seven copies each of `${name}.free-stick.stl` and `${name}.free-dowel.stl`, and five copies each of `${name}.elbow-stick.stl` and `${name}.elbow-dowel.stl`.
+
+  For the more difficult, revised version, print six copies each of `${name}.free-stick.stl`, `${name}.free-dowel.stl`, `${name}.elbow-stick.stl`, and `${name}.elbow-dowel.stl`.
+
+  (Or, you can print seven copies of the free stick/dowel pairs and six copies of the elbow stick/dowel pairs, and you'll have enough parts to attempt both challenges.)
+
+  The dowels are intentionally oriented vertically in order to produce smooth cylinders; printing horizontally with supports gives poor results. You might wish to print them with a raft or brim for stability (although I've had success printing them directly on the bed with no raft or brim). To get the contrasting effect shown in the photo, print the sticks and dowels in different filament colors.
+
+  After printing, first assemble the pieces before attempting to solve the puzzle. Several of the pieces are "elbow pieces" that have a dowel permanently attached to a hexagonal stick. To assemble the elbow pieces, screw the threaded dowel segments into the the corresponding threaded holes into the hexagonal sticks. Each threaded hole is marked on the inside with one or three dots. Screw a short dowel segment into each hole with one dot and a long dowel segment into each hole with three dots. Be careful not to overtighten, or you may strip the threads.
+
+  Once screwed together, the elbow pieces are intended to remain permanently joined (the screws are not part of the puzzle). If you'd like, put a generous drop of superglue into each hole before screwing in the dowels; this will ensure a strong, precise, and permanent connection.
+
+  ${ppp-boilerplate}
+
+  ${stewart-coffin-bio}
+
+  Happy puzzling!
