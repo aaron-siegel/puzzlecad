@@ -48,9 +48,11 @@ module burr_piece(burr_spec) {
  * The other arguments should be left as defaults (they're used for recursive calls to burr_plate).
  */
 
-module burr_plate(burr_specs, num_copies = 1) {
+module burr_plate(burr_specs, num_copies = 1, dup = []) {
     
-    burr_infos = [ for (burr_spec = burr_specs) to_burr_info(burr_spec) ];
+    burr_dups = dups(dup, burr_specs);
+    
+    burr_infos = [ for (burr_spec = burr_dups) to_burr_info(burr_spec) ];
     
     layout_burr_infos = $auto_layout ? auto_layout_plate(burr_infos) : burr_infos;
     
