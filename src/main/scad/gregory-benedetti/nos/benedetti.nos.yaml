@@ -1,0 +1,35 @@
+thing-id: -1
+printables-model-id: -1
+name: "NOS Burr Series - Interlocking puzzles by Gregory Benedetti"
+tags: [puzzle, 3D_puzzle]
+images: [assembled.jpg, pieces.jpg]
+targets: [nos1_compressed, nos2_transfer, nos3_round_trip, nos4_go_back, nos5_crenel, nos6_dodge, nos7_seizaine]
+configurations:
+  - {name: '', code: '', targets: ''}
+  - {name: 'tighter', code: 'insets = [0.05, 0.07, 0.05, 0.05, 0.05, 0.05, 0.05];', targets: ''}
+description: |
+  The NOS Burr Series is a set of seven interlocking puzzles by Gregory Benedetti. The goal of each puzzle is the same: assemble six pieces into the familiar shape of an ordinary six-piece burr.
+  
+  These are no ordinary six-piece burrs, however. Instead of the usual rectilinear cuts found in traditional burr puzzles, the NOS ("New Old School") burrs feature unusual diagonal cuts, yielding an astonishing variety of solving experiences that will continually surprise you. Each one is unique; among them you will find triple and quadruple coordinate motion, multiple consecutive coordinate motions, surprising reversals, and an unusual rotation thrown in for good measure. These are some of the most delightful puzzle designs that I have ever encountered.
+
+  Be advised that these are quite difficult puzzles, and they are likely to challenge even experienced puzzle solvers. If you are unfamiliar with burr puzzles, I strongly advise starting with simpler designs such as those in the ${link:starter-burr-set}. However, if you feel up to the challenge, you will not regret embarking on this journey. I can assure you (from personal experience) that it is indeed possible to solve them all as pure assembly puzzles, without any hints or computer aids. If you get desperate, Kevin Sadler has created solution videos for all seven; search for them on YouTube.
+  
+  I have intentionally rendered these to be slightly loose. They can be printed tighter and still function, but if printed too tight have a tendency to lock together in frustrating ways.
+
+  You can find more information about these fascinating designs in the following article by Frans de Vreugd:
+  
+  https://www.gathering4gardner.org/g4g13gift/puzzles/DeVreugdFrans-GiftExchange-NewOldSchoolBurrs-G4G13.pdf
+
+  ### Printing Instructions
+
+  For puzzle #1 and #2, print three copies of `${name}.nos1-compressed.stl` and `${name}.nos2-transfer.stl`, respectively. For each of the others, print just one copy of the appropriate `stl` file (`${name}.nos3-round-trip.stl` through `${name}.nos7-seizaine.stl`).
+  
+  I recommend printing with build-plate supports with an overhang threshold below 45 degrees. The supports are needed only to strengthen the tips on some of the downward-facing diagonals, not to support any actual surfaces, so they will not leave scars. There is one exception: there is a single piece on puzzle #4 with an overhanging surface. For this one piece, I recommend turning off supports; relying on the printer's natural bridging will give smoother results.
+
+  Puzzles #1 and #2 use "snap joints" to accommodate pieces with significant overhang. ${snap-joints-boilerplate}
+
+  ${ppp-boilerplate}
+
+  ${gregory-benedetti-bio}
+
+  Happy puzzling!
