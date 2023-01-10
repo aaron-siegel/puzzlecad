@@ -58,8 +58,8 @@ module burr_plate(burr_specs, num_copies = 1) {
     
     burr_plate_r(expanded_burr_infos);
     
-    if ($detached_joints) {
-        // If using $detached_joints, we need to render the detached joints separately.
+    if ($joint_style == "detached") {
+        // If using detached joints, we need to render them separately.
         male_joint_count = sum([
           for (burr_info = expanded_burr_infos, layer = burr_info, row = layer, voxel = row)
           let (connect = lookup_kv(voxel[1], "connect"))
@@ -141,7 +141,9 @@ module burr_piece_2(burr_spec, center = false, piece_number = undef) {
         translate([-0.001, -0.001, 0])  // OpenSCAD sometimes chokes on floating point errors for rendering complex polyhedra; this seems to help
         translate(center ? [0, 0, 0] : -bounding_box[0])
         rotate($post_rotate)
-        burr_piece_base(burr_info);
+        post_process_burr_piece() {
+            burr_piece_base(burr_info);
+        }
 
     }
     
@@ -257,20 +259,19 @@ module burr_piece_base(burr_spec, test_poly = undef) {
                 
                 translate(cw(scale_vec, [x,y,z])) {
                     
-                    if (is_diagonal) {
-                        if (type == "m" && !$detached_joints) {
-                            if (!$short_joints)
-                                male_diag_snap_connector_cutout(orient, twist = list_contains(suffixes, "~"));
+                    if (type == "m" && $joint_style == "standard") {
+                        // Render a male connector cutout.
+                        if (is_diagonal) {
+                            male_diag_snap_connector_cutout(orient, twist = list_contains(suffixes, "~"));
                         } else {
-                            // If using $detached_joints, we also render "m" connectors as "f"
-                            female_diag_snap_connector(orient, clabel, twist = list_contains(suffixes, "~"));
-                        }
-                    } else {
-                        // Rectilinear joint.
-                        if (type == "m" && !$detached_joints) {
                             male_connector_cutout(orient);
+                        }
+                    } else if (type == "f" || $joint_style == "detached") {
+                        // Render a female connector.
+                        // (If using detached joints, we also render "m" connectors as "f".)
+                        if (is_diagonal) {
+                            female_diag_snap_connector(orient, clabel, twist = list_contains(suffixes, "~"));
                         } else {
-                            // If using $detached_joints, we also render "m" connectors as "f"
                             female_connector(orient, clabel[0], substr(clabel, 1, 2));
                         }
                     }
@@ -367,12 +368,12 @@ module burr_piece_base(burr_spec, test_poly = undef) {
             is_diagonal = list_contains(prefixes, "d");
             
             if (is_diagonal) {
-                if (type == "m" && !$detached_joints) {
+                if (type == "m" && $joint_style != "detached") {
                     translate(cw(scale_vec, [x, y, z]))
                     male_diag_snap_connector(substr(connect, 2, 4), clabel[0], twist = list_contains(suffixes, "~"));
                 }
             } else {
-                if (type == "m" && !$detached_joints) {
+                if (type == "m" && $joint_style != "detached") {
                     translate(cw(scale_vec, [x, y, z]))
                     male_connector(substr(connect, 1, 4), clabel[0], substr(clabel, 1, 2));
                 }
@@ -381,6 +382,12 @@ module burr_piece_base(burr_spec, test_poly = undef) {
         }
         
     }
+    
+}
+
+module post_process_burr_piece() {
+    
+    children(0);
     
 }
 
@@ -497,7 +504,91 @@ module burr_piece_component(burr_info, component_id, test_poly = undef) {
         
 }
 
+tetra_faces = [[0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2]];
+tetra_inverted_faces = [ for (f = tetra_faces) reverse_list(f) ];
+
 module burr_piece_component_diag(burr_info, component_id, test_poly = undef) {
+    
+    // "Bevel after inset"
+    minkowski_bevel($burr_bevel / sqrt(2)) {
+        minkowski_inset($burr_inset) {
+            burr_piece_component_diag_raw(burr_info, component_id);
+            minkowski_inset_shape($burr_inset);
+        }
+    }
+    // "Inset after bevel"
+    *minkowski_inset($burr_inset) {
+        minkowski_bevel($burr_bevel / sqrt(2)) {
+            burr_piece_component_diag_raw(burr_info, component_id);
+        }
+        minkowski_inset_shape($burr_inset);
+    }
+    
+}
+
+$use_diag_voxel_expand_hack = false;
+
+module burr_piece_component_diag_raw(burr_info, component_id) {
+    
+    scale_vec = vectorize($burr_scale);
+    inset_vec = vectorize($burr_inset);
+    bevel_vec = vectorize($burr_bevel);
+    xlen = len(burr_info);
+    ylen = max([ for (plane=burr_info) len(plane) ]);
+    zlen = max([ for (plane=burr_info, column=plane) len(column)]);
+    burr = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[0] ]]];
+    aux = [ for (plane=burr_info) [ for (column=plane) [ for (cell=column) cell[1] ]]];
+        
+    ortho_geom = [ for (x=[0:xlen-1]) [ for (y=[0:ylen-1]) [ for (z=[0:zlen-1])
+        let (components_str = lookup_kv(aux[x][y][z], "components"))
+        let (components = expand_components_list(strtok(components_str, ",")))
+        [ for (face=[0:5]) [ for (edge=[0:3]) [ for (vertex=[0:1])
+            let (face_name = cube_face_names[face])
+            let (edge_name = str(face_name, cube_edge_names[face][edge]))
+            let (vertex_name = str(edge_name, cube_vertex_names[face][edge][vertex]))
+            is_undef(components_str) ||
+                list_contains(components, face_name) ||
+                list_contains(components, edge_name) ||
+                list_contains(components, vertex_name) ? burr[x][y][z] : 0
+        ] ] ]
+    ] ] ];
+
+    for (x = [0:xlen-1], y = [0:ylen-1], z = [0:zlen-1]) {
+        
+        cell = [x, y, z];
+        cube_center = cw(scale_vec, cell);
+        
+        if (burr[x][y][z] == component_id && is_undef(lookup_kv(aux[x][y][z], "components"))) {
+            expand = vectorize($use_diag_voxel_expand_hack ? 0.0001 : 0);
+            translate(cube_center)
+            cube(scale_vec + expand, center = true);
+        } else {
+            
+            ortho = lookup3(ortho_geom, cell);
+            
+            for (face = [0:5], edge = [0:3], vertex = [0:1])
+            if (lookup3(ortho, [face, edge, vertex]) == component_id) {
+                
+                dir1 = directions[face];
+                dir2 = cube_edge_directions[face][edge];
+                dir3 = cube_vertex_directions[face][edge][vertex];
+            
+                face_center = cube_center + cw(scale_vec, 0.5 * dir1);
+                edge_center = face_center + cw(scale_vec, 0.5 * dir2);
+                vertex_point = edge_center + cw(scale_vec, 0.5 * dir3);
+                
+                points = [cube_center, face_center, edge_center, vertex_point];
+                polyhedron(points, vertex == 0 ? tetra_faces : tetra_inverted_faces);
+
+            }
+        
+        }
+            
+    }
+
+}
+
+module burr_piece_component_diag_old(burr_info, component_id, test_poly = undef) {
     
     scale_vec = vectorize($burr_scale);
     inset_vec = [0, 0, 0];//vectorize($burr_inset);
@@ -700,7 +791,95 @@ module tetrahedron_cutout() {
     polyhedron(vertices, faces);
     
 }
- 
+
+module minkowski_bevel(bevel, $bounding_cube = 1000) {
+    
+    if (bevel > 0.001) {
+        
+        render(convexity = 2)
+        minkowski() {
+            minkowski_inset(bevel) {
+                children(0);
+                minkowski_bevel_cutout_shape(bevel);
+            }
+            minkowski_bevel_shape(bevel);
+        }
+        
+    } else {
+        
+        children(0);
+        
+    }
+    
+}
+
+module minkowski_inset(inset, $bounding_cube = 1000) {
+    
+    bounding_cube = vectorize($bounding_cube);
+    
+    if (inset >= 0.001) {
+        
+        render(convexity = 2)
+        intersection() {
+            difference() {
+                cube(bounding_cube + [1, 1, 1], center = true);
+                minkowski() {
+                    difference() {
+                        cube(bounding_cube, center = true);
+                        children(0);
+                    }
+                    children(1);
+                }
+            }
+            cube(bounding_cube, center = true);
+        }
+        
+    } else {
+        
+        children(0);
+        
+    }
+    
+}
+
+module minkowski_inset_shape(inset) {
+    
+    octahedron(inset);
+    
+}
+
+module minkowski_bevel_shape(bevel) {
+    
+    octahedron(bevel);
+    
+}
+
+module minkowski_bevel_cutout_shape(bevel) {
+    
+    minkowski_bevel_shape(bevel);
+    
+}
+
+module octahedron(size) {
+    
+    scale(size)
+    polyhedron(
+        [[1, 0, 0], [0, 0, 1], [0, 1, 0], [0, -1, 0], [0, 0, -1], [-1, 0, 0]],
+        [[0, 1, 2], [0, 3, 1], [0, 2, 4], [0, 4, 3],
+         [5, 2, 1], [5, 1, 3], [5, 4, 2], [5, 3, 4]]
+    );
+}
+
+module cuboctahedron(size) {
+
+    scale(size)
+    minkowski() {
+        cube(1, center = true);
+        octahedron(1/2);
+    }
+    
+}
+
 /** Module for rendering a female snap joint.
   */
 
@@ -760,10 +939,10 @@ module male_connector(orient, label, explicit_label_orient) {
     taper_rot = cube_edge_pre_rotation(orient);
     size = $burr_scale * 2/3 - $burr_inset * 2 - $joint_inset * 2;
     // Subtract off an extra 0.35 mm to provide added clearance at the top.
-    total_height = size - 0.35 + $burr_scale / 3;
+    total_height = size - 0.35 + ($joint_style == "flush" ? 0 : $burr_scale / 3);
     
     rotate(rot)
-    translate([0, 0, total_height / 2 + $burr_scale / 6])
+    translate([0, 0, total_height / 2 + ($joint_style == "flush" ? $burr_scale / 2 - $burr_inset - 0.01 : $burr_scale / 6)])
     union() {
         difference() {
             if (taper_rot) {
@@ -773,22 +952,25 @@ module male_connector(orient, label, explicit_label_orient) {
                 tapered_cube([size, size, total_height], center = true);
             }
             if (!is_undef(label)) {
-                translate([0, 0, $burr_scale / 6])
+                translate([0, 0, $joint_style == "flush" ? 0 : $burr_scale / 6])
                 connector_label(-1, orient, label, explicit_label_orient);
             }
         }
-        translate([0, (size + $joint_cutout) / 2 - 0.5, -$burr_scale / 3])
-        rotate([90, 0, 0])
-        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
-        translate([0, -(size + $joint_cutout) / 2 + 0.5, -$burr_scale / 3])
-        rotate([90, 0, 0])
-        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
-        translate([(size + $joint_cutout) / 2 - 0.5, 0, -$burr_scale / 3])
-        rotate([0, 90, 0])
-        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
-        translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 3])
-        rotate([0, 90, 0])
-        cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+        if ($joint_style != "flush") {
+            // Render the strengthening cylinders.
+            translate([0, (size + $joint_cutout) / 2 - 0.5, -$burr_scale / 3])
+            rotate([90, 0, 0])
+            cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+            translate([0, -(size + $joint_cutout) / 2 + 0.5, -$burr_scale / 3])
+            rotate([90, 0, 0])
+            cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+            translate([(size + $joint_cutout) / 2 - 0.5, 0, -$burr_scale / 3])
+            rotate([0, 90, 0])
+            cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+            translate([-(size + $joint_cutout) / 2 + 0.5, 0, -$burr_scale / 3])
+            rotate([0, 90, 0])
+            cylinder(h = $joint_cutout + 1 + iota, r = 1, $fn = 32, center = true);
+        }
     }
     
 }
@@ -912,7 +1094,7 @@ module male_diag_snap_connector(orient, label, twist = false) {
         
         difference() {
             
-            if ($short_joints) {
+            if ($joint_style == "flush") {
                 scale(1 / $burr_scale)
                 male_diag_snap_connector_tip(joint_length + 1.25);
             } else {
@@ -934,7 +1116,7 @@ module male_diag_snap_connector(orient, label, twist = false) {
             
         }
 
-        if (!$short_joints) {
+        if ($joint_style != "flush") {
             
             translate([0, sqrt(2)/2 * $diag_joint_scale, (joint_length + 1.5) / $burr_scale])
             rotate([-90, 0, 0])
