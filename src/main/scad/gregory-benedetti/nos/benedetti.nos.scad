@@ -4,7 +4,7 @@ include <puzzlecad.scad>
 $burr_scale = 11.15;
 
 // $burr_inset value for each of the 7 puzzles:
-insets = [0.06, 0.09, 0.06, 0.06, 0.06, 0.06, 0.06];
+insets = [0.06, 0.09, 0.06, 0.06, 0.07, 0.06, 0.06];
 
 // Use a very slight interior bevel; intersect with a hull later to get a larger exterior bevel
 $burr_bevel = 0.1;
