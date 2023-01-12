@@ -4,7 +4,7 @@ include <puzzlecad.scad>
 $burr_scale = 11.15;
 
 // $burr_inset value for each of the 7 puzzles:
-insets = [0.06, 0.09, 0.06, 0.06, 0.07, 0.06, 0.06];
+insets = [0.06, 0.09, 0.06, 0.06, 0.07, 0.07, 0.06];
 
 // Use a very slight interior bevel; intersect with a hull later to get a larger exterior bevel
 $burr_bevel = 0.1;
@@ -100,10 +100,10 @@ module nos6_dodge() {
     $burr_inset = insets[5];
     burr_plate([
         ["xx{components=sx-y+}x{components=sx+y-}x{components=sx-y+}x{components=sy-z+}x|xxxx{components=sy-z-}xx", "x...x{components=sy+z-}x|xx..xx"],
-        ["xxx{components={x+y-,y-x+,x+z+,z+x+,y-z+,z+y-}}x{components=sy-z+}xx|xxx{components=sy+z+}x{components=sy+z+}xx", "xx{components=sx+z+}x{components=sx-y+}..x|x...x{components=sx+z-}x"],
+        ["xxx{components={x+y-,y-x+,x+z+,z+x+,y-z+,z+y-,z+x-,z+y+}}x{components=sy-z+}xx|xxx{components=sy+z+}x{components=sy+z+}xx", "xx{components=sx+z+}x{components=sx-y+}..x|x...x{components=sx+z-}x"],
         ["xxx{components=sy-z+}.xx|xxxxxx", "x...x{components=sx+z+}x|x....x"],
-        ["xx..xx|xxx{components=sy-z+}x{components=sy-z+}xx", "x....x|xx{components={x-y-,y-x-,x-z+,z+x-,y-z+,z+y-}}x{components=sy+z-}x{components=sy+z-}x{components=sx+z+}x"],
-        ["xx..xx|xxx{components=sx-y+}x{components=sx+y-}xx", "x....x|x.x{components=sy-z-}x{components={x-y-,y-x-,x-z-,z-x-,y-z-,z-y-}}x{components=sx+z+}x"],
+        ["xx..xx|xxx{components=sy-z+}x{components=sy-z+}xx", "x....x|xx{components={x-y-,y-x-,x-z+,z+x-,y-z+,z+y-,x-z-,x-y+}}x{components=sy+z-}x{components=sy+z-}x{components=sx+z+}x"],
+        ["xx..xx|xxx{components=sx-y+}x{components=sx+y-}xx", "x....x|x.x{components=sy-z-}x{components={x-y-,y-x-,x-z-,z-x-,y-z-,z-y-,z-x+,z-y+}}x{components=sx+z+}x"],
         ["xx{components=sy-z-}x{components=sy-z-}.x{components=sy-z-}x|xxx{components=sy+z+}x{components=sy+z+}xx", "x....x|x...x{components=sy-z-}x"]
     ]);
     
