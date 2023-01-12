@@ -6,7 +6,8 @@ images: [assembled.jpg, pieces.jpg]
 targets: [nos1_compressed, nos2_transfer, nos3_round_trip, nos4_go_back, nos5_crenel, nos6_dodge, nos7_seizaine]
 configurations:
   - {name: '', code: '', targets: ''}
-  - {name: 'tighter', code: 'insets = [0.05, 0.07, 0.05, 0.05, 0.06, 0.05, 0.05];', targets: ''}
+  - {name: 'tighter', code: 'inset_delta = -0.01;', targets: ''}
+  - {name: 'looser', code: 'inset_delta = 0.01;', targets: ''}
 description: |
   The NOS Burr Series is a set of seven interlocking puzzles by Gregory Benedetti. The goal of each puzzle is the same: assemble six pieces into the familiar shape of an ordinary six-piece burr.
   
@@ -14,19 +15,17 @@ description: |
 
   Be advised that these are quite difficult puzzles, and they are likely to challenge even experienced puzzle solvers. If you are unfamiliar with burr puzzles, I strongly advise starting with simpler designs such as those in the ${link:starter-burr-set}. However, if you feel up to the challenge, you will not regret embarking on this journey. I can assure you (from personal experience) that it is indeed possible to solve them all as pure assembly puzzles, without any hints or computer aids. If you get desperate, Kevin Sadler has created solution videos for all seven; search for them on YouTube.
   
-  I have intentionally rendered these to be slightly loose. They can be printed tighter and still function, but if printed too tight have a tendency to lock together in frustrating ways.
+  These puzzles are quite sensitive to tolerances. If printed too tight, they have a tendency to lock up and become frustrating to use. Therefore, I have modeled them all to be slightly on the loose side. If you want to try printing them tighter, you can try printing the `tighter` variants instead (`${name}.nos1-compressed-tighter.stl`, etc). Similarly, if you find they are too tight for comfort, try the `looser` variants.
 
   You can find more information about these fascinating designs in the following article by Frans de Vreugd:
   
-  https://www.gathering4gardner.org/g4g13gift/puzzles/DeVreugdFrans-GiftExchange-NewOldSchoolBurrs-G4G13.pdf
+  [New Old School (NOS) Burrs](https://www.gathering4gardner.org/g4g13gift/puzzles/DeVreugdFrans-GiftExchange-NewOldSchoolBurrs-G4G13.pdf)
 
   ### Printing Instructions
 
-  For puzzle #1 and #2, print three copies of `${name}.nos1-compressed.stl` and `${name}.nos2-transfer.stl`, respectively. For each of the others, print just one copy of the appropriate `stl` file (`${name}.nos3-round-trip.stl` through `${name}.nos7-seizaine.stl`).
-  
-  I recommend printing with build-plate supports with an overhang threshold below 45 degrees. The supports are needed only to strengthen the tips on some of the downward-facing diagonals, not to support any actual surfaces, so they will not leave scars. There is one exception: there is a single piece on puzzle #4 with an overhanging surface. For this one piece, I recommend turning off supports; relying on the printer's natural bridging will give smoother results.
+  For puzzle #1 and #2, print three copies of `${name}.nos1-compressed.stl` and `${name}.nos2-transfer.stl`, respectively. For each of the others, print just one copy of the appropriate `stl` file (`${name}.nos3-round-trip.stl` through `${name}.nos7-seizaine.stl`). They can all be printed without supports; two of the pieces (one each in puzzles #4 and #6) have an interior overhang that is comfortably accommodated by most printers' bridging capabilities.
 
-  Puzzles #1 and #2 use "snap joints" to accommodate pieces with significant overhang. ${snap-joints-boilerplate}
+  Puzzles #1 and #2 use "snap joints" to model pieces with non-bridgeable overhang. ${snap-joints-boilerplate}
 
   ${ppp-boilerplate}
 
