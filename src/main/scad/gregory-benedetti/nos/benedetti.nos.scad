@@ -1,10 +1,27 @@
-include <puzzlecad.scad>
+/* ====================================================================
 
+  This is a 3D model of a mechanical puzzle. It is released under
+  the following license:
+
+  Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported
+  https://creativecommons.org/licenses/by-nc-nd/3.0/
+
+  This means the model is licensed for personal, noncommercial use
+  only. Anyone may print a copy for their own use, but selling or
+  otherwise monetizing the model or print (or any derivatives) is
+  prohibited. For details, refer to the summary at the above URL.
+
+  Puzzle design (c) Alfons Eyckmans
+  3D model (c) Aaron Siegel
+
+==================================================================== */
+
+include <puzzlecad.scad>
 
 $burr_scale = 11.15;
 
 // $burr_inset value for each of the 7 puzzles:
-insets = [0.06, 0.08, 0.07, 0.06, 0.07, 0.07, 0.07];
+insets = [0.07, 0.08, 0.07, 0.07, 0.07, 0.07, 0.07];
 
 // This can be used to uniformly adjust the insets up or down:
 inset_delta = 0;

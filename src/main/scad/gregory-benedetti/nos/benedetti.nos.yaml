@@ -1,29 +1,31 @@
-thing-id: -1
-printables-model-id: -1
+thing-id: 5793804
+printables-model-id: 371748
 name: "NOS Burr Series - Interlocking puzzles by Gregory Benedetti"
 tags: [puzzle, 3D_puzzle]
-images: [assembled.jpg, pieces.jpg]
+images: [cover.jpeg, assembled.jpg, pieces.jpg, partially-assembled.jpg]
 targets: [nos1_compressed, nos2_transfer, nos3_round_trip, nos4_go_back, nos5_crenel, nos6_dodge, nos7_seizaine]
 configurations:
   - {name: '', code: '', targets: ''}
   - {name: 'tighter', code: 'inset_delta = -0.01;', targets: ''}
   - {name: 'looser', code: 'inset_delta = 0.01;', targets: ''}
 description: |
-  The NOS Burr Series is a set of seven interlocking puzzles by Gregory Benedetti. The goal of each puzzle is the same: assemble six pieces into the familiar shape of an ordinary six-piece burr.
+  The NOS Burr Series is a set of seven highly unusual interlocking puzzles by Gregory Benedetti. The goal of each puzzle is the same: assemble six pieces into the familiar shape of an ordinary six-piece burr.
   
   These are no ordinary six-piece burrs, however. Instead of the usual rectilinear cuts found in traditional burr puzzles, the NOS ("New Old School") burrs feature unusual diagonal cuts, yielding an astonishing variety of solving experiences that will continually surprise you. Each one is unique; among them you will find triple and quadruple coordinate motion, multiple consecutive coordinate motions, surprising reversals, and an unusual rotation thrown in for good measure. These are some of the most delightful puzzle designs that I have ever encountered.
 
-  Be advised that these are quite difficult puzzles, and they are likely to challenge even experienced puzzle solvers. If you are unfamiliar with burr puzzles, I strongly advise starting with simpler designs such as those in the ${link:starter-burr-set}. However, if you feel up to the challenge, you will not regret embarking on this journey. I can assure you (from personal experience) that it is indeed possible to solve them all as pure assembly puzzles, without any hints or computer aids. If you get desperate, Kevin Sadler has created solution videos for all seven; search for them on YouTube.
+  Be advised that these are quite difficult puzzles, and they are likely to challenge even experienced puzzle solvers. If you are unfamiliar with burr puzzles, I strongly advise starting with simpler designs such as those in the ${link:starter-burr-set}. However, if you feel up to the challenge, you will not regret embarking on this journey. They are all solvable without hints or computer aids, and if you get desperate, Kevin Sadler has created solution videos for all seven; search for them on YouTube.
   
-  These puzzles are quite sensitive to tolerances. If printed too tight, they have a tendency to lock up and become frustrating to use. Therefore, I have modeled them all to be slightly on the loose side. If you want to try printing them tighter, you can try printing the `tighter` variants instead (`${name}.nos1-compressed-tighter.stl`, etc). Similarly, if you find they are too tight for comfort, try the `looser` variants.
+  These puzzles are quite sensitive to tolerances. If printed too tight, they have a tendency to lock up and become frustrating to use. Therefore, I have modeled them all to be slightly on the loose side (each puzzle had to be individually tested due to differences in fit). If you want to try printing them tighter, you can print the "`tighter`" variants instead (`${name}.nos1-compressed-tighter.stl`, etc). Similarly, if you find they are too tight for comfort, try the "`looser`" variants.
 
-  You can find more information about these fascinating designs in the following article by Frans de Vreugd:
-  
-  [New Old School (NOS) Burrs](https://www.gathering4gardner.org/g4g13gift/puzzles/DeVreugdFrans-GiftExchange-NewOldSchoolBurrs-G4G13.pdf)
+  You can find more information about these fascinating designs in an article published by Frans de Vreugd: [New Old School (NOS) Burrs](https://www.gathering4gardner.org/g4g13gift/puzzles/DeVreugdFrans-GiftExchange-NewOldSchoolBurrs-G4G13.pdf)
 
   ### Printing Instructions
 
-  For puzzle #1 and #2, print three copies of `${name}.nos1-compressed.stl` and `${name}.nos2-transfer.stl`, respectively. For each of the others, print just one copy of the appropriate `stl` file (`${name}.nos3-round-trip.stl` through `${name}.nos7-seizaine.stl`). They can all be printed without supports; two of the pieces (one each in puzzles #4 and #6) have an interior overhang that is comfortably accommodated by most printers' bridging capabilities.
+  For puzzle #1 and #2, print three copies of `${name}.nos1-compressed.stl` and `${name}.nos2-transfer.stl`, respectively. For each of the others, print just one copy of the appropriate `stl` file (`${name}.nos3-round-trip.stl` through `${name}.nos7-seizaine.stl`).
+  
+  Most of the puzzles can be printed without supports, though you will probably want supports for the pieces in #1 and #4 that have unbridged edges near the build plate, and definitely for the piece in #7 with an unbridged overhang.
+  
+  However, I specifically recommend _not_ using supports for the pieces in #4 and #6 with a bridged overhang; I'd expect better results from the printer's natural bridging feature.
 
   Puzzles #1 and #2 use "snap joints" to model pieces with non-bridgeable overhang. ${snap-joints-boilerplate}
 
