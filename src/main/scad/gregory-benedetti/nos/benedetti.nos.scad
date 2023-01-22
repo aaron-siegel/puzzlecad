@@ -11,7 +11,7 @@
   otherwise monetizing the model or print (or any derivatives) is
   prohibited. For details, refer to the summary at the above URL.
 
-  Puzzle design (c) Alfons Eyckmans
+  Puzzle design (c) Gregory Benedetti
   3D model (c) Aaron Siegel
 
 ==================================================================== */
