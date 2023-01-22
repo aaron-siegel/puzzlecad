@@ -64,12 +64,13 @@ $joint_inset = 0.015;
 $joint_cutout = 0.5;
 $diag_joint_scale = 0.4;
 $diag_joint_position = 0.1;
-$short_joints = false;
 
 $unit_beveled = false;
 $auto_layout = false;
-$detached_joints = false;
+$detached_joints = undef;   // Deprecated
+$short_joints = undef;      // Deprecated
 $post_rotate = [0, 0, 0];
+$joint_style = $detached_joints ? "detached" : $short_joints ? "flush" : "standard";
 
 // Optional parameters that can be used to increase
 // the amount of beveling on outer edges of burr pieces:
@@ -92,6 +93,24 @@ $use_alternate_diag_inset_hack = false;
 iota = 0.00001;
 iota_vec = [iota, iota, iota];
 
+// Parameter validation.
+
+assert(
+    list_contains(["standard", "flush", "detached"], $joint_style),
+    "$joint_style must be one of the following: standard, flush, detached"
+)
+
+// Beta version notice.
+
 if (list_contains(puzzlecad_version, "b")) {
     echo(str("NOTE: You are using a beta version of puzzlecad (version ", puzzlecad_version, ")."));
+}
+
+// Deprecation warnings.
+
+if (!is_undef($detached_joints)) {
+    echo(str("WARNING: $detached_joints is deprecated. Use $joint_style = \"detached\" instead."));
+}
+if (!is_undef($short_joints)) {
+    echo(str("WARNING: $short_joints is deprecated. Use $joint_style = \"flush\" instead."));
 }

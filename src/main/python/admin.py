@@ -20,7 +20,7 @@ from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
 # Get config from user dir
 
-config_file = os.path.expanduser("~/.puzzlecad")
+config_file = os.path.expanduser("~/.puzzlecad/config.ini")
 config = configparser.ConfigParser()
 config.read(config_file)
 
@@ -79,9 +79,11 @@ def process_command(args):
 
 	elif args.command == 'open-printables-session':
 
-		driver = webdriver.Chrome()
+		print('Looking for ~/.puzzlecad/chromedriver ...')
+		driver = webdriver.Chrome(os.path.expanduser("~/.puzzlecad/chromedriver"))
 		driver.get("https://www.printables.com/model/171148/edit")
-		print(driver.session_id + " " + driver.command_executor._url)
+		print('Session created; now you can update models with:')
+		print('admin.py update-printables-model ' + driver.session_id + ' ' + driver.command_executor._url + ' model-name [options]')
 		return driver
 
 	elif args.command == "update-printables-model":
@@ -113,7 +115,7 @@ def get_access_token():
 
 	access_token = params['access_token']
 
-	print('Put this line in ~/.puzzlecad:')
+	print('Put this line in ~/.puzzlecad/config.ini:')
 	print(f'AccessToken = {access_token}')
 	
 def print_thing_description(thing_name):
