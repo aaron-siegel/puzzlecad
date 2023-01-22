@@ -94,8 +94,8 @@ module burr_plate_r(burr_infos, i = 0, y = 0, x = 0, row_depth = 0) {
         
         cur_piece = burr_infos[i];
         bounding_box = piece_bounding_box(cur_piece);
-        piece_width = bounding_box[1].x - bounding_box[0].x;
-        piece_depth = bounding_box[1].y - bounding_box[0].y;
+        piece_width = is_undef(bounding_box) ? 0 : bounding_box[1].x - bounding_box[0].x;
+        piece_depth = is_undef(bounding_box) ? 0 : bounding_box[1].y - bounding_box[0].y;
         
         if (x == 0 || x + piece_width < $plate_width) {
             
