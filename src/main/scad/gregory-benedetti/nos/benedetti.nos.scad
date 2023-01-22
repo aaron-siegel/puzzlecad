@@ -18,6 +18,8 @@
 
 include <puzzlecad.scad>
 
+require_puzzlecad_version("2.4");
+
 $burr_scale = 11.15;
 
 // $burr_inset value for each of the 7 puzzles:
